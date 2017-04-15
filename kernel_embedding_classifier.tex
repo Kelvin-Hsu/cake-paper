@@ -1,0 +1,708 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+\PassOptionsToPackage{square, authoryear, comma, sort&compress}{natbib}
+% before loading nips_2016
+%
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2016}
+
+\usepackage[final]{nips_2016}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2016}
+
+\usepackage[utf8x]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[colorlinks=true,linkcolor=green,citecolor=cyan]{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+% My Packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathbbol}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{vector}
+\usepackage{cleveref}
+\usepackage[dvipsnames]{xcolor}
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\note}[1]{{\color{orange} #1}}
+\newcommand{\edit}[1]{{\color{forestgreen} #1}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}{Lemma}[theorem]
+\newtheorem{claim}{Claim}[theorem]
+
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\title{Probabilistic Multiclass Kernel Embedding Classifier}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{
+  Kelvin Y.S. Hsu, Richard Nock, Fabio T. Ramos \\
+  University of Sydney, Australia\\
+  DATA61, CSIRO\\
+  \texttt{\{Kelvin.Hsu, Richard.Nock, Fabio.Ramos\}@\{sydney.edu.au, data61.csiro.au\}} \\
+  %% examples of more authors
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+	- Currently, most classification algorithms are binary classifiers, which focuses on the case where the target label can only come from one of two classes. 
+	
+	- Examples include ...
+	
+	- However, many applications require multiclass classifiers
+	
+	- Examples include ...
+	
+	- Most solve this by doing OVA, AVA, or decision trees on binary classifiers \citep{aly2005survey} 
+	
+	- Furthermore, those probabilities are usually artificial, by passing through a link function that may or may not be valid, and in many cases like the GPC, is not analytically tractible and requires further approximations. No convergence gaurantees of convergence to the actual decision probabilities
+	
+	In this paper, we cast the multiclass classification problem into the kernel conditional embedding framework, where learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistantly estimated from data using the conditional embedding framework. In this way, we propose a natural probabilistic classifier for multiclass classification.
+	
+	- Our contributions are ...
+	
+	\begin{itemize}
+		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions with convergence guarantees.
+		\item A novel hyperparameter training algorithm based on gradient descent and, most importantly, stochastic gradient descent. Reducing the complexity of KEC training from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ for a training dataset of size $n$ and a batch size of $n_{b} << n$. 
+		\item Two techniques to estimate the information entropy of a classification prediction with convergence guarantees
+		\item Mode reconstruction of the inputs, where we compute the most representative example of each class
+	\end{itemize}
+	
+	
+%	Most classification algorithms are binary classifiers, which can only handle the case where the output can only take instances from one of two classes. This is true for both SVM classifiers and GP classifiers. Part of the reason for that is that it works by learning a continuous latent function which basically represents the `strength' of one of the classes, and so it is really just inferring how likely an input is from class A and if not it would be from class B. To build a multiclass classifier, a simple approach is to train multiple binary classifiers to tell apart pairs of classes or sets of classes, and somehow fuse these results together. Notable examples are One Versus All (OVA) and All Versus All (AVA) approaches, as well as binary tree approaches.
+%	
+%	\href{http://www.vision.caltech.edu/malaa/publications/aly05multiclass.pdf}{Here} is a 2005 Survey which summarises the state-of-the-art in multiclass classification at the time, which supports what I just said above. It does not seem like the above scenario has fundamentally changed in the past 10+ years, although more sophisticated versions of what was described above has been proposed and tested.
+%	
+%	The idea I am proposing here is actually very simple and intuitive. Suppose the training data is $\{\bvec{x}_{i}, y_{i}\}_{i = 1}^{n}$ where $\bvec{x}_{i} \in \mathcal{X}, y_{i} \in \mathbb{N}_{m}$ for all $i \in \mathbb{N}_{n}$ with $\mathbb{N}_{m} := \{1, 2, \cdots, m\}$. To clarify, $n$ is the number of training points, $m$ is the number of classes involved, and $\mathcal{X}$ is usually a subset of some euclidean space $\mathbb{R}^{d}$ but it does not necessarily have to be so (which is an advantage in kernel methods in general, such as GPs). The idea is to use the kernel embedding framework to compute a conditional embedding empirically from those training points. We then show that class probabilities can be computed from the conditional embedding if we place a Kronecker delta kernel on the space of the outputs, $\mathbb{N}_{m}$. We show that these class probabilities estimates are consistent estimates of the true class probabilities. Furthermore, the corresponding Shannon information entropy estimate at each query input can be computed, in two different ways, and we explore the performance of each of these approaches. In this way, we propose a natural probabilistic classifier for multiclass classification.
+%	
+%	Computationally, this probabilistic classifier is to do the following. Given a set of training points $\{\bvec{x}_{i}, y_{i}\}_{i = 1}^{n}$ and a set of query inputs $\{\bvec{x}^{\star}_{i}\}_{i = 1}^{n^{\star}}$, our classifier can output $\hat{P}^{\star} = \{\hat{\bvec{p}}^{\star}_{i}\}_{i = 1}^{n^{\star}}$, the estimated class probabilities at the query points, and also $\bvec{h}^{\star} = \{\hat{h}^{\star}_{i}\}_{i = 1}^{n^{\star}}$, the estimated information entropy at the query points.
+%	\\
+%	\\
+%
+%	In \cref{sec:kernel_embedding_classifier}, by expressing decision probabilities as expectations of indicator functions in the RKHS, we derived a consistent estimate of the decision probabilities from an inner product between the empirical conditional embedding and the indicator function. Likewise, in \cref{sec:information_entropy}, by expressing information entropy as expected information in the RKHS, we derived a consistent estimate of the information entropy from an inner product between the empirical conditional embedding and the information function.
+	
+\section{Hilbert Space Embeddings of Conditional Probability Distributions}
+\label{sec:background}
+
+	We begin by providing an overview of Hilbert space embeddings, where probability distributions are represented by mean embeddings in a reproducing kernel Hilbert space (RKHS) through positive definite kernels. Specifically, in the supervised learning context for which we are primarily interested in, we focus on conditional distributions and its representations in the RKHS.
+	
+	To construct a conditional embedding map $\mathcal{U}_{Y | X}$ corresponding to the distribution $\mathbb{P}_{Y | X}$ where $X : \Omega \to \mathcal{X}$ and $Y: \Omega \to \mathcal{Y}$ are measurable random variables, we choose a kernel $k : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ for the input space $\mathcal{X}$ and another kernel $l : \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}$ for the output space $\mathcal{Y}$. These kernels $k$ and $l$ each describe how similarity is measured within each of their respective domains $\mathcal{X}$ and $\mathcal{Y}$, and are symmetric and positive definite such that they uniquely define the RKHS $\mathcal{H}_{k}$ and $\mathcal{H}_{l}$. Such a conditional embedding map is then defined by
+	
+	\begin{equation}
+		\mathcal{U}_{Y | X} := C_{YX} C_{XX}^{-1},
+	\label{eq:conditional_embedding}
+	\end{equation}
+	
+	where $C_{YX} := \mathbb{E}[l(Y, \cdot) \otimes k(X, \cdot)]$ and $C_{XX} := \mathbb{E}[k(X, \cdot) \otimes k(X, \cdot)]$ \citep{song2009hilbert}. The conditional embedding map can be seen as an operator map from $\mathcal{H}_{k}$ to $\mathcal{H}_{l}$. In this sense, it sweeps out a family of conditional embeddings $\mu_{Y | X = x}$ in $\mathcal{H}_{l}$, each indexed by the input variable $x$, via the property $\mu_{Y | X = x} := \mathbb{E}[l(Y, \cdot) | X = x] = \mathcal{U}_{Y | X} k(x, \cdot)$.
+	
+	Under the assumption that $\mathbb{E}[g(Y) | X = \cdot] \in \mathcal{H}_{k}$, \cite{song2009hilbert} proved that the conditional expectation of a function $g \in \mathcal{H}_{l}$ can be expressed as an inner product,  % Theorem 4
+	
+	\begin{equation}
+		\mathbb{E}[g(Y) | X = x] = \langle \mu_{Y | X = x}, g \rangle.
+	\label{eq:conditional_expectation}
+	\end{equation}
+	
+	While the assumptions that $\mathbb{E}[g(Y) | X = \cdot] \in \mathcal{H}_{k}$ and $k(x, \cdot) \in \mathrm{image}(C_{XX})$ holds for finite input domains $\mathcal{X}$ for characteristic kernels $k$, it is not necessarily true when $\mathcal{X}$ is a continuous domain \citep{fukumizu2004dimensionality}, which is the scenario for many classification problems. In this case, $C_{YX} C_{XX}^{-1}$ becomes only an approximation to $\mathcal{U}_{Y | X}$, and we instead regularise the inverse and use $C_{YX} (C_{XX} + \lambda I)^{-1}$, which also serves to avoid overfitting \citep[p. 13]{song2013kernel}.
+	
+	On top of this, in practice we do not have access to the distribution $\mathbb{P}_{X Y}$ to compute such expectations from the definitions of $C_{YX}$ and $C_{XX}$. Instead, we have a finite collection of data points $\{x_{i}, y_{i}\} \in \mathcal{X} \times \mathcal{Y}$, $i \in \mathbb{N}_{n} := \{1, \dots, n\}$, for which the conditional embedding map $\mathcal{U}_{Y | X}$ can be estimated by
+	
+	\begin{equation}
+		\hat{\mathcal{U}}_{Y | X} = \Psi (K + n \lambda I)^{-1} \Phi^{T},
+	\label{eq:empirical_conditional_embedding}
+	\end{equation}
+	
+	where $K := \{k(x_{i}, x_{j})\}_{i = 1, j = 1}^{n, n}$, $\Phi := \begin{bmatrix} k(x_{1}, \cdot) & \dots & k(x_{n}, \cdot) \end{bmatrix}$, $\Psi := \begin{bmatrix} l(y_{1}, \cdot) & \dots & l(y_{n}, \cdot) \end{bmatrix}$, and $\lambda$ is the regularisation parameter for the conditional operator \citep{song2013kernel}. We then define the empirical conditional embedding by $\hat{\mu}_{Y | X = x} := \hat{\mathcal{U}}_{Y | X} k(x, \cdot)$, which stochastically converges to the true conditional embedding $\mu_{Y | X = x}$ in the RKHS norm at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, under the assumption that $k(x, \cdot)$ is in the image of $C_{XX}$ \citep{song2009hilbert}. That is, % Theorem 6
+	
+	\begin{equation}
+		\forall x \in \mathcal{X}, \; \epsilon > 0, \; \exists M_{\epsilon} > 0 \quad s.t. \quad \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] < \epsilon.
+	\label{eq:empirical_conditional_embedding_stochastic_convergence}
+	\end{equation}
+
+	This allows us to approximate the conditional expectation \eqref{eq:conditional_expectation} with $\langle \hat{\mu}_{Y | X = x}, g \rangle$ instead, 
+
+	\begin{equation}
+		\mathbb{E}[g(Y) | X = x] \approx \langle \hat{\mu}_{Y | X = x}, g \rangle = \bvec{g}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x},
+	\label{eq:empirical_conditional_expectation}
+	\end{equation}
+	
+	where $\bvec{g} := \{g(y_{i})\}_{i = 1}^{n}$ and $\bvec{k}_{x} := \{k(x_{i}, x\}_{i = 1}^{n}$, knowing that it would converge to the true expectation as $n$ increases for sufficiently small $\lambda$.
+	
+	\note{Note: I believe \eqref{eq:empirical_conditional_expectation} is a very well known result. It is very easy to derive. However, I have not found a paper that explicitly states this as a result or theorem yet. Perhaps I will include a short derivation of this in the appendix if we find it necessary.}
+
+%	The conditional operator $C_{Y X} C^{-1}_{XX}$ only acts as an approximation of the conditional mean embedding $C_{Y | X}$ for continuous domains because the assumption that for all $g \in \mathcal{H}_{l}$ , the conditional expectation $\mathbb{E}[g(Y) | X = \cdot]$ is an element of $\mathcal{H}_{k}$ may not hold in general \citep{fukumizu2004dimensionality, song2009hilbert}. It also serves to avoid overfitting \citep[p. 13]{song2013kernel}.
+	
+\section{Kernel Embedding Classifier}
+\label{sec:kernel_embedding_classifier}
+
+	In this section, we formulate a kernel embedding based probabilistic classifier by casting it into the conditional embedding framework.
+
+	In the multiclass classification context, the output label space is finite and discrete, taking values only in $\mathcal{Y} = \mathbb{N}_{m} := \{1, \dots, m\}$. Naturally, we first choose the Kronecker delta kernel $\delta : \mathbb{N}_{m} \times \mathbb{N}_{m} \to \{0, 1\}$ as the output kernel $l$, where labels that are the same has unit similarity and labels that are different have no similarity. That is, for all pairs of labels $y_{i}, y_{j} \in \mathcal{Y}$,
+	
+	\begin{equation}
+		\delta(y_{i}, y_{j}) = \begin{cases}
+		1 & \mathrm{if } \quad y_{i} = y_{j}, \\
+		0 & \mathrm{otherwise}.
+		\end{cases}
+	\end{equation}
+	
+	As $\delta$ is an integrally strictly positive definite kernel on $\mathbb{N}_{m}$, it is therefore characteristic \citep[Theorem 7]{sriperumbudur2010hilbert}. As such, by definition of characteristic kernels, $\delta$ uniquely defines a RKHS $\mathcal{H}_{\delta}$ \citep{fukumizu2004dimensionality}. Notice that this kernel has no parameters, so that the model hyperparameters only come from the kernel of the input space and the regularisation parameter $\lambda$.
+	
+	Recall that the RKHS induced by a positive definite kernel is the closure of the span of its kernel induced features \citep{xu2009refinement}, so that $\mathcal{H}_{l} = \overline{\mathrm{span}\{l(y, \cdot) : y \in \mathcal{Y}\}}$. For $\mathcal{Y} = \mathbb{N}_{m}$ and $l = \delta$, this means that any real-valued function $g : \mathbb{N}_{m} \to \mathbb{R}$ that is bounded on its discrete domain $\mathbb{N}_{m}$ is in the RKHS of $\delta$, because we can always write $g = \sum_{y = 1}^{m} g(y) \delta(y, \cdot) \in \mathrm{span}\{\delta(y, \cdot) : y \in \mathcal{Y}\}$.
+	
+	In particular, indicator functions on $\mathbb{N}_{m}$ are in the RKHS $\mathcal{H}_{\delta}$, since
+	
+	\begin{equation}
+		\mathbb{1}_{c}(y) = \begin{cases}
+		1 & \mathrm{if } \quad y = c \\
+		0 & \mathrm{otherwise}
+		\end{cases} = \delta(c, y).
+	\label{eq:indicator_function}
+	\end{equation}
+	
+	That is, indicator functions $\mathbb{1}_{c} = \delta(c, \cdot)$, $c \in \mathbb{N}_{m}$ are simply the canonical kernel features of $\mathcal{H}_{\delta}$. 
+	
+	While such properties does not becessarily hold for continuous domains in general, this convenient property in the case of a discrete domain $\mathcal{Y}$ with a Kronecker delta kernel $\delta$ is what allows consistent estimations of decision probabilities used in multiclass classification, which we turn to next.
+	
+	Let $p_{c}(x) := \mathbb{P}[Y = c | X = x]$ be the \textit{decision probability function} for class $c \in \mathbb{N}_{m}$, which is the probability of the class label $Y$ being $c$ when the example $X$ is $x$. We begin by writing this probability as an expectation of indicator functions,
+	
+	\begin{equation}
+		p_{c}(x) := \mathbb{P}[Y = c | X = x] = \mathbb{P}[Y \in \{c\} | X = x] = \mathbb{E}[\mathbb{1}_{c}(Y) | X = x].
+	\label{eq:decision_probability}
+	\end{equation}	
+	
+	With $\mathbb{1}_{c} \in \mathcal{H}_{\delta}$, we let $g = \mathbb{1}_{c}$ in \eqref{eq:empirical_conditional_expectation} and $\bvec{1}_{c} := \{\mathbb{1}_{c}(y_{i})\}_{i = 1}^{n}$ to estimate the right hand side of \eqref{eq:decision_probability} by
+	
+	\begin{equation}
+		\hat{p}_{c}(x) = f_{c}(x) := \bvec{1}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}.
+	\label{eq:empirical_decision_probability}
+	\end{equation}
+	
+	Therefore, the vector of empirical decision probability functions over the possible classes $c \in \mathbb{N}_{m}$ is
+	
+	\begin{equation}
+		\hat{\bvec{p}}(x) = \bvec{f}(x) := B^{T} (K + n \lambda I)^{-1} \bvec{k}_{x} \in \mathbb{R}^{m},
+	\label{eq:empirical_decision_probability_vector}
+	\end{equation}
+	
+	where $B = \begin{bmatrix} \bvec{1}_{1} & \bvec{1}_{2} & \cdots & \bvec{1}_{m} \end{bmatrix} \in \{0, 1\}^{n \times m}$, which is simply the one hot encoding form for the training labels $\{y_{i}\}_{i = 1}^{n}$. This can be further vectorised over multiple query points $\{x^{\star}_{j}\}_{j = 1}^{n^{\star}}$ through
+	
+	\begin{equation}
+		\hat{P}^{\star} = B^{T} (K + n \lambda I)^{-1} K^{\star} \in \mathbb{R}^{m},
+	\label{eq:empirical_decision_probability_matrix}
+	\end{equation}
+	
+	where $K^{\star} = \{k(x_{i}, x_{j}^{\star})\}_{i = 1, j = 1}^{n, n^{\star}}$ and $n^{\star}$ is the number of query points.
+	
+	Finally, to perform classification, we simply take the class with the highest empirical decision probability for the given query point $x^{\star} \in \mathcal{X}$,
+	
+	\begin{equation}
+		\hat{y}^{\star} = \argmax_{c \in \mathbb{N}_{m}} \hat{p}_{c}(x^{\star}).
+	\label{eq:classification}
+	\end{equation}
+
+	We proceed to show that the empirical decision probabilities given by \eqref{eq:empirical_decision_probability} is a consistent estimator for the actual decision probabilities as the dataset increases.
+	
+	\begin{theorem}[Pointwise Uniform Convergence of Empirical Decision Probability Function]
+	\label{thm:probability_convergence}
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_decision_probability} converges pointwise and uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		
+	\begin{proof}
+		Consider the pointwise absolute difference between the decision probability and its empirical estimate,
+		
+		\begin{equation}
+		\begin{aligned}
+			| \hat{p}_{c}(x) - p_{c}(x) | &= | \langle \hat{\mu}_{Y | X = x}, \mathbb{1}_{c} \rangle - \langle \mu_{Y | X = x}, \mathbb{1}_{c} \rangle | \\
+			&= | \langle \hat{\mu}_{Y | X = x} - \mu_{Y | X = x}, \mathbb{1}_{c} \rangle | \\
+			&\leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \big\| \mathbb{1}_{c} \big\|_{\mathcal{H}_{\delta}},
+		\end{aligned}
+		\end{equation}
+		
+		where the last inequality follows from the Cauchy–Schwarz inequality in a Hilbert space.
+		
+		From \eqref{eq:indicator_function}, since $\mathbb{1}_{c} = \delta(c, \cdot)$ and using the fact that $\delta$ is a reproducing kernel, we have that for all $c \in \mathcal{Y} = \mathbb{N}_{m}$,
+		
+		\begin{equation}
+		\begin{aligned}
+			\big\| \mathbb{1}_{c} \big\|_{\mathcal{H}_{\delta}}^{2} = \langle \mathbb{1}_{c}, \mathbb{1}_{c} \rangle = \langle \delta(c, \cdot), \delta(c, \cdot) \rangle = \delta(c, c) = 1.
+		\end{aligned}
+		\end{equation}
+		
+%		Consequently, $| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x}^{(n)} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}$ for all $x \in \mathcal{X}$, where the right hand side of which approaches zero stochastically at rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, so that $\hat{p}_{c}$ converges pointwise to $p_{c}$ at least at this rate. The convergence rate does not depend on $x \in \mathcal{X}$, so this (stochastic) convergence is pointwise uniform.
+		
+		Consequently, for all $x \in \mathcal{X}$ and $c \in \mathcal{Y}$, we have 
+		
+		\begin{equation}
+			| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}.
+		\label{eq:uniform_convergence}
+		\end{equation}
+		
+		This is true for all possible datasets represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$. Thus, for any constant $C$, the implication statement $\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C \implies | \hat{p}_{c}(x) - p_{c}(x) | \leq C$ holds for all possible data observation events $\omega \in \Omega$. Writing this explicitly in event space translates this to a probability statement,
+
+		\begin{equation}
+		\begin{aligned}
+			\{\omega \in \Omega : \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\} &\subseteq \{\omega \in \Omega : | \hat{p}_{c}(x) - p_{c}(x) | \leq C\} \\
+			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\Big] &\leq \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq C \Big].
+		\label{eq:probability_statement}
+		\end{aligned}
+		\end{equation}
+		
+		Since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} is valid. By letting $C = M_{\epsilon} ((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ in \eqref{eq:probability_statement}, we immediately have that the probability inequality in statement \eqref{eq:probability_statement} is also true if we replace $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|$ with $| \hat{p}_{c}(x) - p_{c}(x) |$, % the RKHS norm between the empirical and true embeddings to the absolute difference between the empirical decision probability and the true decision probability,
+		
+		\begin{equation}
+		\begin{aligned}
+			\mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+			\implies 1 - \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
+			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
+			\implies 1 - \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon.
+		\end{aligned}	
+		\end{equation}
+		
+		In other words, the function $\hat{p}_{c}$ stochastically converges pointwise to $p_{c} := \mathbb{P}[Y = c | X = \cdot]$ with a rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The convergence rate does not depend on $x \in \mathcal{X}$ nor $c \in \mathbb{N}_{m}$, so this stochastic convergence is pointwise uniform in its domain $\mathcal{X}$ across all label classes.
+		
+	\end{proof}
+	\end{theorem}
+	
+	\note{Note: The above proof is for pointwise uniform convergence over all $x \in \mathcal{X}$. From what the experiments seem to suggest, for stationary zero-centred kernels, I believe that we can actually do better than this convergence rate for areas of high data density. Basically, at the subspace of $\mathcal{X}$ where we have observed our data, the convergence rate should be higher, because the kernel effects are stronger at these regions. The worse case convergence rate described in the theorem would be a tight lower bound for regions in $\mathcal{X}$ where we do not have a lot of data, where the kernel effects have decayed and most empirical probabilities are near zero and further from summing up to one.}
+	
+	While the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ will converge to the true decision probability function  $p_{c} : \mathcal{X} \to [0, 1]$ in the limit, for finite $n$ and a given regulariser $\lambda > 0$, the stochasticity in the empirical estimates implies that these probabilities may not necessarily sum up to one, nor are they strictly resctricted to the range $[0, 1]$. However, they will usually be very close to the true predicted probabilities. Moreover, such stochasticity also does not principally affect the classification prediction, since we simply take the argmax of the empirical decision probability vector as in \eqref{eq:classification}.
+	
+	If strict, valid probabilities are required for interpretation, visualisation, or other purposes, the probabilities can be clipped at zero then normalised to one - a procedure we refer to as \textit{clip-normalisation},
+	
+	\begin{equation}
+		\tilde{p}_{c}(x) := \frac{\max\{\hat{p}_{c}(x), 0\}}{\sum_{j = 1}^{m} \max\{\hat{p}_{j}(x), 0\}}.
+	\label{eq:probability_clip_normalise}
+	\end{equation}
+	
+	Notice that for classification prediction, the argmax solution over the classes of the empirical decision probabilities \eqref{eq:empirical_decision_probability} and its clip-normalised version \eqref{eq:probability_clip_normalise} remain the same. Furthermore, since $\hat{p}_{c}(x)$ converges to valid probabilities $p_{c}(x)$ according to \cref{thm:probability_convergence}, the effect of clip-normalisation reduces as $n$ increases such that $\tilde{p}_{c}(x)$ becomes very close to $\hat{p}_{c}(x)$ and $p_{c}(x)$. Experiments verify that clip-normalisation only adjusts the probabilities slightly, as the empirical estimates are usually already close to satisfying normalisation and range properties (see \cref{app:design_choices}).
+	
+\section{Information Entropy}
+\label{sec:information_entropy}
+
+	The kernel embedding classifier provides decision probabilities instead of just a single label prediction. Such a probabilistic classifier allows us to quantify the uncertainty of its predictions for any given example $x \in \mathcal{X}$ through the information entropy \citep{shannon1951prediction, jaynes1957information}. This is ideal for detecting the decision boundaries of the classifier and areas of low data density.
+	
+	We present two main approaches for inferring the information entropy from the classifier. Specifically, we would like to infer estimates for $h(x) := \mathbb{H}[Y | X = x] = - \sum_{c = 1}^{m} p_{c}(x) \log{p_{c}(x)} $, the information entropy of the possible labels $Y$ for a given example $X = x$.
+	
+	The first approach is straight forward, which involves simply computing the information entropy with the clip normalised probabilities \eqref{eq:probability_clip_normalise}, at the query point $x \in \mathcal{X}$,
+	
+	\begin{equation}
+		\tilde{h}(x) := - \sum_{c = 1}^{m} \tilde{p}_{c}(x) \log{\tilde{p}_{c}(x)}.
+	\label{eq:entropy_clip_normalise}
+	\end{equation}
+	
+	We call \eqref{eq:entropy_clip_normalise} the \textit{clip-normalised information entropy}. Since $\tilde{p}_{c}(x)$ converges pointwise to $p_{c}(x)$ with increasing data, $\tilde{h}(x)$ also converges pointwise to $h(x)$.
+	
+	Just as decision probabilities can be expressed as an expectation of indicator functions, information entropy can be expressed as expected information \footnote{Note that while $\mathbb{P}[Y = c | X = x]$ is a constant, we employ the shorthand notation $\mathbb{P}[Y| X = x]$ for the random variable $g(Y)$ where $g(y) := \mathbb{P}[Y = y | X = x]$.},
+	
+	\begin{equation}
+	\begin{aligned}
+		\mathbb{H}[Y | X = x] &= - \sum_{c = 1}^{m} \mathbb{P}[Y = c| X = x] \log{\mathbb{P}[Y = c | X = x]} \\
+		&= \mathbb{E}[- \log{\mathbb{P}[Y | X = x]} | X = x] \\
+		&= \mathbb{E}[u_{x}(Y) | X = x],
+	\end{aligned}
+	\end{equation}
+	
+	where $u_{x}(y) := - \log{\mathbb{P}[Y = y | X = x]}$ is the \textit{information} (in nats) we would gain when we discover that example $x$ actually has label $y$. If $u_{x} : \mathbb{N}_{m} \to \mathbb{R}$ is in the RKHS $\mathcal{H}_{\delta}$, then we know that this expectation can also be approximated by $\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle$. This is the basis of our second approach.
+	
+	Assuming that $\mathbb{P}[Y = y | X = x]$ is never exactly zero for all labels $y \in \mathcal{Y}$ and examples $x \in \mathcal{X}$, then $u_{x}(y)$ is bounded on its discrete domain $\mathbb{N}_{m}$. We can thus write $u_{x} = \sum_{c = 1}^{m} - \log{\mathbb{P}[Y = c | X = x]} \delta(c, \cdot)$ which shows that $u_{x}$ is in the span of the canonical kernel features and is thus in the RKHS. Hence, similar to the case with decision probabilities, with $u_{x} \in \mathcal{H}_{\delta}$ and $\bvec{u}_{x} := \{u_{x}(y_{i})\}_{i = 1}^{n}$ we let $g = u_{x}$ in \eqref{eq:empirical_conditional_expectation} and estimate $h(x)$ by
+	
+	\begin{equation}
+		\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle = \bvec{u}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}.
+	\end{equation}
+	
+	Unfortunately, $u_{x}$ is not known exactly, since $\mathbb{P}[Y = y | X = x]$ is not known exactly. Instead, since $\hat{p}_{c}(x)$ is a consistent estimate for $\mathbb{P}[Y = c | X = x]$ (\cref{thm:probability_convergence}), we propose to replace $u_{x}$ with the negative log of $\hat{p}_{y}(x)$. However, we cannot simply take the log of this estimator, as $\hat{p}_{y}(x)$ may produce non-positive estimates to the prediction probabilities. The straight forward way to mitigate this problem is to clip $\hat{p}_{y}(x)$ from the bottom by a very small number, before taking the log. However, experiments show that this produces non-smooth estimates over $\mathcal{X}$ and the degree of smoothness varies drastically between different choices of that small number (see \cref{app:design_choices}). Instead, in virtue of the fact that $\lim_{p \to 0} - p \log{p} = 0$ even though $\lim_{p \to 0} - \log{p} = \infty$, we simply define the information estimate $\hat{u}_{x}(y)$ as zero if the empirical decision probability is non-positive,
+	
+	\begin{equation}
+		\hat{u}_{x}(y) := \begin{cases}
+		- \log{\hat{p}_{y}(x)} & \mathrm{if } \quad \hat{p}_{y}(x) > 0 \\
+		0 & \mathrm{otherwise}. \end{cases}
+	\label{eq:empirical_information}
+	\end{equation}
+	
+	It remains to show that $\hat{u}_{x} \in \mathcal{H}_{\delta}$. Indeed, the identity $\hat{u}_{x} = \sum_{c = 1}^{m} \hat{u}_{x}(c) \delta(c, \cdot)$ holds and thus $\hat{u}_{x}$ is in the span of the kernel canonical features. We then arrive at the following estimate for $h(x)$,
+	
+	\begin{equation}
+		\hat{h}(x) := \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} \rangle = \hat{\bvec{u}}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x},
+		\label{eq:empirical_information_entropy}
+	\end{equation}
+	
+	where $\hat{\bvec{u}}_{x} := \{\hat{u}_{x}(y_{i})\}_{i = 1}^{n}$. Similar to the case with decision probabilities \eqref{eq:decision_probability}, the information entropy estimate \eqref{eq:empirical_information_entropy} is not guaranteed to be non-negative. However, in practice these negative values are close to zero. Furthermore, negative estimated information entropy implies that the model is very confident about its prediction, and it suffices to simply clip the entropy at zero if strict information entropy is required (see \cref{app:design_choices}). We give the proof of convergence of \eqref{eq:empirical_information_entropy} in \cref{app:theorems_derivations}.
+
+	\subsection{Cross Entropy and Kullback–Leibler Divergence}
+
+\section{Hyperparameter Training}
+\label{sec:hyperparameter_learning}
+
+	The formulation of the kernel embedding classifier requires the specification of a kernel $k : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ over the input space $\mathcal{X}$, or rather, a class of kernels $\{k_{\theta}\}_{\theta \in \Theta}$ parametrised by the kernel parameters $\theta \in \Theta$. It also requires the specification of a regularisation parameter $\lambda$ for the conditional embedding as in \eqref{eq:empirical_conditional_embedding}. These are hyperparameters of the kernel embedding classifier which needs to be learned in order to produce a reasonable model with high prediction accuracy. 
+
+	In the kernel embedding literature, hyperparameters has been notoriously difficult to tune, and its learning is usually only restricted to inelegant methods such as cross validation with either some form of misclassification loss or the negative log probability (cross entropy) as the objective.
+
+%	Inspired by the log marginal likelihood learning objective used to learn the hyperparameters of a Gaussian process \citep{rasmussen2006gaussian}, \cite{flaxman2016bayesian} derived a log marginal likelihood expression for kernel embeddings by placing a Gaussian process prior on the mean embedding, and constructing a Gaussian likelihood of the empirical mean embedding given the true mean embedding. With a Gaussian prior and a Gaussian likelihood, inference becomes tractable and a closed form solution to the corresponding log marginal likelihood objective can be obtained with a slight change of variable factor. However, this formulation is only capable of learning the kernel parameters of a joint embedding, and not the kernel and regularisation parameters of a conditional embedding.
+
+	In this paper, we take a learning theoretic approach to learn the hyperparameters of the KEC, inspired by the original training procedure of support vector classifiers (SVC) as described by \cite[p. 185]{m2001introduction}. Assuming a perfectly separable case, the training of a SVC begins by introducing a \textit{prediction constraint} on the training set, where the classifier is constrained to correctly classify all the available training examples. The strategy is to minimise the \textit{complexity} of the SVC model while ensuring perfect classification over training examples. The model complexity in the SVC context is measured by the VC dimension $h$ of the binary classifier, which has an upper bound $h \leq \lVert \bvec{w} \rVert^{2} R^{2} + 1$. Since it is difficult to compute the VC dimension explicitly, we instead minimise its upper bound, which is equivalent to and leads to the common interpretation of maximising the margin $\frac{2}{\lVert \bvec{w} \rVert}$.
+	
+	Similarly, we propose to train our kernel embedding classifier with the same high level formulation: minimise the model complexity without compromising classification performance on the training data. Instead of employing the VC dimension as the complexity measure of our model, which is defined mainly for binary classifiers, we consider the \textit{Rademacher complexity} \citep{bartlett2002rademacher} of the kernel embedding classifier.
+	
+%	For a multi-label predictor parametrised as $f(x; W) = W^{T} x$ where $W \in \mathbb{R}^{d \times L}$ and $L$ is the number of target binary labels,  \cite{yu2014large} showed that the global Rademacher complexity of $W$ is upper-bounded in terms of its trace norm, $\mathrm{trace}(W^{T} W)$. Albeit formulated for multiclass instead of multi-label prediction, the empirical decision probabilities \eqref{eq:empirical_decision_probability_vector} also has the same analytical form, where the input $x$ is replaced by some feature vector $\phi(x)$.
+	
+%	\begin{algorithm}[tb]
+%		\caption{Kernel Embedding Classifier Training with Gradient Descent}
+%		\label{alg:training_gradient_descent}
+%		\begin{algorithmic}[1]
+%			\STATE {\bfseries Input:} kernel family $k_{\theta}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial kernel parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$
+%			\STATE $\theta \leftarrow \theta_{0}$
+%			\STATE $\lambda \leftarrow \lambda_{0}$
+%			\REPEAT
+%			\STATE $B \leftarrow \{\delta(y_{i}, c) : i \in \mathbb{N}_{n}, c \in \mathbb{N}_{m}\} \in \{0, 1\}^{n \times m} $ 
+%			\STATE $K_{\theta} \leftarrow \{k_{\theta}(x_{i}, x_{j}) : i \in \mathbb{N}_{n}, j \in \mathbb{N}_{n}\} \in \mathbb{R}^{n \times n}$
+%			\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n \lambda I)$
+%			\STATE $V_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash B)$
+%			\STATE $r(\theta, \lambda) \leftarrow \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
+%			\STATE $\theta \leftarrow \theta - \eta \frac{\partial r}{\partial \theta}(\theta, \lambda)$
+%			\STATE $\lambda \leftarrow \lambda - \eta \frac{\partial r}{\partial \lambda}(\theta, \lambda)$
+%			\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial r}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial r}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{1} < \epsilon$}
+%			\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
+%		\end{algorithmic}
+%	\end{algorithm}
+	
+	For a predictor parametrised as $f(x; W) = W^{T} x$, \cite{yu2014large} showed that the global Rademacher complexity of $W$ is upper-bounded in terms of its trace norm, $\sqrt{\mathrm{trace}(W^{T} W)}$. This was originally discussed in the context of multi-label classification, where $W \in \mathbb{R}^{d \times L}$ and $f$ produces a binary vector of length $L$ indicating the multiple labels that describes the input $x \in \mathbb{R}^{d}$. In the context of the kernel embedding classifier, the empirical decision probabilities \eqref{eq:empirical_decision_probability_vector} also has the same analytical form, where the input $x$ is replaced by some feature vector $\phi(x)$. By using the canonical feature map $\phi(x) = k(x, \cdot)$ and the reproducing property $\langle \phi(x), \phi(x') \rangle = k(x, x')$ in the RKHS, we can write \eqref{eq:empirical_decision_probability_vector} as $\hat{\bvec{p}}(x) = \bvec{f}(x) := B^{T} (K + n \lambda I)^{-1} \Phi^{T} \phi(x) = W^{T} \phi(x)$, where instead of mapping input examples in $\mathbb{R}^{d}$ to output multi-label vector $\mathbb{R}^{L}$, $W^{T}$ maps features in the RKHS $\mathcal{H}_{k}$ to the a vector of multiclass probabilities in $\mathbb{R}^{m}$. Using the reproducing property $K = \Phi^{T} \Phi$ again, the squared trace norm for such a predictor is then $\mathrm{trace}(W^{T} W) = \mathrm{trace}(B^{T} (K + n \lambda I)^{-1} K (K + n \lambda I)^{-1} B)$. We therefore propose to use this quantity as an upper bound measure of the kernel embedding classifier model complexity, which is to be minimised for hyperparameter training,
+	
+	\begin{equation}
+		\min_{\theta \in \Theta, \lambda \in (0, \infty)} \sqrt{\mathrm{trace}\bigg(B^{T} (K_{\theta} + n \lambda I)^{-1} K_{\theta} (K_{\theta} + n \lambda I)^{-1} B\bigg)},
+	\label{eq:trace_norm_optimisation}
+	\end{equation}
+	
+	where we use the subscript $\theta$ to make explicit the dependence on the kernel parameters. We employ gradient descent to train the kernel embedding classifier with this complexity bound objective. The gradients of the complexity bound objective with respect to the hyperparameters is to be computed automatically using standard back-propagation.
+	
+	While it may be tempting to instead minimise the square of the trace norm \eqref{eq:trace_norm_optimisation} to remove the square root, experiments show that, without the square root, the magnitude of the gradients grows large at regions of higher trace norms. For instance, this can happen when the optimisation is initialised at a location far away from the optimum. This makes the optimisation unstable, and may cause the hyperparameters to diverge to a numerically unstable scenario where the Cholesky decomposition of the regularised gram matrix does not exist. That being said, one can instead choose to minimise the log of the squared trace norm, $\log{\mathrm{trace}(B^{T} (K + n \lambda I)^{-1} K (K + n \lambda I)^{-1} B)}$, which experiments show are also quite numerically stable during optimisation.
+	
+	If one were to follow the philosophy of minimising the model complexity without compromising performance on training data, then either a further training performance constraint should be added to the optimisation, or a training error term should be added to the objective. However, we found that this was unnecessary for the kernel embedding classifier. We postulate that minimising the model complexity, or the upper bound thereof, is both sufficient and desirable for a classifier that is to generalise classification performance to new test examples.
+
+	Contrary to parametric models, kernel methods are nonparametric, and thus its model capacity grows with increasing data. Within a large enough family of kernels $k_{\theta}$, the kernel embedding classifier always has the capacity to shatter the training data and produce zero training error. Given that it has such capabilities, we instead focus on learning the simplest model that can generalise well to new test data. If we instead choose to train the classifier by adding some measure of training error as a penalty term to \eqref{eq:trace_norm_optimisation}, such as the training cross entropy loss, then it can very easily overfit by adapting its model capacity to the training data closely. The Rademacher complexity regularises this behaviour to learn a good balance between training error and unseen test error. In short, while parametric models have limited capacity and thus trying to learn to perform well on a training set to its best ability is a good indicator to test performance, nonparametric models has infinite capacity and need to learn not to exploit this capacity on training data and instead learn the simplest pattern it can to be able to infer about new test instances. Indeed, experiments show that KEC training usually starts with high training accuracy and very low cross entropy loss, and eventually learns the simplest model while maintaining that training accuracy, or even relaxes the training accuracy if the model is simply too complicated and unlikely to generalise well. That is, the training usually starts from a state of overfitting, and eventually learns simpler patterns and structures. This is in contrast with parameteric models, where training usually begins with low training accuracy that is to be improved as training continues.
+	
+	\begin{algorithm}[tb]
+		\caption{Kernel Embedding Classifier Hyperparameter Training with Stochastic Gradient Descent}
+		\label{alg:training_stochastic_gradient_descent}
+		\begin{algorithmic}[1]
+			\STATE {\bfseries Input:} kernel family $k_{\theta}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial kernel parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
+			\STATE $\theta \leftarrow \theta_{0}$, $\lambda \leftarrow \lambda_{0}$
+			\REPEAT
+			\STATE Sample $\mathcal{I} \subseteq \mathbb{N}_{n}$ such that $| \mathcal{I} | = n_{b}$ \hspace{\fill} For gradient descent, $n_{b} = n$ and $\mathcal{I} = \mathbb{N}_{n}$
+			\STATE $B \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
+			\STATE $K_{\theta} \leftarrow \{k_{\theta}(x_{i}, x_{j}) : i \in \mathcal{I}, j \in \mathcal{I}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
+			\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n \lambda I) \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
+			\STATE $V_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash B) \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
+			\STATE $r(\theta, \lambda) \leftarrow \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$ \hspace{\fill} Alternatively, $r(\theta, \lambda) \leftarrow \log{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
+			\STATE $\theta \leftarrow \theta - \eta \frac{\partial r}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial r}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} Gradients are computed through back-propagation
+			\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial r}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial r}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} Stop if magnitude of all gradients are below $\epsilon$
+			\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
+		\end{algorithmic}
+	\end{algorithm}
+	
+	\subsection{Stochastic Gradient Descent}
+	\label{sec:stochastic_gradient_descent}
+
+		With standard gradient descent, the time complexity of each training iteration is dominated by the Cholesky decomposition of the regularised gram matrix $K_{\theta} + n \lambda I$ of size $n \times n$, which has a time complexity of $O(n^{3})$. In order to scale the hyperparameter training of kernel embedding classifiers to large dataset, we propose to optimise the complexity objective with stochastic gradient descent.
+		
+	
+	
+		
+		For gradient descent, pick $n_{b} = n$ so that $\mathcal{I} = \mathbb{N}_{n}$ and the full dataset is used to compute the gradients.
+		
+		SGD Coefficient ratio for gradient update can be absorbed into the learning rate so don't need to worry about it
+		
+		Also learning rate can be left to the same
+		
+		Convergence can usually be left to the same gradient error tolerance
+		
+		\textbf{Why does SGD work?} It is not immediately clear to me why SGD works. What we can see from experiments is that the batch data complexity bound is usually a biased estimator of the full data complexity bound. This bias is expected for one primary reason. The first is that this quantity is a data complexity bound to begin with, and thus while the actual batch data complexity may be an unbiased estimator of the full data complexity, the tightness of the upper bound is expected to change with growing datasets and thus this bias comes from the varying degrees of tightness in the bound as data increases. While this bias exists, we do see from experiments that, as we optimise the hyperparameters, both the batch data complexity bound and full data complexity bound decreases at a proportional pace. At first it may seem that there is simply a multiplicative factor (possibly in log scale or square root scale with respect to the data size) relationship between them, although it is unclear how this multiplicative factor can be computed. We did try seeing if the average complexity bound of disjoint batches is the complexity bound of the full batch. The answer is no but it is close, through numerical simulation. However, again this should be expected as the tightness of the bound is expected to change for varying data size. Perhaps the complexity itself is additive.
+		
+		Idea: Last time in my derivation I can derive that the full complexity bound is the sum of the batch complexity bound plus some co-varying terms (which can be negative). If I can show that the magnitude of such co-varying terms are upper bounded by the batch complexity bounds, then I can say that as the batch complexity bounds are minimised, so is the full complexity bound!
+		
+		We know that the SGD works because the gradients computed from each batch is consistently vanishing as we optimise the hyperparameters. Surprisingly, it seems to be on the same scale of the full GD case and suggests that the batch gradient is possibly a (scaled) consistent estimator of the full gradient as well.
+		
+		Furthermore, not only does SGD reduce the time and space complexity of each training iteration drastically, it does not increase the number of iterations required for convergence either (at least for a Gaussian kernel), and, in many cases actually takes less iterations than the full GD solution. This could be because the SGD gradients are usually under-biased compared to the full GD gradients, and thus reach the gradient error tolerance faster.
+		
+		Of course, the usual drawbacks of SGD holds here to. Specifically, if the optimisation is non-convex, the SGD may converge to a local optimum that is different to the one that the full GD approach would reach. Nevertheless, it does not necessarily mean that the SGD solution is worse. Sometimes it can actually do better, when the full GD solution was going to converge to a sub-optimal solution already, since the stochasticity in the SGD approach may allow it to find some other solution that is better.
+		
+		Round Shifts: Instead of taking completely random batches from the full dataset each time, what one can do instead is to use a ``round shift'' setup to choose the batches. That is, we first choose a batch size $n_{b}$. The first batch is the first $n_{b}$ data points in the dataset, the second batch is the second $n_{b}$ data points in the dataset, and so on. When the whole dataset is scanned through once, we repeat and start from the beginning again. Experiments show that this converges to basically the same solution with the full GD approach and also the vanilla SGD approach. However, it does take longer iterations to reach the solution. Our guess is that the data points we use each time in our batch complexity bound estimation is not independent from each other enough such that the gradients are more correlated to each other and is thus less adaptive.
+	
+\section{End-to-End Classifier Training for Deep Kernel Embeddings}
+\label{sec:deep_kernel_embeddings}
+
+\section{Full Probabilistic Inference and Mode Reconstruction}
+\label{sec:mode_reconstruction}
+
+	Being formulated and represented as a conditional embedding in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can 
+
+\section{Experiments}
+
+	\note{Note that while it would certainly be great, the point of developing this kernel embedding classifier is not to beat other existing classification algorithms. The purpose is to develop a simple and elegant fully probabilistic multiclass classifier based on embedding the observed data directly into a reproducing kernel Hilbert space, with a quantifiable notion of model complexity. This is what we will aim to show here in the experiments as well. Below is just a summary of what has been done but has not been put together neatly yet.}
+	
+	\textbf{Experiments to Show}: We are aiming to do experiments on one toy dataset for illustration and visualisation, and on two real world datasets for benchmarking performance. So far, I am using the iris dataset for the toy dataset, and MNIST for one of the real world datasets. We should still find a third real world dataset that will really benefit from such a flexible nonparametric, probabilistic multiclass classifier.
+	
+	\begin{itemize}
+		\item A toy 2D classification tasks for visualising the properties and capabilities of the kernel embedding classifier. An simple example is the iris dataset, where we take only 2 attributes. There are three classes, so the probabilities can be visualised using RGB. We first use the first two attributes of the dataset, where the training examples are very non-separable. The point is to demonstrate that the kernel embedding classifier learns a simple and reasonable model that does not overfit, even though it has the capacity to shatter all the training data and have 100\% training accuracy. We then show that if we use the standard cross entropy loss as the objective for training, then we easily overfit the data.
+		\item We also show plots illustrating how the training objective, performance of the classifier, and the hyperparameters changes during the training procedure.
+		\item We then show results for training using SGD, which reveals that at a faster speed we arrive at the same solution as before.
+		\item We can then move on to actual real world datasets, like MNIST.
+		\item The MNIST dataset has 60000 training images and 10000 test images. So far I have results for only giving the first 500 training images to the kernel embedding classifier (much smaller than the dimensionality of the problem, which is 784), and it is to perform on the whole 10000 test images. We show that with a Gaussian kernel, we get around 82\% accuracy. Then, with a simple extension by adding three convolutional layers before give it to the Gaussian kernel, we get around 92\% accuracy. Of course, we also report the cross entropy loss. We do this with both gradient descent and SGD. We then compare this to support vector classifiers and Gaussian process classifiers. Then also compare this to state of the art convolutional neural networks with 500 observations for training data.
+		\item More to come...
+	\end{itemize}
+	
+	We will also open-source the code on GitHub. All the core algorithms presented in this paper will be available and implemented in TensorFlow, while having the same API as \texttt{scikit-learn} models so that it is straightforward to use.
+	
+%	\begin{figure}
+%		\begin{center}
+%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_43_24_anisotropic_gd_tol_01_complexity_attributes_0_1/figure4.eps}
+%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_43_55_anisotropic_sgd_batch_27_tol_01_complexity_attributes_0_1/figure4.eps}
+%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_47_23_anisotropic_gd_tol_001_cross_entropy_attributes_0_1/figure4.eps}
+%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_48_54_anisotropic_sgd_batch_27_tol_001_cross_entropy_attributes_0_1/figure4.eps}
+%		\end{center}
+%		\caption{\small Kernel Embedding Classifier}
+%		\label{fig:kec}
+%	\end{figure}
+%	
+%	\begin{figure}
+%		\begin{center}
+%			\includegraphics[width=0.9\linewidth]{figures/iris_2017_4_11_0_43_24_anisotropic_gd_tol_01_complexity_attributes_0_1/figure14.eps}
+%		\end{center}
+%		\caption{\small Kernel Embedding Classifier}
+%%		\label{fig:kec}
+%	\end{figure}
+
+\section{Conclusion}
+
+	\note{Summarise main contribution. Specifically, the guaranteed convergence of the kernel embedding classifier in both decision probability and information entropy, the Rademacher complexity based hyperparameter training scheme, the stochastic gradient descent version thereof which allows scalable training, the application of such flexible training methods to train deep convolutional features, and the fully probabilistic inference on both inputs and outputs. Focus the point of the paper as that this is a new and elegant formulation of a fully probabilistic classifier (not just in the outputs, but even in the inputs) with complexity bound based training. Being formulated as type of kernel conditional embedding learning, all the nice properties from the Hilbert space embedding world can be imported into this framework. In practice, even though the mathematical theory of kernel embeddings can be tricky, the resulting algorithms are very elegant and simple, so that implementation is quick and easy. Being very general, there should be a lot of things we can do in the future to improve it or build upon it.}
+	
+	\textbf{Future Work}: \note{(Not that polished)}
+	
+	\begin{itemize}
+		\item \textbf{Hyperparameter Training through Local Rademacher Complexity.} In parallel with the work of \cite{xu2016local}, we can derive an upper bound for the \textit{local Rademacher complexity} of our kernel embedding classifier. In contrast to the global Rademacher complexity, the local Rademacher complexity of a model produces a sharper generalization error bound and a faster convergence rate. Specifically, for our classifier, it is upper bounded by the tail sum of the sorted eigenvalues of $B^{T} (K + n \lambda I)^{-1} K (K + n \lambda I)^{-1} B$. The complication is that there is an extra design choice to be made: from which eigenvalue should the tail sum start. Preliminary experiments that we have done so far shows that this choice affects the training a lot, and thus more work is needed to theorise how this choice should be done, and if it really improves classification performance consistently at the end of the day.
+
+		\item \textbf{Multiple Kernel Learning and Shallow-Deep Kernels.} With kernel methods, newer and more flexible kernel classes can always be formed by convex combinations of simpler positive definite kernels. We can explore kernel and hyperparameter learning for these architectures under the kernel embedding classification framework that we developed in this paper.
+		
+		\textbf{Multiple Kernel Learning}. In summary, multiple kernel learning is traditionally interested in forming a new kernel $k(x, x') := \sum_{i = 1}^{p} \alpha_{i} k_{i}(x, x')$ from simpler kernels $k_{i}(x, x')$ by finding the optimal coefficient vector $\{\alpha_{i}\}_{i = 1}^{p}$ with respect to its learning task under convexity constraints. While this convex optimisation problem is quite tractable, each kernel component $k_{i}$ stays fixed, so that it is up to the practitioners to choose and tune each kernel component a-priori. With the kernel embedding classification framework, hyperparameter training is very general, and makes no restrictions on where the trainable parameters must appear (with the trade-off being that the optimisation may become non-convex). As such, we can construct newer kernels through $k(x, x'; \theta) := \sum_{i = 1}^{p} \alpha_{i} k_{i}(x, x'; \theta_{i})$ and generalise the multiple kernel learning problem to one that finds the optimal coefficient vector $\{\alpha_{i}\}_{i = 1}^{p}$ and kernel parameters $\{\theta_{i}\}_{i = 1}^{p}$. Of course, the regularisation parameter $\lambda$ is jointly learned at the same time.
+		
+		\textbf{Shallow-Deep Kernels}. Similarly, another way of convexly combining kernels is through a simple tensor multiplication, $k([x, z]^{T}, [x', z']^{T}; \theta_{\mathcal{X}}, \theta_{\mathcal{Z}}) := k_{\mathcal{X}}(x, x'; \theta_{\mathcal{X}}) k_{\mathcal{Z}}(z, z'; \theta_{\mathcal{Z}})$. In this scenario, we can let $x \in \mathcal{X}$ to be the original unaltered example inputs, while $z = f(x; w) \in \mathcal{Z}$ be the output of the last hidden layer of a neural network, where we use $w$ to collectively denote all the weight and bias parameters of the neural network. In this way, $k_{\mathcal{X}}$ is a shallow kernel allowing a direct connection from input to output, while $k_{\mathcal{Z}}$ is a deep kernel performing multiple layers of feature extraction from the input before it is connected to the output. Again, because hyperparameter training is very general in the kernel embedding classification framework, it should be possible to jointly learn the kernel hyperparameters $\theta_{\mathcal{X}}, \theta_{\mathcal{Z}}$, the neural network weights and biases $w$, and the regularisation parameter $\lambda$.
+		
+		\item \textbf{Connection to other kernel models.} It should not be too surprising if we can find many connections or even equivalences to other kernel techniques. For example, if we look at the form of our decision probability estimator, it is also the same as the mean prediction of a Gaussian process regression, except we replace the real-valued targets in the regression case with the one-hot encoded class targets for our classification task. Of course, the main difference thereafter is how we train the two models. We turned to complexity based training partly because, unlike a Gaussian process, it is very difficult to find the marginal likelihood for a kernel embedding, and this has worked out well. However, future work can look into the direction of actually finding a way to compute or approximate the marginal likelihood for the kernel embedding classifier, making the link between Gaussian processes and kernel embeddings even stronger.
+		
+		Another simpler connection may be the k-nearest-neighbour classifier. For any stationary and radially symmetric kernel like the Gaussian and Matern kernels, shorter length scales usually produces a nearest-neighbour effect on the inference of kernel embedding classifiers. Of course, this is suboptimal, and the complexity based training developed in this paper would know better to not learn such a length scale. However, this link would illustrate the purpose and effectiveness of a complexity based training scheme for kernel methods.
+		
+		\item \textbf{Sampling and Generative Models.} While the kernel embedding classifier is trained as a discriminative model, at its core it is simply just a condition embedding of $\mathbb{P}_{Y | X}$. As such, we can do full probabilistic inference entirely in reproducing kernel Hilbert spaces and obtain the Hilbert space embeddings of $\mathbb{P}_{X | Y}$, similar to what we have touched upon in \cref{sec:mode_reconstruction}, or even simply of the marginals $\mathbb{P}_{X}$ and $\mathbb{P}_{Y}$. If we can recover these distributions as densities ($\mathbb{P}_{Y}$ would correspond to a probability mass function over a finite and discrete space $\mathbb{N}_{m}$ which is identical to the mean embedding already, and so this step would be trivial for $\mathbb{P}_{Y}$), then we would be able to model our data in a fully generative manner. In fact, in \cref{sec:mode_reconstruction} we have have already done so indirectly through reversing the embedding. Of course, this would require us to solve the pre-image problem of kernel embeddings, for which no general methodology exists yet besides a few heuristics with various assumptions. Nevertheless, assuming we can recover the densities well enough, we can then generate samples from those distributions. Alternatively, if we can instead sample from those distributions \textit{without} finding the pre-image, but by directly using the mean embeddings instead, that would make the kernel embedding classifier very useful as a generative modelling tool.
+		
+		\item \textbf{Target Label Kernel.} In this paper, we proposed to place a Kronecker delta kernel $l = \delta$ over the label space $\mathcal{Y} = \mathbb{N}_{m}$ as it is the simplest kernel over a discrete and finite domain. However, it is possible to place other kernels over the label space. A simple kernel is to have a `generalised Kronecker delta kernel' that has unit similarity when labels are the same, but a small, positive yet non-zero similarity when labels are different. If we set these cross similarity to be the same across all non-identical pairs of labels, then it is straight forward to show that the inference algorithm we developed in this paper stays the same. However, if we allow them to vary amongst each other as kernel parameters (between the range $(0, 1)$, in order to stay positive definite), then we suspect that these cross similarity coefficients would act as correlation factors between classes. The training algorithm we developed here does not prevent the target label kernel to have its own hyperparameters. As such, we should be able to learn the correlation effects between the classes effectively using the same training scheme. We suspect that this would make the empirical decision probabilities converge to a valid probability distribution faster. However, we also suspect that the training may become even more non-convex and optimisation to become more difficult.
+		
+		These factors may even give rise to new interpretable insights in terms of how different classes may be more related to each other. For example, in an image recognition task of animals, it may learn that, the class `horse' and 'pony' are much more similar than `horse' and `elephant' from the input features, and start to use the output correlations to focus on inferring about them as a group instead.
+		\end{itemize}
+	
+\small
+\bibliographystyle{apalike}
+\bibliography{kernel_embedding}
+
+\newpage
+\appendix
+
+\section{Theorems and Derivations}
+\label{app:theorems_derivations}
+
+	In this section we provide a few theorems, lemmas, and derivations which proves the convergence properties of our kernel embedding classifier.
+	
+	Because the label space $\mathcal{Y} = \mathbb{N}_{m}$ is discrete and finite, \textit{bounded} functions $g \in \mathcal{H}_{\delta}$ in the RKHS are actually equivalent to their vector representations $\bvec{g} := \{g(c)\}_{c = 1}^{m}$, because one can always write $g = \sum_{c = 1}^{m} g(c) \delta(c, \cdot)$. This immediately implies that inner products in this space are simply the usual dot products in a Euclidean space, since
+	
+	\begin{equation}
+	\begin{aligned}
+			\langle g_{1}, g_{2} \rangle_{\mathcal{H}_{\delta}} &= \bigg\langle \sum_{c = 1}^{m} g_{1}(c) \delta(c, \cdot), \sum_{c' = 1}^{m} g_{2}(c') \delta(c', \cdot)  \bigg\rangle_{\mathcal{H}_{\delta}} \\
+			&= \sum_{c = 1}^{m} \sum_{c' = 1}^{m} g_{1}(c) g_{2}(c') \langle \delta(c, \cdot), \delta(c', \cdot) \rangle_{\mathcal{H}_{\delta}} \\
+			&= \sum_{c = 1}^{m} g_{1}(c) g_{2}(c) \\
+			&= \bvec{g}_{1} \cdot \bvec{g}_{2}.
+	\end{aligned}
+	\end{equation}
+	
+	Consequently, the RKHS norm for bounded functions $g \in \mathcal{H}_{\delta}$ is simply the $\ell_{2}$-norm of its vector representation $\bvec{g}$,
+	
+	\begin{equation}
+		\lVert g \rVert_{\mathcal{H}_{\delta}} = \lVert \bvec{g} \rVert_{\ell_{2}}.
+	\label{eq:rkhs_norm_is_l2_norm}
+	\end{equation}
+
+	
+	\begin{claim}[Decision Probabilities are Conditional Embeddings]
+	\label{thm:probability_is_embedding}
+	
+		The decision probability for class $c \in \mathbb{N}_{m}$ given an example $x \in \mathcal{X}$ is the conditional embedding with $l = \delta$ conditioned at example $x$ evaluated at label $c$,
+			
+		\begin{equation}
+			p_{c}(x) := \mathbb{P}[Y = c | X = x] = \mu_{Y | X = x}(c).
+		\end{equation}
+		
+		
+		\begin{proof} Since indicator functions are the canonical features of the label RKHS $\mathcal{H}_{\delta}$, we employ the fact that expectations of indicator functions are probabilities to prove this claim,
+			
+			\begin{equation}
+			\begin{aligned}
+				\mu_{Y | X = x}(c) :=& \mathbb{E}[l(Y, c) | X = x ]= \mathbb{E}[\delta(Y, c) | X = x] \\
+				=& \mathbb{E}[\mathbb{1}_{c}(Y) | X = x] = \mathbb{P}[Y \in \{c\} | X = x] \\
+				=& \mathbb{P}[Y = c | X = x] := p_{c}(x).
+			\end{aligned}
+			\end{equation}
+		\end{proof}
+
+	\end{claim}
+	
+	\begin{claim}[Empirical Decision Probabilities are Empirical Conditional Embeddings]
+	\label{thm:empirical_probability_is_embedding}
+	
+		The empirical decision probability \eqref{eq:empirical_decision_probability} for class $c \in \mathbb{N}_{m}$ given an example $x \in \mathcal{X}$ is the empirical conditional embedding with $l = \delta$ conditioned at example $x$ evaluated at label $c$,
+			
+		\begin{equation}
+			\hat{p}_{c}(x) = \hat{\mu}_{Y | X = x}(c).
+		\end{equation}
+			
+			
+		\begin{proof}
+			
+			Let the canonical feature maps of $\mathcal{X}$ and $\mathcal{Y}$ be $\phi(x) = k(x, \cdot)$ and $\psi(y) = l(y, \cdot) = \delta(y, \cdot)$, then the empirical conditional embedding is defined by
+			
+			\begin{equation}
+				\hat{\mu}_{Y | X = x} := \hat{\mathcal{U}}_{Y | X} \phi(x)
+			\end{equation}
+			
+			By the reproducing property, the evaluation of $\hat{\mu}_{Y | X = x} \in \mathcal{H}_{l}$ is given by a dot product,
+	
+			\begin{equation}
+			\begin{aligned}
+				\hat{\mu}_{Y | X = x}(c) &= \langle l(c, \cdot), \hat{\mu}_{Y | X = x} \rangle \\
+				&= \langle \psi(c), \hat{\mu}_{Y | X = x} \rangle \\
+				&= \psi(c)^{T} \hat{\mu}_{Y | X = x} \\
+				&= \psi(c)^{T} \hat{\mathcal{U}}_{Y | X} \phi(x) \\
+				&= \psi(c)^{T} \Psi (K + n \lambda I)^{-1} \Phi^{T} \phi(x) \\
+				&= \bvec{l}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x} \\
+			\end{aligned}
+			\end{equation}
+			
+			where $\bvec{l}_{c} := \{l(y_{i}, c)\}_{i = 1}^{n}$ and $\bvec{k}_{x} := \{k(x_{i}, x)\}_{i = 1}^{n}$. While the notation $\bvec{l}_{y}$ is usually avoided due do its similarity to $\bvec{1}_{c}$, in this context they happen to represent equal quantities,
+			
+			\begin{equation}
+				\bvec{l}_{c} := \{l(y_{i}, c)\}_{i = 1}^{n} = \{\delta(y_{i}, c)\}_{i = 1}^{n} = \{\mathbb{1}_{c}(y_{i})\}_{i = 1}^{n} =: \bvec{1}_{c}.
+			\end{equation}
+			
+			The claim then immediately follows by the definition of our decision probability estimator,
+			
+			\begin{equation}
+				\hat{\mu}_{Y | X = x}(c) = \bvec{1}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x} =: \hat{p}_{c}(x).
+			\end{equation}
+		\end{proof}
+		
+	\end{claim}
+
+	\begin{lemma}[Pointwise Uniform Convergence of Empirical Decision Probability Vector Function in $\ell_{1}$ and $\ell_{2}$]
+	\label{thm:probability_vector_convergence} 
+	
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability vector function $\hat{\bvec{p}} : \mathcal{X} \to \mathbb{R}^{m}$ \eqref{eq:empirical_decision_probability_vector} converges pointwise and uniformly to the true decision probability vector function $\bvec{p} : \mathcal{X} \to [0, 1]^{m}$ in the $\ell_{2}$-norm, where $\bvec{p}(x) := \{p_{c}(x)\}_{c = 1}^{m}$, at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		
+		\begin{proof}
+			For convergence in $\ell_{1}$, we simply extend \cref{thm:probability_convergence}, which proved that each entry of $\hat{\bvec{p}}(x)$ converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The $\ell_{1}$-norm distance is simply
+			
+			\begin{equation}
+				{\lVert \hat{\bvec{p}}(x) - \bvec{p}(x) \rVert}_{\ell_{1}} = \sum_{c = 1}^{m} | \hat{p}_{c}(x) - p_{c}(x) |.
+			\end{equation}
+			
+			It is straight forward to show if each term in the sum converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the sum, which proves the convergence in $\ell_{1}$.
+			
+			For convergence in $\ell_{2}$, we show that the $\ell_{2}$-norm of the difference between the true and empirical decision probability vector functions is the same as the RKHS norm of the difference between the true and empirical conditional embedding, which converges to zero at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $x \in \mathcal{X}$ and $c \in \mathcal{Y} = \mathbb{N}_{m}$ \citep{song2009hilbert}. To this end, we use \cref{thm:probability_is_embedding} and \cref{thm:empirical_probability_is_embedding} and write 
+			
+			\begin{equation}
+			\begin{aligned}
+				{\lVert \hat{\bvec{p}}(x)  - \bvec{p}(x) \rVert}_{\ell_{2}} &= {\lVert \{ \hat{p}_{c}(x) \}_{c = 1}^{m} - \{ p_{c}(x) \}_{c = 1}^{m} \rVert}_{\ell_{2}} \\
+				&= {\lVert \{ \hat{p}_{c}(x) - p_{c}(x) \}_{c = 1}^{m} \rVert}_{\ell_{2}} \\
+				&= {\lVert \{ \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c)\}_{c = 1}^{m} \rVert}_{\ell_{2}} \\
+				&= {\lVert \hat{\mu}_{Y | X = x} - \mu_{Y | X = x}\rVert}_{\mathcal{H}_{\delta}},
+			\end{aligned}
+			\end{equation}
+			
+			where the last equality comes from \eqref{eq:rkhs_norm_is_l2_norm} and the fact that the empirical and true conditional embeddings are bounded functions in the RKHS. Since this is true for all $x \in \mathcal{X}$, the convergence is pointwise uniform.
+		\end{proof}
+		
+	\end{lemma}
+	
+	
+	
+\section{Design Choices}
+\label{app:design_choices}
+
+	In this section we discuss the various design choices we make in formulating the kernel embedding classifier.
+
+	\subsection{Decision Probabilities: Why clip-normalise and not softmax-normalise or softplus-normalise?}
+	
+		For \eqref{eq:probability_clip_normalise}...
+		
+		\note{\textbf{Unpolished.}} The simple reason is that it works better. The more theoretical reason is that our raw probability estimates usually produces predictions with low cross entropy loss. This means that it assigns high probability for the correct class and low probability to other classes. Because the decision probability estimates are not guaranteed to be strictly positive, the lower probabilities for those other classes can sometimes be slightly negative, and clip-normalisation would simply make them zero, as that would be closer to what the kernel embedding classifier is trying to express: it is so unlikely it has even assigned it negative probabilities, so it might as well be zero. When normalising after clipping, the zeroed-out probabilities do not come into play and the high probabilities get to keep their high values. Softmax and softplus operations would instead assign small positive probabilities to those slightly negative instances. When normalising after this, because the unlikely classes has taken up some probabilities, the class with high probabilities will have their high probabilities slightly reduces, making the cross entropy loss slightly higher and the predictions less confident.
+		
+	\subsection{Information Entropy: Why define information gain to be zero despite being infinitely surprised?}
+	
+		For \eqref{eq:empirical_information}...
+		
+		\note{\textbf{Unpolished.}} This is really for numerical and experimental reasons. The information entropy map obtained this way are just simply much smoother and intuitive. The alternative is to first clip the raw probability predictions at some very small tolerance, such as $\epsilon = 10^{-15}$, before we pass it through the log, as what is done in many information or entropy based computations, such as the cross entropy computation implemented in \texttt{scipy}. When we tried this, we saw that this produces an unnecessarily non-smooth estimate of the information entropy map. Furthermore, by adjusting the tolerance $\epsilon$ slightly to other small numbers, such as $10^{-10}$ or $10^{-20}$, the information entropy map changes in where the non-smoothness occurs and in what magnitude. This was simply too ugly for us to accept. Instead, defining the information gain to zero despite being infinitely surprised gave us very smooth estimates that is very close to both the map we expect and the map we obtain from computing the information entropy directly from the clip-normalised decision probabilities.
+		
+	\subsection{Information Entropy: Why clip from below at zero?}
+	
+		For \eqref{eq:empirical_information_entropy}...
+		
+		\note{\textbf{Unpolished.}} Similar to the reason for clip-normalising decision probabilities, if the inference algorithm has produces an information entropy that is slightly less than zero, this just means that it is very confident at those regions. As such, in the limit, we expect that this would converge back to zero. Therefore, for finite data, we clip it from below at zero to indicate what the current data suggests the true information entropy should be when we have infinite data.
+		
+\end{document}
