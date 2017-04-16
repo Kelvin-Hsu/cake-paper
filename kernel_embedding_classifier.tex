@@ -58,32 +58,67 @@
 % on the second line, try using \AND instead of \And before the third
 % author name.
 
+%\author{
+%  Kelvin Y.S. Hsu, Richard Nock, Fabio T. Ramos \\
+%  University of Sydney, Australia\\
+%  DATA61, CSIRO\\
+%  \texttt{\{Kelvin.Hsu, Richard.Nock, Fabio.Ramos\}@\{sydney.edu.au, data61.csiro.au\}} \\
+%  %% examples of more authors
+%  %% \And
+%  %% Coauthor \\
+%  %% Affiliation \\
+%  %% Address \\
+%  %% \texttt{email} \\
+%  %% \AND
+%  %% Coauthor \\
+%  %% Affiliation \\
+%  %% Address \\
+%  %% \texttt{email} \\
+%  %% \And
+%  %% Coauthor \\
+%  %% Affiliation \\
+%  %% Address \\
+%  %% \texttt{email} \\
+%  %% \And
+%  %% Coauthor \\
+%  %% Affiliation \\
+%  %% Address \\
+%  %% \texttt{email} \\
+%}
+
 \author{
-  Kelvin Y.S. Hsu, Richard Nock, Fabio T. Ramos \\
-  University of Sydney, Australia\\
-  DATA61, CSIRO\\
-  \texttt{\{Kelvin.Hsu, Richard.Nock, Fabio.Ramos\}@\{sydney.edu.au, data61.csiro.au\}} \\
-  %% examples of more authors
-  %% \And
-  %% Coauthor \\
-  %% Affiliation \\
-  %% Address \\
-  %% \texttt{email} \\
-  %% \AND
-  %% Coauthor \\
-  %% Affiliation \\
-  %% Address \\
-  %% \texttt{email} \\
-  %% \And
-  %% Coauthor \\
-  %% Affiliation \\
-  %% Address \\
-  %% \texttt{email} \\
-  %% \And
-  %% Coauthor \\
-  %% Affiliation \\
-  %% Address \\
-  %% \texttt{email} \\
+	Kelvin Y.S. Hsu \\
+	University of Sydney, Australia\\
+	DATA61, CSIRO\\
+	\texttt{Kelvin.Hsu@\{sydney.edu.au, data61.csiro.au\}} \\
+	%% examples of more authors
+	\And
+	Richard Nock \\
+	Australian National University, Australia\\
+	University of Sydney, Australia\\
+	DATA61, CSIRO\\
+	\texttt{Richard.Nock@data61.csiro.au} \\
+	\And
+	Fabio T. Ramos \\
+	University of Sydney, Australia\\
+	DATA61, CSIRO\\
+	\texttt{Fabio.Ramos@\{sydney.edu.au, data61.csiro.au\}} \\
+	%% \texttt{email} \\
+	%% \AND
+	%% Coauthor \\
+	%% Affiliation \\
+	%% Address \\
+	%% \texttt{email} \\
+	%% \And
+	%% Coauthor \\
+	%% Affiliation \\
+	%% Address \\
+	%% \texttt{email} \\
+	%% \And
+	%% Coauthor \\
+	%% Affiliation \\
+	%% Address \\
+	%% \texttt{email} \\
 }
 
 \begin{document}
@@ -338,6 +373,7 @@
 		
 	\subsection{Cross Entropy and Kullback–Leibler Divergence between Input Instances}
 
+		\note{Note: A very simple extension to the above is the cross entropy and Kullback-Leibler divergence between two input location $x, x' \in \mathcal{X}$. The convergence proof is basically identical. However, I am not sure how useful this result would be in practice. What would be more useful, in my opinion, is the joint entropy of multiple input locations.}
 \section{Hyperparameter Training}
 \label{sec:hyperparameter_learning}
 
@@ -434,13 +470,45 @@
 			
 		Proof Idea: I suspect that the full complexity bound is the sum of the batch complexity bound plus some co-varying terms (which can be negative). If I can show that the magnitude of such co-varying terms are upper bounded by the batch complexity bounds, then I can say that as the batch complexity bounds are minimised (randomly), so is the full complexity bound!
 	
-\section{End-to-End Classifier Training for Deep Kernel Embeddings}
+\section{End-to-End Classifier Training for Deep Kernel Embedding Network}
 \label{sec:deep_kernel_embeddings}
 
-\section{Full Probabilistic Inference and Mode Reconstruction}
+	The kernel embedding classifier is developed in a very general manner and can be trained under any choice of a family of positive definite kernels $k_{\theta} : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$, $\theta \in \Theta$. There are a variety of ways to construct richer kernels from simpler kernels, such as through convex combination of multiple kernels. In this section, we focus on deep kernels, in which inputs $x, x' \in \mathcal{X}$ is to undergo various stages of feature transformations before being fed into a simple positive definite kernel. Specifically, we pay particular attention to feature transformations in the form of a perceptron, so that the cumulative stages of feature transformation become the (feed-forward) multi-layer perceptron that is familiar within the neural network literature. Although our approach can generalise to other architectures, such as recurrent neural networks, we omit such consideration for simplicity.
+	
+	Let $\mathcal{F}_{0} := \mathcal{X}$ be the original input space. The $j^{\mathrm{th}}$ layer of the network $\varphi^{(j)}_{\theta_{j}} : \mathcal{F}_{j - 1} \to \mathcal{F}_{j}, j = 1, 2, \dots, q$ is to transform features from the previous layer to features in the current layer, where $q$ is the total number of such feature transformation layers, and $\theta_{j} \in \Theta_{j}$ parametrises each of those transformations.
+	
+	For example, in a typical multi-layer perceptron context, each layer can be written as $\varphi^{(j)}_{\theta_{j}}(x) = \sigma(W_{j}^{T} x + b_{j})$, where $W$ and $b$ are the weight and bias parameters of the layer, and $\sigma$ is an element-wise activation function, typically the rectified linear unit (ReLU) or the sigmoid. In this case, the layer is parametrised by $\theta_{j} = \{W_{j}, b_{j}\}$. The setup for a feed-forward convolutional neural network is also very similar.
+	
+	Our aim is to construct a positive definite kernel $k$ which can learn representations of the inputs at various levels before such these representations are passed into a simpler kernel $\kappa$ which captures the similarity between the representations.
+	
+	Let $\kappa_{\theta_{\kappa}} : \mathcal{F}_{p} \times \mathcal{F}_{p} \to \mathbb{R}$ be parametrised by $\theta_{\kappa} \in \Theta_{\kappa}$. We will construct our kernel network $k$ by
+	
+	\begin{equation}
+		k_{\theta}(x, x') := \kappa_{\theta_{\kappa}}\Bigg(
+		\varphi^{(p)}_{\theta_{p}}\bigg(\varphi^{(p - 1)}_{\theta_{p - 1}}\Big(\dots\varphi^{(2)}_{\theta_{2}}\big(\varphi^{(1)}_{\theta_{1}}(x)\big)\Big)\bigg),
+		\varphi^{(p)}_{\theta_{p}}\bigg(\varphi^{(p - 1)}_{\theta_{p - 1}}\Big(\dots\varphi^{(2)}_{\theta_{2}}\big(\varphi^{(1)}_{\theta_{1}}(x')\big)\Big)\bigg)
+		\Bigg)
+	\label{eq:deep_kernel_embedding_network}
+	\end{equation}
+	
+	where $\theta = \{\theta_{1}, \theta_{2}, \dots, \theta_{p -1}, \theta_{p}, \theta_{\kappa}\} \in \Theta = \Theta_{1} \otimes \Theta_{2} \otimes \dots \otimes \Theta_{p - 1} \otimes \Theta_{p} \otimes \Theta_{\kappa}$ are the collection of all parameters of each layer and the kernel $\kappa$.
+	
+	\note{Note: I think it would be nice to add a figure to visualise the several convolutional layers and how it is passed into a positive definite kernel at the end.}
+	
+	Due to the very general training algorithm we developed in \cref{sec:hyperparameter_learning}, we propose to train the kernel network end-to-end by minimising the global Rademacher complexity bound \eqref{eq:trace_norm_optimisation} as before. 
+	
+	\note{Talk about the advantages and disadvantages of such an approach. The results with three convolutional layer will be put into the experiments section.}
+	
+	\subsection{Deep Convolutional Kernel Embedding Network}
+	
+		\note{Note: Might be good to relate our work with \citep{mairal2014convolutional}.}
+	
+\section{Full Probabilistic Inference and Mode Representation Reconstruction}
 \label{sec:mode_reconstruction}
 
-	Being formulated and represented as a conditional embedding in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can 
+	Formulated as a conditional embedding learning task in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can perform full probabilistic inference between all the observed and hidden variables (if any) of the kernel embedding network.
+	
+	
 
 \section{Experiments}
 
