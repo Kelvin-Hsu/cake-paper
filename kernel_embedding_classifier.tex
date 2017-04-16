@@ -30,6 +30,7 @@
 \usepackage{mathrsfs}
 \usepackage{vector}
 \usepackage{cleveref}
+\usepackage{bm}
 \usepackage[dvipsnames]{xcolor}
 
 \newcommand{\argmax}{\operatornamewithlimits{argmax}}
@@ -254,7 +255,16 @@
 
 	We proceed to show that the empirical decision probabilities given by \eqref{eq:empirical_decision_probability} is a consistent estimator for the actual decision probabilities as the dataset increases.
 	
-	While the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ will converge to the true decision probability function  $p_{c} : \mathcal{X} \to [0, 1]$ in the limit, for finite $n$ and a given regulariser $\lambda > 0$, the stochasticity in the empirical estimates implies that these probabilities may not necessarily sum up to one, nor are they strictly resctricted to the range $[0, 1]$. However, they will usually be very close to the true predicted probabilities. Moreover, such stochasticity also does not principally affect the classification prediction, since we simply take the argmax of the empirical decision probability vector as in \eqref{eq:classification}.
+	\begin{theorem}[Uniform Convergence of Empirical Decision Probability Function]
+		\label{thm:probability_convergence_copy}
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_decision_probability} converges uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		
+		\begin{proof}
+			See \cref{thm:probability_convergence} of \cref{app:theorems_derivations}.
+		\end{proof}
+	\end{theorem}
+
+	While the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ will converge to the true decision probability function  $p_{c} : \mathcal{X} \to [0, 1]$ in the limit, for finite $n$ and a given regulariser $\lambda > 0$, the stochasticity in the empirical estimates implies that these probabilities may not necessarily sum up to one, nor are they strictly restricted to the range $[0, 1]$. However, they will usually be very close to the true predicted probabilities. Moreover, such stochasticity also does not principally affect the classification prediction, since we simply take the argmax of the empirical decision probability vector as in \eqref{eq:classification}.
 	
 	If strict, valid probabilities are required for interpretation, visualisation, or other purposes, the probabilities can be clipped at zero then normalised to one - a procedure we refer to as \textit{clip-normalisation},
 	
@@ -317,7 +327,16 @@
 	
 	where $\hat{\bvec{u}}_{x} := \{\hat{u}_{x}(y_{i})\}_{i = 1}^{n}$. Similar to the case with decision probabilities \eqref{eq:decision_probability}, the information entropy estimate \eqref{eq:empirical_information_entropy} is not guaranteed to be non-negative. However, in practice these negative values are close to zero. Furthermore, negative estimated information entropy implies that the model is very confident about its prediction, and it suffices to simply clip the entropy at zero if strict information entropy is required (see \cref{app:design_choices}). We give the proof of convergence of \eqref{eq:empirical_information_entropy} in \cref{app:theorems_derivations}.
 
-	\subsection{Cross Entropy and Kullback–Leibler Divergence}
+	\begin{theorem}[Uniform Convergence of Empirical Information Entropy Function]
+		\label{thm:entropy_convergence_copy}
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical information entropy function $\hat{h} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_information_entropy} converges uniformly to the true information entropy function $h : \mathcal{X} \to [0, \infty)$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$.
+		
+		\begin{proof}
+			See \cref{thm:entropy_convergence} in \cref{app:theorems_derivations}.
+		\end{proof}
+	\end{theorem}
+		
+	\subsection{Cross Entropy and Kullback–Leibler Divergence between Input Instances}
 
 \section{Hyperparameter Training}
 \label{sec:hyperparameter_learning}
@@ -546,6 +565,9 @@
 		\end{proof}
 		
 	\end{theorem}
+	
+	With \cref{thm:pointwise_uniform_convergence}, we can now show the convergence of various estimators based on the conditional embedding, as long as we can show that their estimator error is upper bounded by a multiple of the conditional embedding error in the RKHS norm. As such, we turn to the convergence of the empirical decision probability function \eqref{eq:empirical_decision_probability} below.
+
 	\begin{theorem}[Uniform Convergence of Empirical Decision Probability Function]
 		\label{thm:probability_convergence}
 		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_decision_probability} converges uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
@@ -614,6 +636,25 @@
 	
 	\note{Note: The above proof is for uniform convergence over all $x \in \mathcal{X}$. From what the experiments seem to suggest, for stationary zero-centred kernels, I believe that we can actually do better than this convergence rate for areas of high data density. Basically, at the subspace of $\mathcal{X}$ where we have observed our data, the convergence rate should be higher, because the kernel effects are stronger at these regions. The worse case convergence rate described in the theorem would be a tight lower bound for regions in $\mathcal{X}$ where we do not have a lot of data, where the kernel effects have decayed and most empirical probabilities are near zero and further from summing up to one.}
 	
+	Because the label space $\mathcal{Y} = \mathbb{N}_{m}$ is discrete and finite, \textit{bounded} functions $g \in \mathcal{H}_{\delta}$ in the RKHS are actually equivalent to their vector representations $\bvec{g} := \{g(c)\}_{c = 1}^{m}$, because one can always write $g = \sum_{c = 1}^{m} g(c) \delta(c, \cdot)$. This immediately implies that inner products in this space are simply the usual dot products in a Euclidean space, since
+	
+	\begin{equation}
+	\begin{aligned}
+	\langle g_{1}, g_{2} \rangle_{\mathcal{H}_{\delta}} &= \bigg\langle \sum_{c = 1}^{m} g_{1}(c) \delta(c, \cdot), \sum_{c' = 1}^{m} g_{2}(c') \delta(c', \cdot)  \bigg\rangle_{\mathcal{H}_{\delta}} \\
+	&= \sum_{c = 1}^{m} \sum_{c' = 1}^{m} g_{1}(c) g_{2}(c') \langle \delta(c, \cdot), \delta(c', \cdot) \rangle_{\mathcal{H}_{\delta}} \\
+	&= \sum_{c = 1}^{m} g_{1}(c) g_{2}(c) \\
+	&= \bvec{g}_{1} \cdot \bvec{g}_{2}.
+	\end{aligned}
+	\end{equation}
+	
+	Consequently, the RKHS norm for bounded functions $g \in \mathcal{H}_{\delta}$ is simply the $\ell_{2}$-norm of its vector representation $\bvec{g}$,
+	
+	\begin{equation}
+	\lVert g \rVert_{\mathcal{H}_{\delta}} = \lVert \bvec{g} \rVert_{\ell_{2}}.
+	\label{eq:rkhs_norm_is_l2_norm}
+	\end{equation}
+
+	A special and convenient result that arises due to this discrete and finite label space is that the decision probabilities and its empirical estimate are simply the conditional embeddings and its empirical estimate.
 	
 	\begin{claim}[Decision Probabilities are Conditional Embeddings]
 	\label{thm:probability_is_embedding}
@@ -683,25 +724,9 @@
 		\end{proof}
 		
 	\end{claim}
+	
+	Since we have identified the equivalence of decision probabilities and the conditional embedding, we can now also show that the empirical decision probability vector also converges to the true decision probability vector.
 
-	Because the label space $\mathcal{Y} = \mathbb{N}_{m}$ is discrete and finite, \textit{bounded} functions $g \in \mathcal{H}_{\delta}$ in the RKHS are actually equivalent to their vector representations $\bvec{g} := \{g(c)\}_{c = 1}^{m}$, because one can always write $g = \sum_{c = 1}^{m} g(c) \delta(c, \cdot)$. This immediately implies that inner products in this space are simply the usual dot products in a Euclidean space, since
-	
-	\begin{equation}
-	\begin{aligned}
-	\langle g_{1}, g_{2} \rangle_{\mathcal{H}_{\delta}} &= \bigg\langle \sum_{c = 1}^{m} g_{1}(c) \delta(c, \cdot), \sum_{c' = 1}^{m} g_{2}(c') \delta(c', \cdot)  \bigg\rangle_{\mathcal{H}_{\delta}} \\
-	&= \sum_{c = 1}^{m} \sum_{c' = 1}^{m} g_{1}(c) g_{2}(c') \langle \delta(c, \cdot), \delta(c', \cdot) \rangle_{\mathcal{H}_{\delta}} \\
-	&= \sum_{c = 1}^{m} g_{1}(c) g_{2}(c) \\
-	&= \bvec{g}_{1} \cdot \bvec{g}_{2}.
-	\end{aligned}
-	\end{equation}
-	
-	Consequently, the RKHS norm for bounded functions $g \in \mathcal{H}_{\delta}$ is simply the $\ell_{2}$-norm of its vector representation $\bvec{g}$,
-	
-	\begin{equation}
-	\lVert g \rVert_{\mathcal{H}_{\delta}} = \lVert \bvec{g} \rVert_{\ell_{2}}.
-	\label{eq:rkhs_norm_is_l2_norm}
-	\end{equation}
-	
 	\begin{lemma}[Uniform Convergence of Empirical Decision Probability Vector Function in $\ell_{1}$ and $\ell_{2}$]
 	\label{thm:probability_vector_convergence} 
 	
@@ -727,14 +752,86 @@
 				{\lVert \hat{\bvec{p}}(x)  - \bvec{p}(x) \rVert}_{\ell_{2}} &= {\lVert \{ \hat{p}_{c}(x) \}_{c = 1}^{m} - \{ p_{c}(x) \}_{c = 1}^{m} \rVert}_{\ell_{2}} \\
 				&= {\lVert \{ \hat{p}_{c}(x) - p_{c}(x) \}_{c = 1}^{m} \rVert}_{\ell_{2}} \\
 				&= {\lVert \{ \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c)\}_{c = 1}^{m} \rVert}_{\ell_{2}} \\
+				&= \| \hat{\bm{\mu}}_{Y | X = x} - \bm{\mu}_{Y | X = x}  \|_{\ell_{2}} \\
 				&= {\lVert \hat{\mu}_{Y | X = x} - \mu_{Y | X = x}\rVert}_{\mathcal{H}_{\delta}},
 			\end{aligned}
 			\end{equation}
 			
 			where the last equality comes from \eqref{eq:rkhs_norm_is_l2_norm} and the fact that the empirical and true conditional embeddings are bounded functions in the RKHS. Again, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = 1$ independent of $x \in \mathcal{X}$, we have uniform convergence in $\ell_{2}$.
 		\end{proof}
-		
 	\end{lemma}
+		
+	In \cref{sec:information_entropy}, we proposed an estimator for the information entropy $h(x)$ for a prediction at $x \in \mathcal{X}$. Since this estimator is now based on the inner product between the empirical conditional embedding and another empirically estimate function, instead of between the empirical conditional embedding and a known function, it is not immediately clear that such an estimator converges. Nevertheless, intuition tells us that the inner product between two converging quantities should converge. We proceed to show that this intuition is correct.
+	
+	\begin{theorem}[Uniform Convergence of Empirical Information Entropy Function]
+		\label{thm:entropy_convergence}
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical information entropy function $\hat{h} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_information_entropy} converges uniformly to the true information entropy function $h : \mathcal{X} \to [0, \infty)$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$.
+		
+		\begin{proof}
+			Since we are interested in the asymptotic properties of our estimators when $n \to \infty$, and we have proved that the empirical decision probabilities converges to the true probabilities (\cref{thm:probability_convergence}), the condition $\hat{p}_{c}(x) > 0$ holds for large $n$ such that we simply have $\hat{u}_{x}(c) = - \log{\hat{p}_{c}(x)}$. That is, the effects of clipping for the information estimate \eqref{eq:empirical_information} vanishes.
+			
+			Consider the pointwise absolute difference between the empirical and true information entropy,
+			
+			\begin{equation}
+			\begin{aligned}
+				| \hat{h}(x) - h(x) | &= | \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} \rangle_{\mathcal{H}_{\delta}} - \langle \mu_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} | \\
+				&= | \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} \rangle_{\mathcal{H}_{\delta}} - \langle \hat{\mu}_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} + \langle \hat{\mu}_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} - \langle \mu_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} | \\
+				&\leq | \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} \rangle_{\mathcal{H}_{\delta}} - \langle \hat{\mu}_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} | + | \langle \hat{\mu}_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} - \langle \mu_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} | \\
+				&= | \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} - u_{x} \rangle_{\mathcal{H}_{\delta}} | + | \langle \hat{\mu}_{Y | X = x} - \mu_{Y | X = x}, u_{x} \rangle_{\mathcal{H}_{\delta}} | \\
+				&\leq \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}} + \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| u_{x} \|_{\mathcal{H}_{\delta}},
+			\label{eq:information_entropy_bound}
+			\end{aligned}
+			\end{equation}
+			
+			where the we used the triangle inequality and Cauchy–Schwarz inequality in a Hilbert space respectively.
+			
+			Now, since $l = \delta$ is bounded, so is $\hat{\mu}_{Y | X = x}(c) = \sum_{i = 1}^{n} w_{i} \delta(y_{i}, c)$ for some embedding weights $w_{i}$ and all $c \in \mathbb{N}_{m}$, and thus its RKHS norm is finite. Similarly, assuming that $p_{c}(x)$ is never exactly zero, $u_{x}(c)$ is also finite for all $c \in \mathbb{N}_{m}$ and thus so is its RKHS norm. We already know that $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$ stochastically converges to zero at the rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ \citep{song2009hilbert}. Thus, it remains to bound $\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}}$ by a multiple of $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$.
+			
+			To this end, we first use \cref{thm:probability_is_embedding} and \cref{thm:empirical_probability_is_embedding} and to express the theoretical and empirical information as the negative log of the embedding, so that it is explicitly written as a function of $c \in \mathcal{Y}$ in $\mathcal{H}_{\delta}$ indexed by $x \in \mathcal{X}$,
+			
+			\begin{equation}
+			\begin{aligned}
+				u_{x}(c) &= - \log{p_{c}(x)} = -\log{\mu_{Y | X = x}(c)}, \\
+				\hat{u}_{x}(c) &= - \log{\hat{p}_{c}(x)} = -\log{\hat{\mu}_{Y | X = x}(c)}. \\
+			\end{aligned}
+			\end{equation}
+			
+			Since $\log$ is a concave function, we have the property that $\log{a} - \log{b} \leq \frac{1}{b} (a - b)$. This allows us to bound $| \hat{u}_{x}(c) - u_{x}(c) |$ by $| \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c) |$ for all $c \in \mathbb{N}_{m}$,
+			
+			\begin{equation}
+			\begin{aligned}
+				| \hat{u}_{x}(c) - u_{x}(c) | &= | \log{\hat{\mu}_{Y | X = x}(c)} - \log{\mu_{Y | X = x}(c)} | \\
+				&\leq \frac{1}{| \mu_{Y | X = x}(c) |} | \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c) | \\
+				&= \alpha_{x} | \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c) |,
+			\end{aligned}
+			\end{equation}
+			
+			where we define $\alpha_{x} := \max_{c \in \mathbb{N}_{m}} \frac{1}{| \mu_{Y | X = x}(c) |}$. Since the RKHS norm of bounded functions in $\mathcal{H}_{\delta}$ is simply the $\ell_{2}$-norm of their vector representations \eqref{eq:rkhs_norm_is_l2_norm}, we have
+			
+			\begin{equation}
+			\begin{aligned}
+				\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}}^{2} &= \| \hat{\bvec{u}}_{x} - \bvec{u}_{x} \|_{\ell_{2}}^{2} \\
+				&= \sum_{c = 1}^{m} | \hat{u}_{x}(c) - u_{x}(c) |^{2} \\
+				&\leq \sum_{c = 1}^{m} \alpha_{x}^{2} | \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c) |^{2} \\
+				&\leq \alpha_{x}^{2} \sum_{c = 1}^{m} | \hat{\mu}_{Y | X = x}(c) - \mu_{Y | X = x}(c) |^{2} \\
+				&\leq \alpha_{x}^{2} \| \hat{\bm{\mu}}_{Y | X = x} - \bm{\mu}_{Y | X = x}  \|_{\ell_{2}}^{2} \\
+				&\leq \alpha_{x}^{2} \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}^{2}. \\
+			\end{aligned}
+			\end{equation}
+			
+			Therefore, $\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}} \leq \alpha_{x} \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$, and \eqref{eq:information_entropy_bound} becomes
+			
+			\begin{equation}
+			\begin{aligned}
+				| \hat{h}(x) - h(x) | &\leq \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}} + \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| u_{x} \|_{\mathcal{H}_{\delta}} \\
+				&= \alpha_{x} \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} + \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| u_{x} \|_{\mathcal{H}_{\delta}} \\
+				&= ( \alpha_{x} \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} + \| u_{x} \|_{\mathcal{H}_{\delta}} ) \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \\
+			\end{aligned}
+			\end{equation}
+			
+			Hence, with $\gamma(x) = \alpha_{x} \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} + \| u_{x} \|_{\mathcal{H}_{\delta}}$, \cref{thm:pointwise_uniform_convergence} implies that $\hat{h}$ converges pointwise to $h$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$.
+		\end{proof}
+	\end{theorem}
 	
 \section{Design Choices}
 \label{app:design_choices}
