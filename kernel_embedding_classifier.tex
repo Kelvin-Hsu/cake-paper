@@ -133,27 +133,29 @@
 \section{Introduction}
 \label{sec:introduction}
 
-	- Currently, most classification algorithms are binary classifiers, which focuses on the case where the target label can only come from one of two classes. 
+	\note{Note: Introduction will need a thorough discussion of related work.}
+
+	- Currently, most classification algorithms are binary classifiers, which focuses on the case where the target label can only come from one of two classes. Examples include ...
 	
-	- Examples include ...
+	- However, many applications require multiclass classifiers. Examples include ...
 	
-	- However, many applications require multiclass classifiers
+	- Most solve this by doing binary relevance, such as OVA, AVA, or decision trees on binary classifiers \citep{aly2005survey} 
 	
-	- Examples include ...
+	- Furthermore, those probabilities are usually artificial, by passing through a link function that may or may not be valid, and in many cases like the GPC, is not analytically tractible and requires further approximations. No convergence gaurantees of convergence to the actual decision probabilities.
 	
-	- Most solve this by doing OVA, AVA, or decision trees on binary classifiers \citep{aly2005survey} 
-	
-	- Furthermore, those probabilities are usually artificial, by passing through a link function that may or may not be valid, and in many cases like the GPC, is not analytically tractible and requires further approximations. No convergence gaurantees of convergence to the actual decision probabilities
+	- SVMs also are binary by nature. They also do not provide probabilities.
 	
 	In this paper, we cast the multiclass classification problem into the kernel conditional embedding framework, where learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistantly estimated from data using the conditional embedding framework. In this way, we propose a natural probabilistic classifier for multiclass classification.
 	
 	- Our contributions are ...
 	
 	\begin{itemize}
-		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions with convergence guarantees.
-		\item A novel hyperparameter training algorithm based on gradient descent and, most importantly, stochastic gradient descent. Reducing the complexity of KEC training from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ for a training dataset of size $n$ and a batch size of $n_{b} << n$. 
-		\item Two techniques to estimate the information entropy of a classification prediction with convergence guarantees
-		\item Mode reconstruction of the inputs, where we compute the most representative example of each class
+		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions with convergence guarantees on probability and entropy estimates.
+		\item A novel training algorithm based on minimising the Rademacher complexity of our kernel embedding classifier in the reproducing kernel Hilbert space, which provides greater generalisation capabilities to the classifier.
+		\item A mini-batch stochastic gradient descent variant of the above training algorithm, reducing training complexity from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ in space for a training dataset of size $n$ and a mini-batch size of $n_{b} << n$.
+		\item The application of such a training scheme to learn a deep kernel embedding network and deep convolutional kernel embedding network for image recognition tasks.
+		\item Probabilistic inference and mode reconstruction of the inputs, where we quantify and obtain the most representative sample of each class, amongst other statistics.
+		\item Probabilistic inference and mode reconstruction on hidden layers of the deep kernel embedding network.
 	\end{itemize}
 	
 	
@@ -503,13 +505,17 @@
 	
 		\note{Note: Might be good to relate our work with \citep{mairal2014convolutional}.}
 	
-\section{Full Probabilistic Inference and Mode Representation Reconstruction}
+\section{Full Probabilistic Inference and Mode Reconstruction}
 \label{sec:mode_reconstruction}
 
 	Formulated as a conditional embedding learning task in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can perform full probabilistic inference between all the observed and hidden variables (if any) of the kernel embedding network.
 	
+	\note{Note: Not completed yet.}
 	
+	\subsection{Hidden Representation Reconstruction}
 
+		\note{Note: Observed quantities are done, but hidden quantities needs experimental verification.}
+	
 \section{Experiments}
 
 	\note{Note that while it would certainly be great, the point of developing this kernel embedding classifier is not to beat other existing classification algorithms. The purpose is to develop a simple and elegant fully probabilistic multiclass classifier based on embedding the observed data directly into a reproducing kernel Hilbert space, with a quantifiable notion of model complexity. This is what we will aim to show here in the experiments as well. Below is just a summary of what has been done but has not been put together neatly yet.}
