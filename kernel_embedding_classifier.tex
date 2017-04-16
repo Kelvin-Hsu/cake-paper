@@ -127,35 +127,39 @@
 \maketitle
 
 \begin{abstract}
-
+%	We propose a novel probabilistic multiclass classifier, the kernel embedding classifier, by casting the multiclass classification problem into the kernel conditional embedding framework in a principled manner. We provide convergence guarantees of the classifier in both decision probability and information entropy, and develop a novel training objective based on Rademacher complexity bounds
+%Specifically, the guaranteed convergence of the kernel embedding classifier in both decision probability and information entropy, the Rademacher complexity based hyperparameter training scheme, the stochastic gradient descent version thereof which allows scalable training, the application of such flexible training methods to train deep convolutional features, and the fully probabilistic inference on both inputs and outputs. Focus the point of the paper as that this is a new and elegant formulation of a fully probabilistic classifier (not just in the outputs, but even in the inputs) with complexity bound based training. Being formulated as type of kernel conditional embedding learning, all the nice properties from the Hilbert space embedding world can be imported into this framework. In practice, even though the mathematical theory of kernel embeddings can be tricky, the resulting algorithms are very elegant and simple, so that implementation is quick and easy. Being very general, there should be a lot of things we can do in the future to improve it or build upon it.
 \end{abstract}
 
 \section{Introduction}
 \label{sec:introduction}
-
-	\note{Note: Introduction will need a thorough discussion of related work.}
-
-	- Currently, most classification algorithms are binary classifiers, which focuses on the case where the target label can only come from one of two classes. Examples include ...
 	
-	- However, many applications require multiclass classifiers. Examples include ...
+	\note{Draft: Introduction will need a more thorough discussion of motivation, related work, theoretical and practical implications, and contribution.}
 	
-	- Most solve this by doing binary relevance, such as OVA, AVA, or decision trees on binary classifiers \citep{aly2005survey} 
+	Classification is perhaps one of the most important and thoroughly developed topics in machine learning and pattern recognition. Despite this, principled probabilistic classification on multiclass problems remains a difficult and challenging task, and most solutions tackle this issue rather indirectly. \note{Maybe elaborate on why multiclass problems are important and why we want probabilities estimates in our predictions.}
 	
-	- Furthermore, those probabilities are usually artificial, by passing through a link function that may or may not be valid, and in many cases like the GPC, is not analytically tractible and requires further approximations. No convergence gaurantees of convergence to the actual decision probabilities.
+	Support vector classifiers (SVC) \citep{m2001introduction}, for example, are originally designed for non-probabilistic binary classification. Its simple and convex optimisation structure makes the model very attractive both theoretically and in practice. However, in order to cope with overfitting, slack constraints introduce hyperparameters for which training does not directly addressed except through standard cross-validation. In order to extend to multiclass scenarios, binary relevance such as one-against-all, one-against-one, or decision trees are used to build a multiclass classifier from multiple binary classifiers \citep{aly2005survey, hsu2002comparison}. There are also no straightforward way of assigning probabilities to SVC, and in many approaches probabilities are simply arbitrary score measures that has been normalised \citep{zadrozny2002transforming, franc2011support} (\note{Check this}). As such, while the original SVC formulation is certainly elegant and practical, its multitude of variants for probabilistic multiclass classification becomes rather convoluted.
 	
-	- SVMs also are binary by nature. They also do not provide probabilities.
+	Within the similar domain of kernel-based classification, Gaussian process classifiers (GPC) \citep{rasmussen2006gaussian} are Bayesian models for which probability distributions are analysed in a principled manner by constructing a latent model that is distributed as a Gaussian process. Nevertheless, the posterior class probabilities are not analytically tractable due to a non-Gaussian likelihood, which requires methods such as Monte Carlo Markov Chain, expectation propagation, or variation inference to approximate. The GPC is also formulated as a binary classifier, and multiclass classification is either approached with binary relevance, or through introducing multiple latent functions that are to be squashed together through a softmax function if probabilistic outputs are to be retained.
 	
-	In this paper, we cast the multiclass classification problem into the kernel conditional embedding framework, where learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistantly estimated from data using the conditional embedding framework. In this way, we propose a natural probabilistic classifier for multiclass classification.
+	On the other end of the spectrum, parametric models are limited in its ability to grow in capacity as the dataset grows. Neural networks \citep{lecun2015deep} mitigates this issue by growing deep instead of wide so that each layer of the network extract meaningful features from the dataset. While it requires large amounts of data in order to work, neural networks has been shown to be able to learn almost any complex function. However, the choice of the network architecture remains, and principled probabilistic methods are still undergoing active research. 
 	
-	- Our contributions are ...
+	In this paper, we propose a new and natural probabilistic multiclass classifier, the kernel embedding classifier (KEC), by casting multiclass classification problems into the kernel conditional embedding framework. Kernel embedding of probability distributions is a principled method for representing and manipulating general probability distributions nonparametrically in a reproducing kernel Hilbert space (RKHS) that is associated with a positive definite kernel. In this way, probability distributions do not need to be restricted to a parametric form, but instead fully expressed by the dataset in a nonparametric manner. In our approach, learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities and information entropies can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistently estimated from data using the conditional embedding framework. This method is very general and makes no distinction between binary and multiclass classification, presenting a unified and principled method for all probabilistic classification tasks.
+	
+	Being developed very generally for any choice of positive definite kernel $k$, the kernel embedding classifier requires the specification of various hyperparameters. In the current kernel embedding literature, there is no standard method to train the hyperparameters besides cross-validation. We further propose and develop a hyperparameter training scheme based on Rademacher complexity bounds, which appropriately balances the accuracy and generalisation capabilities of the classifier. We then develop a mini-batch stochastic gradient descent version of such a training procedure, which brings the notorious complexity of all kernel methods that is cubic in the size of the dataset down to only cubic in the mini-batch size.
+	
+	With no restrictions on the type of kernel used for our classifier, we apply our training algorithm to learn kernels with deep convolutional features on standard image recognition tasks such as the MNIST dataset (\note{Mention more on experiments later when they are ready}). The fully nonparametric and probabilistic nature of the classifier also allows us to perform probabilistic inference on the inputs and, most interestingly, the hidden layers if using a deep kernel. Specifically, we can quantify and obtain the most representative input sample and hidden features of each class.
+	
+	In summary, our contributions are:
 	
 	\begin{itemize}
-		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions with convergence guarantees on probability and entropy estimates.
-		\item A novel training algorithm based on minimising the Rademacher complexity of our kernel embedding classifier in the reproducing kernel Hilbert space, which provides greater generalisation capabilities to the classifier.
-		\item A mini-batch stochastic gradient descent variant of the above training algorithm, reducing training complexity from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ in space for a training dataset of size $n$ and a mini-batch size of $n_{b} << n$.
-		\item The application of such a training scheme to learn a deep kernel embedding network and deep convolutional kernel embedding network for image recognition tasks.
-		\item Probabilistic inference and mode reconstruction of the inputs, where we quantify and obtain the most representative sample of each class, amongst other statistics.
-		\item Probabilistic inference and mode reconstruction on hidden layers of the deep kernel embedding network.
+		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions;
+		\item Convergence guarantees on corresponding decision probability and information entropy estimates;
+		\item A novel training algorithm based on minimising Rademacher complexity bounds of our kernel embedding classifier in a reproducing kernel Hilbert space, which balances classification performance and provides greater generalisation capabilities to the classifier;
+		\item A mini-batch stochastic gradient descent variant of the above training algorithm, reducing training complexity from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ in space for a training dataset of size $n$ and a mini-batch size of $n_{b} << n$;
+		\item The application of such a training scheme to learn a deep kernel embedding network and deep convolutional kernel embedding network for image recognition tasks;
+		\item Probabilistic inference and mode reconstruction of the inputs, where we quantify and obtain the most representative sample of each class, amongst other statistics; And,
+		\item Probabilistic inference and mode reconstruction on hidden feature layers of the deep kernel embedding network.
 	\end{itemize}
 	
 	
