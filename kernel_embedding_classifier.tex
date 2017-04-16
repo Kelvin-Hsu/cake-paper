@@ -37,9 +37,9 @@
 \newcommand{\edit}[1]{{\color{forestgreen} #1}}
 
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[theorem]
-\newtheorem{lemma}{Lemma}[theorem]
-\newtheorem{claim}{Claim}[theorem]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{claim}{Claim}[section]
 
 
 \usepackage{algorithm}
@@ -253,72 +253,6 @@
 	\end{equation}
 
 	We proceed to show that the empirical decision probabilities given by \eqref{eq:empirical_decision_probability} is a consistent estimator for the actual decision probabilities as the dataset increases.
-	
-	\begin{theorem}[Pointwise Uniform Convergence of Empirical Decision Probability Function]
-	\label{thm:probability_convergence}
-		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_decision_probability} converges pointwise and uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
-		
-	\begin{proof}
-		Consider the pointwise absolute difference between the decision probability and its empirical estimate,
-		
-		\begin{equation}
-		\begin{aligned}
-			| \hat{p}_{c}(x) - p_{c}(x) | &= | \langle \hat{\mu}_{Y | X = x}, \mathbb{1}_{c} \rangle - \langle \mu_{Y | X = x}, \mathbb{1}_{c} \rangle | \\
-			&= | \langle \hat{\mu}_{Y | X = x} - \mu_{Y | X = x}, \mathbb{1}_{c} \rangle | \\
-			&\leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \big\| \mathbb{1}_{c} \big\|_{\mathcal{H}_{\delta}},
-		\end{aligned}
-		\end{equation}
-		
-		where the last inequality follows from the Cauchy–Schwarz inequality in a Hilbert space.
-		
-		From \eqref{eq:indicator_function}, since $\mathbb{1}_{c} = \delta(c, \cdot)$ and using the fact that $\delta$ is a reproducing kernel, we have that for all $c \in \mathcal{Y} = \mathbb{N}_{m}$,
-		
-		\begin{equation}
-		\begin{aligned}
-			\big\| \mathbb{1}_{c} \big\|_{\mathcal{H}_{\delta}}^{2} = \langle \mathbb{1}_{c}, \mathbb{1}_{c} \rangle = \langle \delta(c, \cdot), \delta(c, \cdot) \rangle = \delta(c, c) = 1.
-		\end{aligned}
-		\end{equation}
-		
-		\note{Note: The proof can just stop right here really. Every time we have some estimator error being upper bounded by some constant (in this case, $1$) times the RKHS norm of the difference between the empirical and true conditional embeddings, we can simply say that if the right hand side goes to zero at a stochastic rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the left hand side. The constant needs to be independent of $n \in \mathbb{N}_{+}$ for this to be true. If the constant is independent of $x \in \mathcal{X}$, then the convergence is uniform. If not, then the convergence is non-uniform.}
-		
-%		Consequently, $| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x}^{(n)} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}$ for all $x \in \mathcal{X}$, where the right hand side of which approaches zero stochastically at rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, so that $\hat{p}_{c}$ converges pointwise to $p_{c}$ at least at this rate. The convergence rate does not depend on $x \in \mathcal{X}$, so this (stochastic) convergence is pointwise uniform.
-		
-		Consequently, for all $x \in \mathcal{X}$ and $c \in \mathcal{Y}$, we have 
-		
-		\begin{equation}
-			| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}.
-		\label{eq:uniform_convergence}
-		\end{equation}
-		
-		This is true for all possible datasets represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$. Thus, for any constant $C$, the implication statement $\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C \implies | \hat{p}_{c}(x) - p_{c}(x) | \leq C$ holds for all possible data observation events $\omega \in \Omega$. Writing this explicitly in event space translates this to a probability statement,
-
-		\begin{equation}
-		\begin{aligned}
-			\{\omega \in \Omega : \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\} &\subseteq \{\omega \in \Omega : | \hat{p}_{c}(x) - p_{c}(x) | \leq C\} \\
-			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\Big] &\leq \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq C \Big].
-		\label{eq:probability_statement}
-		\end{aligned}
-		\end{equation}
-		
-		Since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} is valid. By letting $C = M_{\epsilon} ((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ in \eqref{eq:probability_statement}, we immediately have that the probability inequality in statement \eqref{eq:probability_statement} is also true if we replace $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|$ with $| \hat{p}_{c}(x) - p_{c}(x) |$, % the RKHS norm between the empirical and true embeddings to the absolute difference between the empirical decision probability and the true decision probability,
-		
-		\begin{equation}
-		\begin{aligned}
-			\mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
-			\implies 1 - \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
-			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
-			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
-			\implies 1 - \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
-			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon.
-		\end{aligned}	
-		\end{equation}
-		
-		In other words, the function $\hat{p}_{c}$ stochastically converges pointwise to $p_{c} := \mathbb{P}[Y = c | X = \cdot]$ with a rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The convergence rate does not depend on $x \in \mathcal{X}$ nor $c \in \mathbb{N}_{m}$, so this stochastic convergence is pointwise uniform in its domain $\mathcal{X}$ across all label classes.
-		
-	\end{proof}
-	\end{theorem}
-	
-	\note{Note: The above proof is for pointwise uniform convergence over all $x \in \mathcal{X}$. From what the experiments seem to suggest, for stationary zero-centred kernels, I believe that we can actually do better than this convergence rate for areas of high data density. Basically, at the subspace of $\mathcal{X}$ where we have observed our data, the convergence rate should be higher, because the kernel effects are stronger at these regions. The worse case convergence rate described in the theorem would be a tight lower bound for regions in $\mathcal{X}$ where we do not have a lot of data, where the kernel effects have decayed and most empirical probabilities are near zero and further from summing up to one.}
 	
 	While the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ will converge to the true decision probability function  $p_{c} : \mathcal{X} \to [0, 1]$ in the limit, for finite $n$ and a given regulariser $\lambda > 0$, the stochasticity in the empirical estimates implies that these probabilities may not necessarily sum up to one, nor are they strictly resctricted to the range $[0, 1]$. However, they will usually be very close to the true predicted probabilities. Moreover, such stochasticity also does not principally affect the classification prediction, since we simply take the argmax of the empirical decision probability vector as in \eqref{eq:classification}.
 	
@@ -562,26 +496,124 @@
 \section{Theorems and Derivations}
 \label{app:theorems_derivations}
 
-	In this section we provide a few theorems, lemmas, and derivations which proves the convergence properties of our kernel embedding classifier.
+	In this section we provide a few theorems, lemmas, and derivations which proves the convergence properties of estimators derived from our kernel embedding classifier.
 	
-	Because the label space $\mathcal{Y} = \mathbb{N}_{m}$ is discrete and finite, \textit{bounded} functions $g \in \mathcal{H}_{\delta}$ in the RKHS are actually equivalent to their vector representations $\bvec{g} := \{g(c)\}_{c = 1}^{m}$, because one can always write $g = \sum_{c = 1}^{m} g(c) \delta(c, \cdot)$. This immediately implies that inner products in this space are simply the usual dot products in a Euclidean space, since
+	We consider the case in which a dataset, represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$, is collected in a \textit{iid} fashion from some distribution $\mathbb{P}_{X Y}$. That is $\{X_{i}, Y_{i}\} \sim \mathbb{P}_{X Y}$ for all $i \in \mathbb{N}_{n}$ and each observed sample is independent from each other. Suppose we have an estimator function $\hat{f}^{(n)} : \mathcal{X} \to \mathbb{R}$ which is to estimate some target function  $f : \mathcal{X} \to \mathbb{R}$, usually but not necessarily derived from $\mathbb{P}_{Y |X }$, empirically using the collected dataset $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of size $n \in \mathbb{N}_{+}$. Here, we use the superscript $(n)$ to denote the estimator's dependence on the dataset. From this point on, we drop this superscript to avoid cluttered notation. However, one should keep in mind that $\hat{f}$ is estimated using the dataset $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ and is thus random over the possible data observation events $\omega \in \Omega$. We would like to provide a sense of the stochastic convergence of $\hat{f}$ to $f$ by providing an upper bound of their absolute pointwise difference $| \hat{f}(x) - f(x) |$ which we know convergences to zero at some stochastic rate. Since the kernel embedding classifier is based on conditional embeddings, this upper bound will be provided by the RKHS norm of the error between empirical and true conditional embeddings.
 	
-	\begin{equation}
-	\begin{aligned}
-			\langle g_{1}, g_{2} \rangle_{\mathcal{H}_{\delta}} &= \bigg\langle \sum_{c = 1}^{m} g_{1}(c) \delta(c, \cdot), \sum_{c' = 1}^{m} g_{2}(c') \delta(c', \cdot)  \bigg\rangle_{\mathcal{H}_{\delta}} \\
-			&= \sum_{c = 1}^{m} \sum_{c' = 1}^{m} g_{1}(c) g_{2}(c') \langle \delta(c, \cdot), \delta(c', \cdot) \rangle_{\mathcal{H}_{\delta}} \\
-			&= \sum_{c = 1}^{m} g_{1}(c) g_{2}(c) \\
-			&= \bvec{g}_{1} \cdot \bvec{g}_{2}.
-	\end{aligned}
-	\end{equation}
-	
-	Consequently, the RKHS norm for bounded functions $g \in \mathcal{H}_{\delta}$ is simply the $\ell_{2}$-norm of its vector representation $\bvec{g}$,
-	
-	\begin{equation}
-		\lVert g \rVert_{\mathcal{H}_{\delta}} = \lVert \bvec{g} \rVert_{\ell_{2}}.
-	\label{eq:rkhs_norm_is_l2_norm}
-	\end{equation}
+	\begin{theorem}[Pointwise and Uniform Convergence of Estimators based on Conditional Embeddings]
+		\label{thm:pointwise_uniform_convergence}
+		Suppose that $k(x, \cdot)$ is in the image of $C_{XX}$ and that there exists $0 \leq \gamma(x) < \infty$ such that for some estimator function $\hat{f} : \mathcal{X} \to \mathbb{R}$ and target function  $f : \mathcal{X} \to \mathbb{R}$,
+		
+		\begin{equation}
+			| \hat{f}(x) - f(x) | \leq \gamma(x) \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}}, \forall x \in \mathcal{X},
+		\label{eq:estimator_error_bound}
+		\end{equation}
+		 
+		then the estimator $\hat{f}$ converges pointwise to the target $f$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. Further, if $\gamma(x) = \gamma$ is independent of $x \in \mathcal{X}$, then this convergence is uniform.
+		
+		\begin{proof}
+			
+			Suppose that there exists $0 \leq \gamma(x) < \infty$ such that \eqref{eq:estimator_error_bound} is satisfied. Note that this statement holds for all possible datasets represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$. Thus, for any constant $C$, the implication statement $\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C \implies | \hat{f}(x) - f(x) | \leq C \gamma(x)$ holds for all possible data observation events $\omega \in \Omega$. Writing this explicitly in event space translates this to a probability statement,
+			
+			\begin{equation}
+			\begin{aligned}
+				\{\omega \in \Omega : \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq C\} &\subseteq \{\omega \in \Omega : | \hat{f}(x) - f(x) | \leq C \gamma(x)\} \\
+				\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq C\Big] &\leq \mathbb{P}\Big[| \hat{f}(x) - f(x) | \leq C \gamma(x) \Big].
+			\label{eq:probability_statement}
+			\end{aligned}
+			\end{equation}
+			
+			Since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} is valid. By letting $C = M_{\epsilon} ((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ in \eqref{eq:probability_statement}, we immediately have that the probability inequality in statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} is also true if we replace $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|$ with $| \hat{f}(x) - f(x) |$ and $M_{\epsilon}$ with $\gamma(x) M_{\epsilon}$,
+			
+			\begin{equation}
+			\begin{aligned}
+			\mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+			\implies 1 - \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
+			\implies \mathbb{P}\Big[| \hat{f}(x) - f(x) | \leq \gamma(x) M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
+			\implies 1 - \mathbb{P}\Big[| \hat{f}(x) - f(x) | \leq \gamma(x) M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+			\implies \mathbb{P}\Big[| \hat{f}(x) - f(x) | > \gamma(x) M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon.
+			\end{aligned}	
+			\end{equation}
+			
+			where we employed statement \eqref{eq:probability_statement} between the third and fourth line for $C = M_{\epsilon} ((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. Therefore, since $M_{\epsilon}$ is arbitrary, define $\tilde{M}_{\epsilon}(x) := \gamma(x) M_{\epsilon}$ so that, with the above result, the statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} implies the following,
 
+			\begin{equation}
+				\forall x \in \mathcal{X}, \; \epsilon > 0, \; \exists \tilde{M}_{\epsilon}(x) > 0 \quad s.t. \quad \mathbb{P}\Big[\big| \hat{f}(x) - f(x) \big| > \tilde{M}_{\epsilon}(x) \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] < \epsilon.
+			\end{equation}
+	
+			In other words, the function $\hat{f}$ stochastically converges pointwise to $f$ with a rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The convergence is pointwise as the constant $\tilde{M}_{\epsilon}(x)$ may be different for each point $x \in \mathcal{X}$. If $\gamma(x) = \gamma$ such that $\tilde{M}_{\epsilon}(x) = \tilde{M}_{\epsilon}$ does not depend on $x \in \mathcal{X}$, then this stochastic convergence is uniform in its domain $\mathcal{X}$.
+		\end{proof}
+		
+	\end{theorem}
+	\begin{theorem}[Uniform Convergence of Empirical Decision Probability Function]
+		\label{thm:probability_convergence}
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_decision_probability} converges uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		
+		\begin{proof}
+			Consider the pointwise absolute difference between the decision probability and its empirical estimate,
+			
+			\begin{equation}
+			\begin{aligned}
+				| \hat{p}_{c}(x) - p_{c}(x) | &= | \langle \hat{\mu}_{Y | X = x}, \mathbb{1}_{c} \rangle - \langle \mu_{Y | X = x}, \mathbb{1}_{c} \rangle | \\
+				&= | \langle \hat{\mu}_{Y | X = x} - \mu_{Y | X = x}, \mathbb{1}_{c} \rangle | \\
+				&\leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \big\| \mathbb{1}_{c} \big\|_{\mathcal{H}_{\delta}},
+			\label{eq:decision_probability_error_upper_bound}
+			\end{aligned}
+			\end{equation}
+			
+			where the last inequality follows from the Cauchy–Schwarz inequality in a Hilbert space.
+			
+			From \eqref{eq:indicator_function}, since $\mathbb{1}_{c} = \delta(c, \cdot)$ and using the fact that $\delta$ is a reproducing kernel, we have that for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+			
+			\begin{equation}
+			\begin{aligned}
+				\big\| \mathbb{1}_{c} \big\|_{\mathcal{H}_{\delta}}^{2} = \langle \mathbb{1}_{c}, \mathbb{1}_{c} \rangle = \langle \delta(c, \cdot), \delta(c, \cdot) \rangle = \delta(c, c) = 1.
+			\label{eq:indicator_rkhs_norm}
+			\end{aligned}
+			\end{equation}
+			
+			Therefore, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = 1$ independent of $x \in \mathcal{X}$, $\hat{p}_{c}$ converges uniformly to $p_{c}$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$
+			
+			%		Consequently, $| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x}^{(n)} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}$ for all $x \in \mathcal{X}$, where the right hand side of which approaches zero stochastically at rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, so that $\hat{p}_{c}$ converges pointwise to $p_{c}$ at least at this rate. The convergence rate does not depend on $x \in \mathcal{X}$, so this (stochastic) convergence is pointwise uniform.
+			
+%			Consequently, for all $x \in \mathcal{X}$ and $c \in \mathcal{Y}$, we have 
+%			
+%			\begin{equation}
+%				| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}.
+%			\label{eq:uniform_convergence}
+%			\end{equation}
+%			
+%			This is true for all possible datasets represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$. Thus, for any constant $C$, the implication statement $\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C \implies | \hat{p}_{c}(x) - p_{c}(x) | \leq C$ holds for all possible data observation events $\omega \in \Omega$. Writing this explicitly in event space translates this to a probability statement,
+%			
+%			\begin{equation}
+%			\begin{aligned}
+%			\{\omega \in \Omega : \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\} &\subseteq \{\omega \in \Omega : | \hat{p}_{c}(x) - p_{c}(x) | \leq C\} \\
+%			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\Big] &\leq \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq C \Big].
+%			\label{eq:probability_statement}
+%			\end{aligned}
+%			\end{equation}
+%			
+%			Since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} is valid. By letting $C = M_{\epsilon} ((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ in \eqref{eq:probability_statement}, we immediately have that the probability inequality in statement \eqref{eq:probability_statement} is also true if we replace $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|$ with $| \hat{p}_{c}(x) - p_{c}(x) |$, % the RKHS norm between the empirical and true embeddings to the absolute difference between the empirical decision probability and the true decision probability,
+%			
+%			\begin{equation}
+%			\begin{aligned}
+%			\mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+%			\implies 1 - \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+%			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
+%			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
+%			\implies 1 - \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
+%			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon.
+%			\end{aligned}	
+%			\end{equation}
+%			
+%			In other words, the function $\hat{p}_{c}$ stochastically converges pointwise to $p_{c} := \mathbb{P}[Y = c | X = \cdot]$ with a rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The convergence rate does not depend on $x \in \mathcal{X}$ nor $c \in \mathbb{N}_{m}$, so this stochastic convergence is pointwise uniform in its domain $\mathcal{X}$ across all label classes.
+			
+		\end{proof}
+	\end{theorem}
+	
+	\note{Note: The above proof is for uniform convergence over all $x \in \mathcal{X}$. From what the experiments seem to suggest, for stationary zero-centred kernels, I believe that we can actually do better than this convergence rate for areas of high data density. Basically, at the subspace of $\mathcal{X}$ where we have observed our data, the convergence rate should be higher, because the kernel effects are stronger at these regions. The worse case convergence rate described in the theorem would be a tight lower bound for regions in $\mathcal{X}$ where we do not have a lot of data, where the kernel effects have decayed and most empirical probabilities are near zero and further from summing up to one.}
+	
 	
 	\begin{claim}[Decision Probabilities are Conditional Embeddings]
 	\label{thm:probability_is_embedding}
@@ -633,11 +665,11 @@
 				&= \psi(c)^{T} \hat{\mu}_{Y | X = x} \\
 				&= \psi(c)^{T} \hat{\mathcal{U}}_{Y | X} \phi(x) \\
 				&= \psi(c)^{T} \Psi (K + n \lambda I)^{-1} \Phi^{T} \phi(x) \\
-				&= \bvec{l}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x} \\
+				&= \bvec{l}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}, \\
 			\end{aligned}
 			\end{equation}
 			
-			where $\bvec{l}_{c} := \{l(y_{i}, c)\}_{i = 1}^{n}$ and $\bvec{k}_{x} := \{k(x_{i}, x)\}_{i = 1}^{n}$. While the notation $\bvec{l}_{y}$ is usually avoided due do its similarity to $\bvec{1}_{c}$, in this context they happen to represent equal quantities,
+			where $\bvec{l}_{c} := \{l(y_{i}, c)\}_{i = 1}^{n}$ and $\bvec{k}_{x} := \{k(x_{i}, x)\}_{i = 1}^{n}$. While the notation $\bvec{l}_{c}$ is usually avoided due do its similarity to $\bvec{1}_{c}$, in this context they happen to represent equal quantities,
 			
 			\begin{equation}
 				\bvec{l}_{c} := \{l(y_{i}, c)\}_{i = 1}^{n} = \{\delta(y_{i}, c)\}_{i = 1}^{n} = \{\mathbb{1}_{c}(y_{i})\}_{i = 1}^{n} =: \bvec{1}_{c}.
@@ -652,19 +684,41 @@
 		
 	\end{claim}
 
-	\begin{lemma}[Pointwise Uniform Convergence of Empirical Decision Probability Vector Function in $\ell_{1}$ and $\ell_{2}$]
+	Because the label space $\mathcal{Y} = \mathbb{N}_{m}$ is discrete and finite, \textit{bounded} functions $g \in \mathcal{H}_{\delta}$ in the RKHS are actually equivalent to their vector representations $\bvec{g} := \{g(c)\}_{c = 1}^{m}$, because one can always write $g = \sum_{c = 1}^{m} g(c) \delta(c, \cdot)$. This immediately implies that inner products in this space are simply the usual dot products in a Euclidean space, since
+	
+	\begin{equation}
+	\begin{aligned}
+	\langle g_{1}, g_{2} \rangle_{\mathcal{H}_{\delta}} &= \bigg\langle \sum_{c = 1}^{m} g_{1}(c) \delta(c, \cdot), \sum_{c' = 1}^{m} g_{2}(c') \delta(c', \cdot)  \bigg\rangle_{\mathcal{H}_{\delta}} \\
+	&= \sum_{c = 1}^{m} \sum_{c' = 1}^{m} g_{1}(c) g_{2}(c') \langle \delta(c, \cdot), \delta(c', \cdot) \rangle_{\mathcal{H}_{\delta}} \\
+	&= \sum_{c = 1}^{m} g_{1}(c) g_{2}(c) \\
+	&= \bvec{g}_{1} \cdot \bvec{g}_{2}.
+	\end{aligned}
+	\end{equation}
+	
+	Consequently, the RKHS norm for bounded functions $g \in \mathcal{H}_{\delta}$ is simply the $\ell_{2}$-norm of its vector representation $\bvec{g}$,
+	
+	\begin{equation}
+	\lVert g \rVert_{\mathcal{H}_{\delta}} = \lVert \bvec{g} \rVert_{\ell_{2}}.
+	\label{eq:rkhs_norm_is_l2_norm}
+	\end{equation}
+	
+	\begin{lemma}[Uniform Convergence of Empirical Decision Probability Vector Function in $\ell_{1}$ and $\ell_{2}$]
 	\label{thm:probability_vector_convergence} 
 	
-		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability vector function $\hat{\bvec{p}} : \mathcal{X} \to \mathbb{R}^{m}$ \eqref{eq:empirical_decision_probability_vector} converges pointwise and uniformly to the true decision probability vector function $\bvec{p} : \mathcal{X} \to [0, 1]^{m}$ in the $\ell_{2}$-norm, where $\bvec{p}(x) := \{p_{c}(x)\}_{c = 1}^{m}$, at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability vector function $\hat{\bvec{p}} : \mathcal{X} \to \mathbb{R}^{m}$ \eqref{eq:empirical_decision_probability_vector} converges uniformly to the true decision probability vector function $\bvec{p} : \mathcal{X} \to [0, 1]^{m}$ in the $\ell_{2}$-norm, where $\bvec{p}(x) := \{p_{c}(x)\}_{c = 1}^{m}$, at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
 		
 		\begin{proof}
-			For convergence in $\ell_{1}$, we simply extend \cref{thm:probability_convergence}, which proved that each entry of $\hat{\bvec{p}}(x)$ converges pointwise uniformly at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ to the corresponding entry of $\bvec{p}(x)$. The $\ell_{1}$-norm of the difference is simply
+			For convergence in $\ell_{1}$, we simply extend \cref{thm:probability_convergence}, which proved that each entry of $\hat{\bvec{p}}(x)$ converges pointwise uniformly at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ to the corresponding entry of $\bvec{p}(x)$. Since each entry converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the entire vector. More formally, from \eqref{eq:decision_probability_error_upper_bound} and \eqref{eq:indicator_rkhs_norm}, the $\ell_{1}$-norm of the difference can be bounded,
 			
 			\begin{equation}
-				{\lVert \hat{\bvec{p}}(x) - \bvec{p}(x) \rVert}_{\ell_{1}} = \sum_{c = 1}^{m} | \hat{p}_{c}(x) - p_{c}(x) |.
+			\begin{aligned}
+				{\lVert \hat{\bvec{p}}(x) - \bvec{p}(x) \rVert}_{\ell_{1}} :=& \sum_{c = 1}^{m} | \hat{p}_{c}(x) - p_{c}(x) | \\
+				\leq& \sum_{c = 1}^{m} \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \\
+				=& m \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}
+			\end{aligned}
 			\end{equation}
 			
-			Since each term in the sum converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the sum, which proves the pointwise uniform convergence in $\ell_{1}$.
+			Therefore, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = m$ independent of $x \in \mathcal{X}$, we have uniform convergence in $\ell_{1}$ where we replace all instances of $| \hat{f}(x) - f(x) |$ in the proof of \cref{thm:pointwise_uniform_convergence} with ${\lVert \hat{\bvec{p}}(x) - \bvec{p}(x) \rVert}_{\ell_{1}}$.
 			
 			For convergence in $\ell_{2}$, we show that the $\ell_{2}$-norm of the difference between the true and empirical decision probability vector functions is the same as the RKHS norm of the difference between the true and empirical conditional embedding, which converges to zero at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $x \in \mathcal{X}$ and $c \in \mathcal{Y} = \mathbb{N}_{m}$ \citep{song2009hilbert}. To this end, we use \cref{thm:probability_is_embedding} and \cref{thm:empirical_probability_is_embedding} and write 
 			
@@ -677,7 +731,7 @@
 			\end{aligned}
 			\end{equation}
 			
-			where the last equality comes from \eqref{eq:rkhs_norm_is_l2_norm} and the fact that the empirical and true conditional embeddings are bounded functions in the RKHS. Since this is true for all $x \in \mathcal{X}$ and the rate does not depend on $x \in \mathcal{X}$, the convergence is pointwise uniform.
+			where the last equality comes from \eqref{eq:rkhs_norm_is_l2_norm} and the fact that the empirical and true conditional embeddings are bounded functions in the RKHS. Again, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = 1$ independent of $x \in \mathcal{X}$, we have uniform convergence in $\ell_{2}$.
 		\end{proof}
 		
 	\end{lemma}
