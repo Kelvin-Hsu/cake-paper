@@ -279,6 +279,8 @@
 		\end{aligned}
 		\end{equation}
 		
+		\note{Note: The proof can just stop right here really. Every time we have some estimator error being upper bounded by some constant (in this case, $1$) times the RKHS norm of the difference between the empirical and true conditional embeddings, we can simply say that if the right hand side goes to zero at a stochastic rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the left hand side. The constant needs to be independent of $n \in \mathbb{N}_{+}$ for this to be true. If the constant is independent of $x \in \mathcal{X}$, then the convergence is uniform. If not, then the convergence is non-uniform.}
+		
 %		Consequently, $| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x}^{(n)} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}$ for all $x \in \mathcal{X}$, where the right hand side of which approaches zero stochastically at rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, so that $\hat{p}_{c}$ converges pointwise to $p_{c}$ at least at this rate. The convergence rate does not depend on $x \in \mathcal{X}$, so this (stochastic) convergence is pointwise uniform.
 		
 		Consequently, for all $x \in \mathcal{X}$ and $c \in \mathcal{Y}$, we have 
@@ -452,12 +454,12 @@
 		\end{algorithmic}
 	\end{algorithm}
 	
-	\subsection{Stochastic Gradient Descent}
+	\subsection{Mini-Batch Stochastic Gradient Descent}
 	\label{sec:stochastic_gradient_descent}
 
-		With standard gradient descent, the time complexity of each training iteration is dominated by the Cholesky decomposition of the regularised gram matrix $K_{\theta} + n \lambda I$ of size $n \times n$, which has a time complexity of $O(n^{3})$. In order to scale the hyperparameter training of kernel embedding classifiers to large dataset, we propose to optimise the complexity objective with stochastic gradient descent.
+		With standard gradient descent, the time complexity of each training iteration is dominated by the Cholesky decomposition of the regularised gram matrix $K_{\theta} + n \lambda I$ of size $n \times n$, which has a time complexity of $O(n^{3})$. In order to scale the hyperparameter training of kernel embedding classifiers to large datasets, we propose to optimise the complexity objective with stochastic gradient descent.
 		
-	
+		We begin by selecting a mini-batch size $n_{b} << n$ that is much smaller than $n$. The objective \eqref{eq:trace_norm_optimisation} is then computed only for the mini-batch 
 	
 		
 		For gradient descent, pick $n_{b} = n$ so that $\mathcal{I} = \mathbb{N}_{n}$ and the full dataset is used to compute the gradients.
@@ -656,13 +658,13 @@
 		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability vector function $\hat{\bvec{p}} : \mathcal{X} \to \mathbb{R}^{m}$ \eqref{eq:empirical_decision_probability_vector} converges pointwise and uniformly to the true decision probability vector function $\bvec{p} : \mathcal{X} \to [0, 1]^{m}$ in the $\ell_{2}$-norm, where $\bvec{p}(x) := \{p_{c}(x)\}_{c = 1}^{m}$, at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
 		
 		\begin{proof}
-			For convergence in $\ell_{1}$, we simply extend \cref{thm:probability_convergence}, which proved that each entry of $\hat{\bvec{p}}(x)$ converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The $\ell_{1}$-norm distance is simply
+			For convergence in $\ell_{1}$, we simply extend \cref{thm:probability_convergence}, which proved that each entry of $\hat{\bvec{p}}(x)$ converges pointwise uniformly at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ to the corresponding entry of $\bvec{p}(x)$. The $\ell_{1}$-norm of the difference is simply
 			
 			\begin{equation}
 				{\lVert \hat{\bvec{p}}(x) - \bvec{p}(x) \rVert}_{\ell_{1}} = \sum_{c = 1}^{m} | \hat{p}_{c}(x) - p_{c}(x) |.
 			\end{equation}
 			
-			It is straight forward to show if each term in the sum converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the sum, which proves the convergence in $\ell_{1}$.
+			Since each term in the sum converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the sum, which proves the pointwise uniform convergence in $\ell_{1}$.
 			
 			For convergence in $\ell_{2}$, we show that the $\ell_{2}$-norm of the difference between the true and empirical decision probability vector functions is the same as the RKHS norm of the difference between the true and empirical conditional embedding, which converges to zero at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $x \in \mathcal{X}$ and $c \in \mathcal{Y} = \mathbb{N}_{m}$ \citep{song2009hilbert}. To this end, we use \cref{thm:probability_is_embedding} and \cref{thm:empirical_probability_is_embedding} and write 
 			
@@ -675,12 +677,10 @@
 			\end{aligned}
 			\end{equation}
 			
-			where the last equality comes from \eqref{eq:rkhs_norm_is_l2_norm} and the fact that the empirical and true conditional embeddings are bounded functions in the RKHS. Since this is true for all $x \in \mathcal{X}$, the convergence is pointwise uniform.
+			where the last equality comes from \eqref{eq:rkhs_norm_is_l2_norm} and the fact that the empirical and true conditional embeddings are bounded functions in the RKHS. Since this is true for all $x \in \mathcal{X}$ and the rate does not depend on $x \in \mathcal{X}$, the convergence is pointwise uniform.
 		\end{proof}
 		
 	\end{lemma}
-	
-	
 	
 \section{Design Choices}
 \label{app:design_choices}
