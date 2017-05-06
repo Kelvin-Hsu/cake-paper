@@ -42,11 +42,12 @@
 \newtheorem{lemma}{Lemma}[section]
 \newtheorem{claim}{Claim}[section]
 
+\usepackage{multirow}
 
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
-\title{Probabilistic Multiclass Kernel Embedding Classifier}
+\title{CAKE: Classification avec Kernel Embeddings \\ with Rademacher Complexity Bounds}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -130,7 +131,35 @@
 %	We propose a novel probabilistic multiclass classifier, the kernel embedding classifier, by casting the multiclass classification problem into the kernel conditional embedding framework in a principled manner. We provide convergence guarantees of the classifier in both decision probability and information entropy, and develop a novel training objective based on Rademacher complexity bounds
 %Specifically, the guaranteed convergence of the kernel embedding classifier in both decision probability and information entropy, the Rademacher complexity based hyperparameter training scheme, the stochastic gradient descent version thereof which allows scalable training, the application of such flexible training methods to train deep convolutional features, and the fully probabilistic inference on both inputs and outputs. Focus the point of the paper as that this is a new and elegant formulation of a fully probabilistic classifier (not just in the outputs, but even in the inputs) with complexity bound based training. Being formulated as type of kernel conditional embedding learning, all the nice properties from the Hilbert space embedding world can be imported into this framework. In practice, even though the mathematical theory of kernel embeddings can be tricky, the resulting algorithms are very elegant and simple, so that implementation is quick and easy. Being very general, there should be a lot of things we can do in the future to improve it or build upon it.
 \end{abstract}
-
+	\note{Alternative Paper Names: \\ 
+		\begin{itemize}
+			\item (Original Name) Probabilistic Multiclass Kernel Embedding Classifier
+			\item CAKE: Classification avec Kernel Embeddings
+			\item CAKE: Classification avec Kernel Embeddings: A Principled Probabilistic Nonparametric Multiclass Classifier
+			\item Probabilistic Nonparametric Multiclass Classification with Kernel Embeddings of Conditional Distributions
+			\item The Kernel Embedding Classifier
+			\item Probabilistic Classification via Hilbert Space Embeddings
+			\item Probabilistic Classification with Kernel Embeddings under Rademacher Complexity
+			\item ...
+		\end{itemize}
+		Simple acronyms makes it all the more memorable and fun :) %When the draft is done I might actually just replace KEC (Kernel Embedding Classifier) with CAKE (Classification avec Kernel Embeddings).
+	}
+	
+	Current state of the paper
+	
+	\begin{itemize}
+		\item Introduction: Completed, but may need more discussion on motivation and related work.
+		\item Hilbert Space Embeddings of Conditional Probability Distributions (Background): Completed.
+		\item Classification avec Kernel Embeddings: Completed.
+		\item Information Entropy: Completed. There is a subsection for cross entropy and KL divergence that I am not sure if I want to include it in the paper so I have not written it yet.
+		\item Hyperparameter Learning with Rademacher Complexity Bounds: Completed. The subsection for mini-batch stochastic gradient descent current contains not-so-polished speculative discussion on the technique.
+		\item End-to-End Classifier Training for Deep Kernel Embedding Network: Draft not completed. Perhaps 1/3 done.
+		\item Full Probabilistic Inference and Mode Reconstruction: Not completed.
+		\item Experiments: Currently only has an outline of what to put into this section.
+		\item Conclusion: Current has notes on what to mention when the paper is done. Also has a detailed list of possible future work to the paper.
+		\item Appendix: Theorems and Derivations: Completed.
+		\item Appendix: Design Choices: Rough unpolished draft.
+	\end{itemize}
 \section{Introduction}
 \label{sec:introduction}
 	
@@ -140,26 +169,27 @@
 	
 	Support vector classifiers (SVC) \citep{m2001introduction}, for example, are originally designed for non-probabilistic binary classification. Its simple and convex optimisation structure makes the model very attractive both theoretically and in practice. However, in order to cope with overfitting, slack constraints introduce hyperparameters for which training does not directly addressed except through standard cross-validation. In order to extend to multiclass scenarios, binary relevance such as one-against-all, one-against-one, or decision trees are used to build a multiclass classifier from multiple binary classifiers \citep{aly2005survey, hsu2002comparison}. There are also no straightforward way of assigning probabilities to SVC, and in many approaches probabilities are simply arbitrary score measures that has been normalised \citep{zadrozny2002transforming, franc2011support} (\note{Check this}). As such, while the original SVC formulation is certainly elegant and practical, its multitude of variants for probabilistic multiclass classification becomes rather convoluted.
 	
-	Within the similar domain of kernel-based classification, Gaussian process classifiers (GPC) \citep{rasmussen2006gaussian} are Bayesian models for which probability distributions are analysed in a principled manner by constructing a latent model that is distributed as a Gaussian process. Nevertheless, the posterior class probabilities are not analytically tractable due to a non-Gaussian likelihood, which requires methods such as Monte Carlo Markov Chain, expectation propagation, or variation inference to approximate. The GPC is also formulated as a binary classifier, and multiclass classification is either approached with binary relevance, or through introducing multiple latent functions that are to be squashed together through a softmax function if probabilistic outputs are to be retained.
+	Within the similar domain of kernel-based classification, Gaussian process classifiers (GPC) \citep{rasmussen2006gaussian} are Bayesian models for which probability distributions are analysed in a principled manner, by constructing a latent model that is distributed as a Gaussian process. Nevertheless, the posterior class probabilities are not analytically tractable due to a non-Gaussian likelihood, which require methods such as Monte Carlo Markov Chain, expectation propagation, or variation inference to approximate. The GPC is also formulated as a binary classifier, and multiclass classification is either approached with binary relevance, or through introducing multiple latent functions that are to be squashed together through a softmax function if probabilistic outputs are to be retained.
 	
-	On the other end of the spectrum, parametric models are limited in its ability to grow in capacity as the dataset grows. Neural networks \citep{lecun2015deep} mitigates this issue by growing deep instead of wide so that each layer of the network extract meaningful features from the dataset. While it requires large amounts of data in order to work, neural networks has been shown to be able to learn almost any complex function. However, the choice of the network architecture remains, and principled probabilistic methods are still undergoing active research. 
+	On the other end of the spectrum, parametric models are limited in its ability to grow in capacity as the dataset grows. Neural networks \citep{lecun2015deep} mitigates this issue by growing deep instead of wide so that each layer of the network extract meaningful features from the dataset. While they require large amounts of data in order to work, neural networks has been shown to be able to learn almost any complex function. However, the choice of the network architecture remains, and principled probabilistic methods are still undergoing active research. In domains where the available data is scarce, neural networks also become very difficult to design and train.
 	
-	In this paper, we propose a new and natural probabilistic multiclass classifier, the kernel embedding classifier (KEC), by casting multiclass classification problems into the kernel conditional embedding framework. Kernel embedding of probability distributions is a principled method for representing and manipulating general probability distributions nonparametrically in a reproducing kernel Hilbert space (RKHS) that is associated with a positive definite kernel. In this way, probability distributions do not need to be restricted to a parametric form, but instead fully expressed by the dataset in a nonparametric manner. In our approach, learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities and information entropies can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistently estimated from data using the conditional embedding framework. This method is very general and makes no distinction between binary and multiclass classification, presenting a unified and principled method for all probabilistic classification tasks.
+	In this paper, we propose a new and natural probabilistic multiclass classifier, the kernel embedding classifier (KEC), by casting multiclass classification problems into the kernel conditional embedding framework. Kernel embedding of probability distributions is a principled method for representing and manipulating general probability distributions, nonparametrically, in a reproducing kernel Hilbert space (RKHS) that is associated with a positive definite kernel. In this way, probability distributions do not need to be restricted to a parametric form, but instead fully expressed by the dataset in a nonparametric manner. In our approach, learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities and information entropies can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistently estimated from data using the conditional embedding framework. This method is very general and makes no distinction between binary and multiclass classification, presenting a unified and principled method for all probabilistic classification tasks.
 	
-	Being developed very generally for any choice of positive definite kernel $k$, the kernel embedding classifier requires the specification of various hyperparameters. In the current kernel embedding literature, there is no standard method to train the hyperparameters besides cross-validation. We further propose and develop a hyperparameter training scheme based on Rademacher complexity bounds, which appropriately balances the accuracy and generalisation capabilities of the classifier. We then develop a mini-batch stochastic gradient descent version of such a training procedure, which brings the notorious complexity of all kernel methods that is cubic in the size of the dataset down to only cubic in the mini-batch size.
+	Being developed very generally for any choice of positive definite kernel $k$, the kernel embedding classifier places no limit on the family of kernels and the structure of its hyperparameters. In the current kernel embedding literature, there is no standard method to train the hyperparameters of a conditional embedding besides cross-validation. We further propose and develop a hyperparameter training scheme based on Rademacher complexity bounds, which appropriately balances the accuracy and generalisation capabilities of the classifier. We then develop a mini-batch stochastic gradient descent version of such a training procedure, which brings the notorious complexity of kernel methods that is cubic in the size of the dataset down to only cubic in the mini-batch size.
 	
-	With no restrictions on the type of kernel used for our classifier, we apply our training algorithm to learn kernels with deep convolutional features on standard image recognition tasks such as the MNIST dataset (\note{Mention more on experiments later when they are ready}). The fully nonparametric and probabilistic nature of the classifier also allows us to perform probabilistic inference on the inputs and, most interestingly, the hidden layers if using a deep kernel. Specifically, we can quantify and obtain the most representative input sample and hidden features of each class.
+	With no restrictions on the type of kernel used for our classifier, we apply our training algorithm to learn kernels with deep convolutional features on standard image recognition tasks such as the MNIST dataset (\note{Mention more on experiments later when they are ready}). Specifically, we also test the performance of our classifier on ``high $d$, low $n$'' domains where the dimensionality of the problem is large compared to the number of observations, by restricting the size of the dataset to be less than the dimensionality of the problem.
+	
+	The fully nonparametric and probabilistic nature of the classifier also allows us to perform probabilistic inference on the inputs and, most interestingly, the hidden layers if using a deep kernel. Specifically, we can quantify and obtain the most representative input sample and hidden features of each class.
 	
 	In summary, our contributions are:
 	
 	\begin{itemize}
 		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions;
-		\item Convergence guarantees on corresponding decision probability and information entropy estimates;
+		\item Convergence guarantees on decision probability and information entropy estimates;
 		\item A novel training algorithm based on minimising Rademacher complexity bounds of our kernel embedding classifier in a reproducing kernel Hilbert space, which balances classification performance and provides greater generalisation capabilities to the classifier;
 		\item A mini-batch stochastic gradient descent variant of the above training algorithm, reducing training complexity from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ in space for a training dataset of size $n$ and a mini-batch size of $n_{b} << n$;
-		\item The application of such a training scheme to learn a deep kernel embedding network and deep convolutional kernel embedding network for image recognition tasks;
-		\item Probabilistic inference and mode reconstruction of the inputs, where we quantify and obtain the most representative sample of each class, amongst other statistics; And,
-		\item Probabilistic inference and mode reconstruction on hidden feature layers of the deep kernel embedding network.
+		\item A deep convolutional network extension to the kernel embedding classifier to learn a deep convolutional kernel embedding network for image recognition tasks; And,
+		\item A methodology to perform probabilistic inference and mode reconstruction of the inputs and hidden feature layers, where we quantify and obtain the most representative sample and hidden features of each class.
 	\end{itemize}
 	
 	
@@ -225,7 +255,7 @@
 
 %	The conditional operator $C_{Y X} C^{-1}_{XX}$ only acts as an approximation of the conditional mean embedding $C_{Y | X}$ for continuous domains because the assumption that for all $g \in \mathcal{H}_{l}$ , the conditional expectation $\mathbb{E}[g(Y) | X = \cdot]$ is an element of $\mathcal{H}_{k}$ may not hold in general \citep{fukumizu2004dimensionality, song2009hilbert}. It also serves to avoid overfitting \citep[p. 13]{song2013kernel}.
 	
-\section{Kernel Embedding Classifier}
+\section{Classification avec Kernel Embeddings}
 \label{sec:kernel_embedding_classifier}
 
 	In this section, we formulate a kernel embedding based probabilistic classifier by casting it into the conditional embedding framework.
@@ -350,7 +380,7 @@
 		\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle = \bvec{u}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}.
 	\end{equation}
 	
-	Unfortunately, $u_{x}$ is not known exactly, since $\mathbb{P}[Y = y | X = x]$ is not known exactly. Instead, since $\hat{p}_{c}(x)$ is a consistent estimate for $\mathbb{P}[Y = c | X = x]$ (\cref{thm:probability_convergence}), we propose to replace $u_{x}$ with the negative log of $\hat{p}_{y}(x)$. However, we cannot simply take the log of this estimator, as $\hat{p}_{y}(x)$ may produce non-positive estimates to the prediction probabilities. The straight forward way to mitigate this problem is to clip $\hat{p}_{y}(x)$ from the bottom by a very small number, before taking the log. However, experiments show that this produces non-smooth estimates over $\mathcal{X}$ and the degree of smoothness varies drastically between different choices of that small number (see \cref{app:design_choices}). Instead, in virtue of the fact that $\lim_{p \to 0} - p \log{p} = 0$ even though $\lim_{p \to 0} - \log{p} = \infty$, we simply define the information estimate $\hat{u}_{x}(y)$ as zero if the empirical decision probability is non-positive,
+	Unfortunately, $u_{x}$ is not known exactly, since $\mathbb{P}[Y = y | X = x]$ is not known exactly. Instead, since $\hat{p}_{c}(x)$ is a consistent estimate for $\mathbb{P}[Y = c | X = x]$ by \cref{thm:probability_convergence}, we propose to replace $u_{x}(y)$ with the negative log of $\hat{p}_{y}(x)$. However, we cannot simply take the log of this estimator, as $\hat{p}_{y}(x)$ may produce non-positive estimates to the prediction probabilities. The straight forward way to mitigate this problem is to clip $\hat{p}_{y}(x)$ from the bottom by a very small number, before taking the log. However, experiments show that this produces non-smooth estimates over $\mathcal{X}$ and the degree of smoothness varies drastically between different choices of that small number (see \cref{app:design_choices}). Instead, in virtue of the fact that $\lim_{p \to 0} - p \log{p} = 0$ even though $\lim_{p \to 0} - \log{p} = \infty$, we simply define the information estimate $\hat{u}_{x}(y)$ as zero if the empirical decision probability is non-positive,
 	
 	\begin{equation}
 		\hat{u}_{x}(y) := \begin{cases}
@@ -380,18 +410,18 @@
 	\subsection{Cross Entropy and Kullback–Leibler Divergence between Input Instances}
 
 		\note{Note: A very simple extension to the above is the cross entropy and Kullback-Leibler divergence between two input location $x, x' \in \mathcal{X}$. The convergence proof is basically identical. However, I am not sure how useful this result would be in practice. What would be more useful, in my opinion, is the joint entropy of multiple input locations.}
-\section{Hyperparameter Training}
+\section{Hyperparameter Learning with Rademacher Complexity Bounds}
 \label{sec:hyperparameter_learning}
 
 	The formulation of the kernel embedding classifier requires the specification of a kernel $k : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ over the input space $\mathcal{X}$, or rather, a class of kernels $\{k_{\theta}\}_{\theta \in \Theta}$ parametrised by the kernel parameters $\theta \in \Theta$. It also requires the specification of a regularisation parameter $\lambda$ for the conditional embedding as in \eqref{eq:empirical_conditional_embedding}. These are hyperparameters of the kernel embedding classifier which needs to be learned in order to produce a reasonable model with high prediction accuracy. 
 
-	In the kernel embedding literature, hyperparameters has been notoriously difficult to tune, and its learning is usually only restricted to inelegant methods such as cross validation with either some form of misclassification loss or the negative log probability (cross entropy) as the objective.
+	In the kernel embedding literature, hyperparameters has been notoriously difficult to tune, and its learning is usually only restricted to inelegant methods such as cross validation with either some form of misclassification loss or the negative log probability (cross entropy) loss as the objective.
 
 %	Inspired by the log marginal likelihood learning objective used to learn the hyperparameters of a Gaussian process \citep{rasmussen2006gaussian}, \cite{flaxman2016bayesian} derived a log marginal likelihood expression for kernel embeddings by placing a Gaussian process prior on the mean embedding, and constructing a Gaussian likelihood of the empirical mean embedding given the true mean embedding. With a Gaussian prior and a Gaussian likelihood, inference becomes tractable and a closed form solution to the corresponding log marginal likelihood objective can be obtained with a slight change of variable factor. However, this formulation is only capable of learning the kernel parameters of a joint embedding, and not the kernel and regularisation parameters of a conditional embedding.
 
 	In this paper, we take a learning theoretic approach to learn the hyperparameters of the KEC, inspired by the original training procedure of support vector classifiers (SVC) as described by \cite[p. 185]{m2001introduction}. Assuming a perfectly separable case, the training of a SVC begins by introducing a \textit{prediction constraint} on the training set, where the classifier is constrained to correctly classify all the available training examples. The strategy is to minimise the \textit{complexity} of the SVC model while ensuring perfect classification over training examples. The model complexity in the SVC context is measured by the VC dimension $h$ of the binary classifier, which has an upper bound $h \leq \lVert \bvec{w} \rVert^{2} R^{2} + 1$. Since it is difficult to compute the VC dimension explicitly, we instead minimise its upper bound, which is equivalent to and leads to the common interpretation of maximising the margin $\frac{2}{\lVert \bvec{w} \rVert}$.
 	
-	Similarly, we propose to train our kernel embedding classifier with the same high level formulation: minimise the model complexity without compromising classification performance on the training data. Instead of employing the VC dimension as the complexity measure of our model, which is defined mainly for binary classifiers, we consider the \textit{Rademacher complexity} \citep{bartlett2002rademacher} of the kernel embedding classifier.
+	Similarly, we propose to train our kernel embedding classifier with the same high level formulation: minimise the model complexity without compromising classification performance on the training data. Instead of employing the VC dimension as the complexity measure of our model, which is defined mainly for binary classifiers, we consider the \textit{Rademacher complexity} of the kernel embedding classifier. \cite[Theorem 5]{bartlett2002rademacher} has shown that the test error for a class of functions, such as a classifier, is stochastically bounded by the training error plus a term that is monotonically increasing with the Rademacher complexity and a constant, similar to the case with the VC dimension. As such, if we can minimise the model complexity in the sense of the Rademacher complexity while maintaining a low training error, we can optimise generalisation ability in the sense of low expected test error.
 	
 %	For a multi-label predictor parametrised as $f(x; W) = W^{T} x$ where $W \in \mathbb{R}^{d \times L}$ and $L$ is the number of target binary labels,  \cite{yu2014large} showed that the global Rademacher complexity of $W$ is upper-bounded in terms of its trace norm, $\mathrm{trace}(W^{T} W)$. Albeit formulated for multiclass instead of multi-label prediction, the empirical decision probabilities \eqref{eq:empirical_decision_probability_vector} also has the same analytical form, where the input $x$ is replaced by some feature vector $\phi(x)$.
 	
@@ -440,7 +470,7 @@
 			\STATE Sample $\mathcal{I} \subseteq \mathbb{N}_{n}$ such that $| \mathcal{I} | = n_{b}$ \hspace{\fill} For gradient descent, $n_{b} = n$ and $\mathcal{I} = \mathbb{N}_{n}$
 			\STATE $B \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
 			\STATE $K_{\theta} \leftarrow \{k_{\theta}(x_{i}, x_{j}) : i \in \mathcal{I}, j \in \mathcal{I}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
-			\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n \lambda I) \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
+			\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n_{b} \lambda I_{n_{b}}) \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
 			\STATE $V_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash B) \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
 			\STATE $r(\theta, \lambda) \leftarrow \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$ \hspace{\fill} Alternatively, $r(\theta, \lambda) \leftarrow \log{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
 			\STATE $\theta \leftarrow \theta - \eta \frac{\partial r}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial r}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} Gradients are computed through back-propagation
@@ -483,7 +513,7 @@
 	
 	Let $\mathcal{F}_{0} := \mathcal{X}$ be the original input space. The $j^{\mathrm{th}}$ layer of the network $\varphi^{(j)}_{\theta_{j}} : \mathcal{F}_{j - 1} \to \mathcal{F}_{j}, j = 1, 2, \dots, q$ is to transform features from the previous layer to features in the current layer, where $q$ is the total number of such feature transformation layers, and $\theta_{j} \in \Theta_{j}$ parametrises each of those transformations.
 	
-	For example, in a typical multi-layer perceptron context, each layer can be written as $\varphi^{(j)}_{\theta_{j}}(x) = \sigma(W_{j}^{T} x + b_{j})$, where $W$ and $b$ are the weight and bias parameters of the layer, and $\sigma$ is an element-wise activation function, typically the rectified linear unit (ReLU) or the sigmoid. In this case, the layer is parametrised by $\theta_{j} = \{W_{j}, b_{j}\}$. The setup for a feed-forward convolutional neural network is also very similar.
+	For example, in a typical multi-layer perceptron context, each layer can be written as $\varphi^{(j)}_{\theta_{j}}(x) = \sigma(W_{j} x + b_{j})$, where $W$ and $b$ are the weight and bias parameters of the layer, and $\sigma$ is an element-wise activation function, typically the rectified linear unit (ReLU) or the sigmoid. In this case, the layer is parametrised by $\theta_{j} = \{W_{j}, b_{j}\}$. The setup for a feed-forward convolutional neural network is also very similar.
 	
 	Our aim is to construct a positive definite kernel $k$ which can learn representations of the inputs at various levels before such these representations are passed into a simpler kernel $\kappa$ which captures the similarity between the representations.
 	
@@ -512,7 +542,7 @@
 \section{Full Probabilistic Inference and Mode Reconstruction}
 \label{sec:mode_reconstruction}
 
-	Formulated as a conditional embedding learning task in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can perform full probabilistic inference between all the observed and hidden variables (if any) of the kernel embedding network.
+	Formulated as a conditional embedding learning task in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can perform full probabilistic inference between all the observed and hidden variables (if any) of the kernel embedding network. That is, 
 	
 	\note{Note: Not completed yet.}
 	
@@ -522,39 +552,87 @@
 	
 \section{Experiments}
 
-	\note{Note that while it would certainly be great, the point of developing this kernel embedding classifier is not to beat other existing classification algorithms. The purpose is to develop a simple and elegant fully probabilistic multiclass classifier based on embedding the observed data directly into a reproducing kernel Hilbert space, with a quantifiable notion of model complexity. This is what we will aim to show here in the experiments as well. Below is just a summary of what has been done but has not been put together neatly yet.}
-	
-	\textbf{Experiments to Show}: We are aiming to do experiments on one toy dataset for illustration and visualisation, and on two real world datasets for benchmarking performance. So far, I am using the iris dataset for the toy dataset, and MNIST for one of the real world datasets. We should still find a third real world dataset that will really benefit from such a flexible nonparametric, probabilistic multiclass classifier.
-	
-	\begin{itemize}
-		\item A toy 2D classification tasks for visualising the properties and capabilities of the kernel embedding classifier. An simple example is the iris dataset, where we take only 2 attributes. There are three classes, so the probabilities can be visualised using RGB. We first use the first two attributes of the dataset, where the training examples are very non-separable. The point is to demonstrate that the kernel embedding classifier learns a simple and reasonable model that does not overfit, even though it has the capacity to shatter all the training data and have 100\% training accuracy. We then show that if we use the standard cross entropy loss as the objective for training, then we easily overfit the data.
-		\item We also show plots illustrating how the training objective, performance of the classifier, and the hyperparameters changes during the training procedure.
-		\item We then show results for training using SGD, which reveals that at a faster speed we arrive at the same solution as before.
-		\item We can then move on to actual real world datasets, like MNIST.
-		\item The MNIST dataset has 60000 training images and 10000 test images. So far I have results for only giving the first 500 training images to the kernel embedding classifier (much smaller than the dimensionality of the problem, which is 784), and it is to perform on the whole 10000 test images. We show that with a Gaussian kernel, we get around 82\% accuracy. Then, with a simple extension by adding three convolutional layers before give it to the Gaussian kernel, we get around 92\% accuracy. Of course, we also report the cross entropy loss. We do this with both gradient descent and SGD. We then compare this to support vector classifiers and Gaussian process classifiers. Then also compare this to state of the art convolutional neural networks with 500 observations for training data.
-		\item More to come...
-	\end{itemize}
+%	\note{Note that while it would certainly be great, the point of developing this kernel embedding classifier is not to beat other existing classification algorithms. The purpose is to develop a simple and elegant fully probabilistic multiclass classifier based on embedding the observed data directly into a reproducing kernel Hilbert space, with a quantifiable notion of model complexity. This is what we will aim to show here in the experiments as well. Below is just a summary of what has been done but has not been put together neatly yet.}
+%	
+%	\textbf{Experiments to Show}: We are aiming to do experiments on one toy dataset for illustration and visualisation, and on two real world datasets for benchmarking performance. So far, I am using the iris dataset for the toy dataset, and MNIST for one of the real world datasets. We should still find a third real world dataset that will really benefit from such a flexible nonparametric, probabilistic multiclass classifier.
+%	
+%	\begin{itemize}
+%		\item A toy 2D classification tasks for visualising the properties and capabilities of the kernel embedding classifier. An simple example is the iris dataset, where we take only 2 attributes. There are three classes, so the probabilities can be visualised using RGB. We first use the first two attributes of the dataset, where the training examples are very non-separable. The point is to demonstrate that the kernel embedding classifier learns a simple and reasonable model that does not overfit, even though it has the capacity to shatter all the training data and have 100\% training accuracy. We then show that if we use the standard cross entropy loss as the objective for training, then we easily overfit the data.
+%		\item We also show plots illustrating how the training objective, performance of the classifier, and the hyperparameters changes during the training procedure.
+%		\item We then show results for training using SGD, which reveals that at a faster speed we arrive at the same solution as before.
+%		\item We can then move on to actual real world datasets, like MNIST.
+%		\item The MNIST dataset has 60000 training images and 10000 test images. So far I have results for only giving the first 500 training images to the kernel embedding classifier (much smaller than the dimensionality of the problem, which is 784), and it is to perform on the whole 10000 test images. We show that with a Gaussian kernel, we get around 82\% accuracy. Then, with a simple extension by adding three convolutional layers before give it to the Gaussian kernel, we get around 92\% accuracy. Of course, we also report the cross entropy loss. We do this with both gradient descent and SGD. We then compare this to support vector classifiers and Gaussian process classifiers. Then also compare this to state of the art convolutional neural networks with 500 observations for training data.
+%		\item We can also use the learned length scale of a stationary kernel to visualise the most discriminative pixels in the image useful to the classifier.
+%		\item More to come...
+%	\end{itemize}
 	
 	We will also open-source the code on GitHub. All the core algorithms presented in this paper will be available and implemented in TensorFlow, while having the same API as \texttt{scikit-learn} models so that it is straightforward to use.
 	
-%	\begin{figure}
-%		\begin{center}
-%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_43_24_anisotropic_gd_tol_01_complexity_attributes_0_1/figure4.eps}
-%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_43_55_anisotropic_sgd_batch_27_tol_01_complexity_attributes_0_1/figure4.eps}
-%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_47_23_anisotropic_gd_tol_001_cross_entropy_attributes_0_1/figure4.eps}
-%			\includegraphics[width=0.48\linewidth]{figures/iris_2017_4_11_0_48_54_anisotropic_sgd_batch_27_tol_001_cross_entropy_attributes_0_1/figure4.eps}
-%		\end{center}
-%		\caption{\small Kernel Embedding Classifier}
-%		\label{fig:kec}
-%	\end{figure}
-%	
-%	\begin{figure}
-%		\begin{center}
-%			\includegraphics[width=0.9\linewidth]{figures/iris_2017_4_11_0_43_24_anisotropic_gd_tol_01_complexity_attributes_0_1/figure14.eps}
-%		\end{center}
-%		\caption{\small Kernel Embedding Classifier}
-%%		\label{fig:kec}
-%	\end{figure}
+	\begin{table}[t]
+		\begin{center}
+			\begin{tabular}{ l l || c || c c || c }
+				\hline
+				\multicolumn{6}{ c }{Classification Accuracy on UCI Datasets} \\
+				\hline
+				\hline
+%				& & & \multicolumn{2}{ c }{Accuracy} & \\
+%				\hline				
+				Dataset & & Method & Train & Test & Test (Literature) \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 1372$ & CE + RC & 99.59 & 100 & Artificial Neural Network: 99.78 \\
+				\texttt{banknote} & $d = 4$ & CE & 99.59 & 100 & \citep{kaya2016banknote} \\
+				& $m = 2$ & RC & 99.59 & 100 &  \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 336$ & CE + RC & 92.05 & 91.18 & Probabilistic Binary Tree: 81.1 \\
+				\texttt{ecoli} & $d = 7$ & CE & 94.04 & 85.29 & \citep{horton1996probabilistic} \\
+				& $m = 8$ & RC & 91.05 & 88.24 &  \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 150$ & CE + RC & 97.78 & 100 & SVM: 94.67 \\
+				\texttt{iris} & $d = 4$ & CE & 97.04 & 100 & \citep{koggalage2004reducing}\\
+				& $m = 3$ & RC & 97.78 & 100 & ANN: 83.33 \citep{swain2012approach} \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 7797$ & CE + RC &   &   & \\
+				\texttt{isolet} & $d = 617$ & CE &   &   & \\
+				& $m = 26$ & RC &   &   &  \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 2310$ & CE + RC & 99.37 & 97.40 & Decision Trees \& Neural Nets: \\
+				\texttt{segment} & $d = 19$ & CE & 97.84 & 96.97 &  99.14 - 99.98 \\
+				& $m = 7$ & RC & 97.35 & 96.10 & \citep{lim2000comparison} \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 178$ & CE + RC & 100 & 100 & RDA: 100, QDA: 99.4, \\
+				\texttt{wine} & $d = 13$ & CE & 100 & 100 & LDA: 98.9, 1NN: 96.1 \\
+				& $m = 3$ & RC & 100 & 100 & \citep{aeberhard1992comparison} \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 6497$ & CE + RC & & & \\
+				\texttt{wine-quality} & $d = 12$ & CE & & & \\
+				& $m = 2$ & RC & & &  \\
+				\hline
+				\hline
+				\multirow{6}{*}{}
+				& $n = 1484$ & CE + RC & 67.04 & 57.72 & Probabilistic Binary Tree: 55.0 \\
+				\texttt{yeast} & $d = 8$ & CE & 68.24 & 56.38 & \citep{horton1996probabilistic} \\
+				& $m = 10$ & RC & 62.25 & 56.38 &  \\
+				\hline
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Classification Accuracy of the Kernel Embedding Classifier on standard UCI Datasets.}
+		\label{tab:experiments}
+	\end{table}
 
 \section{Conclusion}
 
@@ -672,7 +750,7 @@
 			\end{aligned}
 			\end{equation}
 			
-			Therefore, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = 1$ independent of $x \in \mathcal{X}$, $\hat{p}_{c}$ converges uniformly to $p_{c}$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$
+			Therefore, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = 1$ independent of $x \in \mathcal{X}$, $\hat{p}_{c}$ converges uniformly to $p_{c}$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
 			
 			%		Consequently, $| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x}^{(n)} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}$ for all $x \in \mathcal{X}$, where the right hand side of which approaches zero stochastically at rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, so that $\hat{p}_{c}$ converges pointwise to $p_{c}$ at least at this rate. The convergence rate does not depend on $x \in \mathcal{X}$, so this (stochastic) convergence is pointwise uniform.
 			
@@ -862,7 +940,7 @@
 			
 			where the we used the triangle inequality and Cauchy–Schwarz inequality in a Hilbert space respectively.
 			
-			Now, since $l = \delta$ is bounded, so is $\hat{\mu}_{Y | X = x}(c) = \sum_{i = 1}^{n} w_{i} \delta(y_{i}, c)$ for some embedding weights $w_{i}$ and all $c \in \mathbb{N}_{m}$, and thus its RKHS norm is finite. Similarly, assuming that $p_{c}(x)$ is never exactly zero, $u_{x}(c)$ is also finite for all $c \in \mathbb{N}_{m}$ and thus so is its RKHS norm. We already know that $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$ stochastically converges to zero at the rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ \citep{song2009hilbert}. Thus, it remains to bound $\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}}$ by a multiple of $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$.
+			Now, since $l = \delta$ is bounded, so is $\hat{\mu}_{Y | X = x}(c) = \sum_{i = 1}^{n} w_{i} \delta(y_{i}, c)$ for some embedding weights $w_{i}$ and all $c \in \mathbb{N}_{m}$, and thus its RKHS norm is finite for all $n \in \mathbb{N}_{n}$. Similarly, assuming that $p_{c}(x)$ is never exactly zero, $u_{x}(c)$ is also finite for all $c \in \mathbb{N}_{m}$ and thus so is its RKHS norm. We already know that $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$ stochastically converges to zero at the rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ \citep{song2009hilbert}. Thus, it remains to bound $\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}}$ by a multiple of $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$.
 			
 			To this end, we first use \cref{thm:probability_is_embedding} and \cref{thm:empirical_probability_is_embedding} and to express the theoretical and empirical information as the negative log of the embedding, so that it is explicitly written as a function of $c \in \mathcal{Y}$ in $\mathcal{H}_{\delta}$ indexed by $x \in \mathcal{X}$,
 			
@@ -902,7 +980,7 @@
 			\begin{aligned}
 				| \hat{h}(x) - h(x) | &\leq \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}} + \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| u_{x} \|_{\mathcal{H}_{\delta}} \\
 				&= \alpha_{x} \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} + \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \| u_{x} \|_{\mathcal{H}_{\delta}} \\
-				&= ( \alpha_{x} \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} + \| u_{x} \|_{\mathcal{H}_{\delta}} ) \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}} \\
+				&= ( \alpha_{x} \| \hat{\mu}_{Y | X = x} \|_{\mathcal{H}_{\delta}} + \| u_{x} \|_{\mathcal{H}_{\delta}} ) \| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}. \\
 			\end{aligned}
 			\end{equation}
 			
