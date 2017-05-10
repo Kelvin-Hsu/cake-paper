@@ -128,7 +128,7 @@
 \maketitle
 
 \begin{abstract}
-	Kernel embedding of probability distributions are a 
+	We propose learning-theoretic bounds for learning the hyperparameters of kernel embeddings in the probabilistic multiclass classification context. Kernel embeddings are nonparametric methods to represent probability distributions directly through observed data in a reproducing kernel Hilbert space (RKHS). However, the problem of hyperparameter learning for kernel embeddings remains challenging, often relying on heuristics and domain specific knowledge. We begin by developing the kernel embedding classifier (KEC), and prove the stochastic convergence of its probabilistic predictions. We then prove that expected classification risk can be bounded by using a data dependent Rademacher complexity measure in the probably approximately correct (PAC) framework. We use this bound to propose a scalable kernel learning algorithm for probabilistic multiclass classification. Classification performance is benchmarked on standard UCI datasets. We further apply our proposed kernel learning algorithm to learn feature representations of a deep convolutional network, with improved accuracy as compared to the original network, demonstrating the generality of this approach.
 \end{abstract}
 
 - We address the need for a principled way of obtaining probabilistic outputs from a multiclass classifier.
@@ -137,10 +137,14 @@
 - We do not rely on priors
 
 
+Data dependent risk bounds
 \section{Introduction}
 \label{sec:introduction}
 	
-	\note{Draft: Introduction will need a more thorough discussion of motivation, related work, theoretical and practical implications, and contribution.}
+	Kernel embeddings are a principled way to represent probability distributions in a nonparametric setting.
+	
+	learning theoretic (be specific and mention PAC)
+	(complexity penalty terms that are not data dependent cannot be universally effective) \citep{kearns1997experimental} 
 	
 	Classification is perhaps one of the most important and thoroughly developed topics in machine learning and pattern recognition. Despite this, principled probabilistic classification on multiclass problems remains a difficult and challenging task, and most solutions tackle this issue rather indirectly. \note{Maybe elaborate on why multiclass problems are important and why we want probabilities estimates in our predictions.}
 	
