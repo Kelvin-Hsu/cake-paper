@@ -47,7 +47,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
-\title{CAKE: Classification avec Kernel Embeddings \\ with Rademacher Complexity Bounds}
+\title{CAKE: Classification avec Kernel Embeddings \\ with Rademacher Complexity based Risk Bounds}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -128,7 +128,7 @@
 \maketitle
 
 \begin{abstract}
-	We propose learning-theoretic bounds for learning the hyperparameters of kernel embeddings in the probabilistic multiclass classification context. Kernel embeddings are nonparametric methods to represent probability distributions directly through observed data in a reproducing kernel Hilbert space (RKHS). However, the problem of hyperparameter learning for kernel embeddings remains challenging, often relying on heuristics and domain specific knowledge. We begin by developing the kernel embedding classifier (KEC), and prove the stochastic convergence of its probabilistic predictions. We then prove that expected classification risk can be bounded by using a data dependent Rademacher complexity measure in the probably approximately correct (PAC) framework. We use this bound to propose a scalable kernel learning algorithm for probabilistic multiclass classification. Classification performance is benchmarked on standard UCI datasets. We further apply our proposed kernel learning algorithm to learn feature representations of a deep convolutional network, with improved accuracy as compared to the original network, demonstrating the generality of this approach.
+	We propose learning-theoretic bounds for learning the hyperparameters of kernel embeddings in the probabilistic multiclass classification context. Kernel embeddings are nonparametric methods to represent probability distributions directly through observed data in a reproducing kernel Hilbert space (RKHS). However, the problem of hyperparameter learning for kernel embeddings remains challenging, often relying on heuristics and domain specific knowledge. We begin by developing the kernel embedding classifier (KEC), and prove the stochastic convergence of its probabilistic predictions. We then prove that expected classification error can be bounded with high probability using Rademacher complexity based risk bounds. We use this bound to propose a scalable kernel learning algorithm for probabilistic multiclass classification. Classification performance is benchmarked on standard UCI datasets. We further apply our proposed kernel learning algorithm to learn feature representations of a deep convolutional network, with improved accuracy as compared to the original network, demonstrating the generality of this approach.
 \end{abstract}
 
 - We address the need for a principled way of obtaining probabilistic outputs from a multiclass classifier.
@@ -136,57 +136,21 @@
 - We address hyperparameter learning for a kernel embedding model
 - We do not rely on priors
 
-
 Data dependent risk bounds
+
 \section{Introduction}
 \label{sec:introduction}
 	
 	Kernel embeddings are a principled way to represent probability distributions in a nonparametric setting.
 	
+	
+
+
+
 	learning theoretic (be specific and mention PAC)
 	(complexity penalty terms that are not data dependent cannot be universally effective) \citep{kearns1997experimental} 
 	
-	Classification is perhaps one of the most important and thoroughly developed topics in machine learning and pattern recognition. Despite this, principled probabilistic classification on multiclass problems remains a difficult and challenging task, and most solutions tackle this issue rather indirectly. \note{Maybe elaborate on why multiclass problems are important and why we want probabilities estimates in our predictions.}
-	
-	Support vector classifiers (SVC) \citep{m2001introduction}, for example, are originally designed for non-probabilistic binary classification. Its simple and convex optimisation structure makes the model very attractive both theoretically and in practice. However, in order to cope with overfitting, slack constraints introduce hyperparameters for which training does not directly addressed except through standard cross-validation. In order to extend to multiclass scenarios, binary relevance such as one-against-all, one-against-one, or decision trees are used to build a multiclass classifier from multiple binary classifiers \citep{aly2005survey, hsu2002comparison}. There are also no straightforward way of assigning probabilities to SVC, and in many approaches probabilities are simply arbitrary score measures that has been normalised \citep{zadrozny2002transforming, franc2011support} (\note{Check this}). As such, while the original SVC formulation is certainly elegant and practical, its multitude of variants for probabilistic multiclass classification becomes rather convoluted.
-	
-	Within the similar domain of kernel-based classification, Gaussian process classifiers (GPC) \citep{rasmussen2006gaussian} are Bayesian models for which probability distributions are analysed in a principled manner, by constructing a latent model that is distributed as a Gaussian process. Nevertheless, the posterior class probabilities are not analytically tractable due to a non-Gaussian likelihood, which require methods such as Monte Carlo Markov Chain, expectation propagation, or variation inference to approximate. The GPC is also formulated as a binary classifier, and multiclass classification is either approached with binary relevance, or through introducing multiple latent functions that are to be squashed together through a softmax function if probabilistic outputs are to be retained.
-	
-	On the other end of the spectrum, parametric models are limited in its ability to grow in capacity as the dataset grows. Neural networks \citep{lecun2015deep} mitigates this issue by growing deep instead of wide so that each layer of the network extract meaningful features from the dataset. While they require large amounts of data in order to work, neural networks has been shown to be able to learn almost any complex function. However, the choice of the network architecture remains, and principled probabilistic methods are still undergoing active research. In domains where the available data is scarce, neural networks also become very difficult to design and train.
-	
-	In this paper, we propose a new and natural probabilistic multiclass classifier, the kernel embedding classifier (KEC), by casting multiclass classification problems into the kernel conditional embedding framework. Kernel embedding of probability distributions is a principled method for representing and manipulating general probability distributions, nonparametrically, in a reproducing kernel Hilbert space (RKHS) that is associated with a positive definite kernel. In this way, probability distributions do not need to be restricted to a parametric form, but instead fully expressed by the dataset in a nonparametric manner. In our approach, learning the classifier is done by learning a corresponding conditional embedding from data. We show that by placing a Kronecker delta kernel over the label space, decision probabilities and information entropies can be expressed as inner products in the correspondingly induced reproducing kernel Hilbert space, which can be consistently estimated from data using the conditional embedding framework. This method is very general and makes no distinction between binary and multiclass classification, presenting a unified and principled method for all probabilistic classification tasks.
-	
-	Being developed very generally for any choice of positive definite kernel $k$, the kernel embedding classifier places no limit on the family of kernels and the structure of its hyperparameters. In the current kernel embedding literature, there is no standard method to train the hyperparameters of a conditional embedding besides cross-validation. We further propose and develop a hyperparameter training scheme based on Rademacher complexity bounds, which appropriately balances the accuracy and generalisation capabilities of the classifier. We then develop a mini-batch stochastic gradient descent version of such a training procedure, which brings the notorious complexity of kernel methods that is cubic in the size of the dataset down to only cubic in the mini-batch size.
-	
-	With no restrictions on the type of kernel used for our classifier, we apply our training algorithm to learn kernels with deep convolutional features on standard image recognition tasks such as the MNIST dataset (\note{Mention more on experiments later when they are ready}). Specifically, we also test the performance of our classifier on ``high $d$, low $n$'' domains where the dimensionality of the problem is large compared to the number of observations, by restricting the size of the dataset to be less than the dimensionality of the problem.
-	
-	The fully nonparametric and probabilistic nature of the classifier also allows us to perform probabilistic inference on the inputs and, most interestingly, the hidden layers if using a deep kernel. Specifically, we can quantify and obtain the most representative input sample and hidden features of each class.
-	
-	In summary, our contributions are:
-	
-	\begin{itemize}
-		\item A novel probabilistic multiclass classifier, the kernel embedding classifier (KEC), based on the theory and framework of kernel embedding of conditional distributions;
-		\item Convergence guarantees on decision probability and information entropy estimates;
-		\item A novel training algorithm based on minimising Rademacher complexity bounds of our kernel embedding classifier in a reproducing kernel Hilbert space, which balances classification performance and provides greater generalisation capabilities to the classifier;
-		\item A mini-batch stochastic gradient descent variant of the above training algorithm, reducing training complexity from $O(n^{3})$ to $O(n_{b}^{3})$ in time and from $O(n^{2})$ to $O(n_{b}^{2})$ in space for a training dataset of size $n$ and a mini-batch size of $n_{b} << n$;
-		\item A deep convolutional network extension to the kernel embedding classifier to learn a deep convolutional kernel embedding network for image recognition tasks; And,
-		\item A methodology to perform probabilistic inference and mode reconstruction of the inputs and hidden feature layers, where we quantify and obtain the most representative sample and hidden features of each class.
-	\end{itemize}
-	
-	
-%	Most classification algorithms are binary classifiers, which can only handle the case where the output can only take instances from one of two classes. This is true for both SVM classifiers and GP classifiers. Part of the reason for that is that it works by learning a continuous latent function which basically represents the `strength' of one of the classes, and so it is really just inferring how likely an input is from class A and if not it would be from class B. To build a multiclass classifier, a simple approach is to train multiple binary classifiers to tell apart pairs of classes or sets of classes, and somehow fuse these results together. Notable examples are One Versus All (OVA) and All Versus All (AVA) approaches, as well as binary tree approaches.
-%	
-%	\href{http://www.vision.caltech.edu/malaa/publications/aly05multiclass.pdf}{Here} is a 2005 Survey which summarises the state-of-the-art in multiclass classification at the time, which supports what I just said above. It does not seem like the above scenario has fundamentally changed in the past 10+ years, although more sophisticated versions of what was described above has been proposed and tested.
-%	
-%	The idea I am proposing here is actually very simple and intuitive. Suppose the training data is $\{\bvec{x}_{i}, y_{i}\}_{i = 1}^{n}$ where $\bvec{x}_{i} \in \mathcal{X}, y_{i} \in \mathbb{N}_{m}$ for all $i \in \mathbb{N}_{n}$ with $\mathbb{N}_{m} := \{1, 2, \cdots, m\}$. To clarify, $n$ is the number of training points, $m$ is the number of classes involved, and $\mathcal{X}$ is usually a subset of some euclidean space $\mathbb{R}^{d}$ but it does not necessarily have to be so (which is an advantage in kernel methods in general, such as GPs). The idea is to use the kernel embedding framework to compute a conditional embedding empirically from those training points. We then show that class probabilities can be computed from the conditional embedding if we place a Kronecker delta kernel on the space of the outputs, $\mathbb{N}_{m}$. We show that these class probabilities estimates are consistent estimates of the true class probabilities. Furthermore, the corresponding Shannon information entropy estimate at each query input can be computed, in two different ways, and we explore the performance of each of these approaches. In this way, we propose a natural probabilistic classifier for multiclass classification.
-%	
-%	Computationally, this probabilistic classifier is to do the following. Given a set of training points $\{\bvec{x}_{i}, y_{i}\}_{i = 1}^{n}$ and a set of query inputs $\{\bvec{x}^{\star}_{i}\}_{i = 1}^{n^{\star}}$, our classifier can output $\hat{P}^{\star} = \{\hat{\bvec{p}}^{\star}_{i}\}_{i = 1}^{n^{\star}}$, the estimated class probabilities at the query points, and also $\bvec{h}^{\star} = \{\hat{h}^{\star}_{i}\}_{i = 1}^{n^{\star}}$, the estimated information entropy at the query points.
-%	\\
-%	\\
-%
-%	In \cref{sec:kernel_embedding_classifier}, by expressing decision probabilities as expectations of indicator functions in the RKHS, we derived a consistent estimate of the decision probabilities from an inner product between the empirical conditional embedding and the indicator function. Likewise, in \cref{sec:information_entropy}, by expressing information entropy as expected information in the RKHS, we derived a consistent estimate of the information entropy from an inner product between the empirical conditional embedding and the information function.
-	
-	Contrary to parametric models, kernel methods are nonparametric, and thus its model capacity grows with increasing data. Within a large enough family of kernels $k_{\theta}$, the kernel embedding classifier always has the capacity to shatter the training data and produce zero training error. Given that it has such capabilities, we instead focus on learning the simplest model that can generalise well to new test data. If we instead choose to train the classifier by adding some measure of training error as a penalty term to \eqref{eq:trace_norm_optimisation}, such as the training cross entropy loss, then it can very easily overfit by adapting its model capacity to the training data closely. The Rademacher complexity regularises this behaviour to learn a good balance between training error and unseen test error. In short, while parametric models have limited capacity and thus trying to learn to perform well on a training set to its best ability is a good indicator to test performance, nonparametric models has infinite capacity and need to learn not to exploit this capacity on training data and instead learn the simplest pattern it can to be able to infer about new test instances. Indeed, experiments show that KEC training usually starts with high training accuracy and very low cross entropy loss, and eventually learns the simplest model while maintaining that training accuracy, or even relaxes the training accuracy if the model is simply too complicated and unlikely to generalise well. That is, the training usually starts from a state of overfitting, and eventually learns simpler patterns and structures. This is in contrast with parameteric models, where training usually begins with low training accuracy that is to be improved as training continues.
+
 	
 \section{Hilbert Space Embeddings of Conditional Probability Distributions}
 \label{sec:background}
@@ -212,12 +176,12 @@ Data dependent risk bounds
 		\hat{\mathcal{U}}_{Y | X} = \Psi (K + n \lambda I)^{-1} \Phi^{T},
 	\label{eq:empirical_conditional_embedding}
 	\end{equation}
-	where $K := \{k(x_{i}, x_{j})\}_{i = 1, j = 1}^{n, n}$, $\Phi := \begin{bmatrix} \phi(x_{1}) & \dots & \phi(x_{n}) \end{bmatrix}$, $\Psi := \begin{bmatrix} \psi(y_{1}) & \dots & \psi(y_{n}) \end{bmatrix}$, $\phi(x) := k(x, \cdot)$, $\psi(y) := l(y, \cdot)$, and $\lambda$ is the regularisation parameter for the conditional operator \citep{song2013kernel}. We then define the empirical conditional embedding by $\hat{\mu}_{Y | X = x} := \hat{\mathcal{U}}_{Y | X} k(x, \cdot)$, which stochastically converges to the true conditional embedding $\mu_{Y | X = x}$ in the RKHS norm at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, under the assumption that $k(x, \cdot)$ is in the image of $C_{XX}$ \citet[Theorem 6]{song2009hilbert}. This allows us to approximate the conditional expectation \eqref{eq:conditional_expectation} with $\langle \hat{\mu}_{Y | X = x}, g \rangle$ instead, 
+	where $K := \{k(x_{i}, x_{j})\}_{i = 1, j = 1}^{n, n}$, $\Phi := \begin{bmatrix} \phi(x_{1}) & \dots & \phi(x_{n}) \end{bmatrix}$, $\Psi := \begin{bmatrix} \psi(y_{1}) & \dots & \psi(y_{n}) \end{bmatrix}$, $\phi(x) := k(x, \cdot)$, $\psi(y) := l(y, \cdot)$, and $\lambda$ is the regularisation parameter for the conditional operator \citep{song2013kernel}. We then define the empirical conditional embedding by $\hat{\mu}_{Y | X = x} := \hat{\mathcal{U}}_{Y | X} k(x, \cdot)$, which stochastically converges to the true conditional embedding $\mu_{Y | X = x}$ in the RKHS norm at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, under the assumption that $k(x, \cdot)$ is in the image of $C_{XX}$ \cite[Theorem 6]{song2009hilbert}. This allows us to approximate the conditional expectation \eqref{eq:conditional_expectation} with $\langle \hat{\mu}_{Y | X = x}, g \rangle$ instead, 
 	\begin{equation}
-		\mathbb{E}[g(Y) | X = x] \approx \langle \hat{\mu}_{Y | X = x}, g \rangle = \bvec{g}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x},
+		\mathbb{E}[g(Y) | X = x] \approx \langle \hat{\mu}_{Y | X = x}, g \rangle = \bvec{g}^{T} (K + n \lambda I)^{-1} \bvec{k}(x),
 	\label{eq:empirical_conditional_expectation}
 	\end{equation}
-	where $\bvec{g} := \{g(y_{i})\}_{i = 1}^{n}$ and $\bvec{k}_{x} := \{k(x_{i}, x\}_{i = 1}^{n}$, knowing that it would converge to the true expectation as $n$ increases for sufficiently small $\lambda$.
+	where $\bvec{g} := \{g(y_{i})\}_{i = 1}^{n}$ and $\bvec{k}(x) := \{k(x_{i}, x\}_{i = 1}^{n}$, knowing that it would converge to the true expectation as $n$ increases for sufficiently small $\lambda$.
 	
 \section{Kernel Embedding Classifier}
 \label{sec:kernel_embedding_classifier}
@@ -254,17 +218,17 @@ Data dependent risk bounds
 	\end{equation}	
 	With $\mathbb{1}_{c} \in \mathcal{H}_{\delta}$, we let $g = \mathbb{1}_{c}$ in \eqref{eq:empirical_conditional_expectation} and $\bvec{1}_{c} := \{\mathbb{1}_{c}(y_{i})\}_{i = 1}^{n}$ to estimate the right hand side of \eqref{eq:decision_probability} by
 	\begin{equation}
-		\hat{p}_{c}(x) = f_{c}(x) := \bvec{1}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}.
+		\hat{p}_{c}(x) = f_{c}(x) := \bvec{1}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}(x).
 	\label{eq:empirical_decision_probability}
 	\end{equation}
 	Therefore, the vector of empirical decision probability functions over the classes $c \in \mathbb{N}_{m}$ is
 	\begin{equation}
-		\hat{\bvec{p}}(x) = \bvec{f}(x) := \bvec{Y}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x} \in \mathbb{R}^{m},
+		\hat{\bvec{p}}(x) = \bvec{f}(x) := \bvec{Y}^{T} (K + n \lambda I)^{-1} \bvec{k}(x) \in \mathbb{R}^{m},
 	\label{eq:empirical_decision_probability_vector}
 	\end{equation}
 	where $\bvec{Y} := \begin{bmatrix} \bvec{1}_{1} & \bvec{1}_{2} & \cdots & \bvec{1}_{m} \end{bmatrix} \in \{0, 1\}^{n \times m}$ is simply the one hot encoded labels $\{y_{i}\}_{i = 1}^{n}$.
 
-	We proceed to show that the empirical decision probabilities \eqref{eq:empirical_decision_probability} is a consistent estimator for the actual decision probabilities as the dataset increases (See \cref{thm:probability_convergence} of \cref{app:convergence_theorems} for proof).
+	We proceed to prove that the empirical decision probabilities \eqref{eq:empirical_decision_probability} converges to the true decision probabilities with more data. We direct the reader to the supplementary material for proof.
 	\begin{theorem}[Uniform Convergence of Empirical Decision Probability Function]
 		\label{thm:probability_convergence_copy}
 		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref{eq:empirical_decision_probability} converges uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
@@ -273,14 +237,14 @@ Data dependent risk bounds
 
 	While the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ will converge to the true decision probability function  $p_{c} : \mathcal{X} \to [0, 1]$ in the limit, for finite $n$ and a fixed regulariser $\lambda > 0$, the stochasticity in the empirical estimates implies that these probabilities may not necessarily sum up to one, nor are they strictly restricted to the range $[0, 1]$. However, they will usually be very close to the true predicted probabilities. Moreover, such stochasticity also does not principally affect the classification prediction, since we simply take the argmax of the empirical decision probability vector \eqref{eq:empirical_decision_probability_vector}.
 	
-	If strict, valid probabilities are required for interpretation, visualisation, or other purposes, the probabilities can be clipped at zero then normalised to one - a procedure we refer to as \textit{clip-normalisation},
+	If strict, valid probabilities are required for interpretation, visualisation, or other purposes, the probabilities can be clipped at zero then normalised to one, a procedure we refer to as \textit{clip-normalisation},
 	\begin{equation}
 		\tilde{p}_{c}(x) := \frac{\max\{\hat{p}_{c}(x), 0\}}{\sum_{j = 1}^{m} \max\{\hat{p}_{j}(x), 0\}}.
 	\label{eq:probability_clip_normalise}
 	\end{equation}
-	Notice that for classification prediction, the argmax solution over the classes of the empirical decision probabilities \eqref{eq:empirical_decision_probability} and its clip-normalised version \eqref{eq:probability_clip_normalise} remain the same. Furthermore, since $\hat{p}_{c}(x)$ converges to valid probabilities $p_{c}(x)$ according to \cref{thm:probability_convergence_copy}, the effect of clip-normalisation reduces as $n$ increases such that $\tilde{p}_{c}(x)$ becomes very close to $\hat{p}_{c}(x)$ and $p_{c}(x)$.
+	Notice that for classification prediction, the argmax solution over the classes of the empirical decision probabilities \eqref{eq:empirical_decision_probability} and its clip-normalised version \eqref{eq:probability_clip_normalise} remain the same. Furthermore, since $\hat{p}_{c}(x)$ converges to true probabilities $p_{c}(x)$ according to \cref{thm:probability_convergence_copy}, the effect of clip-normalisation reduces as $n$ increases such that $\tilde{p}_{c}(x)$ becomes very close to $\hat{p}_{c}(x)$ and $p_{c}(x)$.
 	
-\section{Hyperparameter Learning with Rademacher Complexity Bounds}
+\section{Learning with Rademacher Complexity based Risk Bounds}
 \label{sec:hyperparameter_learning}
 
 	The formulation of the kernel embedding classifier requires the specification of a kernel $k : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ over the input space $\mathcal{X}$, or rather, a class of kernels $\{k_{\theta}\}_{\theta \in \Theta}$ parametrised by the kernel parameters $\theta \in \Theta$. It also requires the specification of a regularisation parameter $\lambda$ for the conditional embedding as in \eqref{eq:empirical_conditional_embedding}. These are hyperparameters of the kernel embedding classifier which needs to be learned in order to produce a reasonable classifier model. While decision probability estimates \eqref{eq:empirical_decision_probability} converge to the true decision probabilities \eqref{eq:decision_probability} for any choice of positive definite kernels $k_{\theta}$ (\cref{thm:probability_convergence_copy}), for finite $n$ we would like to find the kernel from the kernel family which produces the most appropriately discriminative model to perform classification tasks.
@@ -292,8 +256,6 @@ Data dependent risk bounds
 			Further more, since the training set itself is a sample of length $n$ drawn from $\mathbb{P}_{X Y}$, the inequality \eqref{eq:specific_expected_loss_bound_for_kec_applied} is true with probability $1 - \beta$ if we replace all the random variables $X_{i}, Y_{i}$ with the training observations $x_{i}, y_{i}$.
 			
 			Therefore, in order to minimise the expected test loss, we propose the following training objective for the kernel embedding classifier,
-			
-			
 			
 			
 	For a predictor parametrised as $f(x; W) = W^{T} x$, \cite{yu2014large} showed that the global Rademacher complexity of such a predictor is upper-bounded in terms of its trace norm, $\sqrt{\mathrm{trace}(W^{T} W)}$. This was originally discussed in the context of multi-label classification, where $W \in \mathbb{R}^{d \times L}$ and $f$ produces a binary vector of length $L$ indicating the multiple labels that describes the input $x \in \mathbb{R}^{d}$. In the context of the kernel embedding classifier, the empirical decision probabilities \eqref{eq:empirical_decision_probability_vector} also has the same analytical form, where the input $x$ is replaced by some feature vector $\phi(x)$. By using the canonical feature map $\phi(x) = k(x, \cdot)$ and the reproducing property $\langle \phi(x), \phi(x') \rangle = k(x, x')$ in the RKHS, we can write \eqref{eq:empirical_decision_probability_vector} as $\hat{\bvec{p}}(x) = \bvec{f}(x) := \bvec{Y}^{T} (K + n \lambda I)^{-1} \Phi^{T} \phi(x) = W^{T} \phi(x)$, where instead of mapping input examples in $\mathbb{R}^{d}$ to output multi-label vector $\mathbb{R}^{L}$, $W^{T}$ maps features in the RKHS $\mathcal{H}_{k}$ to the a vector of multiclass probabilities in $\mathbb{R}^{m}$. Using the reproducing property $K = \Phi^{T} \Phi$ again, the squared trace norm for such a predictor is then $\mathrm{trace}(W^{T} W) = \mathrm{trace}(\bvec{Y}^{T} (K + n \lambda I)^{-1} K (K + n \lambda I)^{-1} \bvec{Y})$. We therefore propose to use this trace norm as an upper bound measure of the kernel embedding classifier model complexity,
@@ -309,26 +271,26 @@ Data dependent risk bounds
 	We employ gradient based methods to train the kernel embedding classifier with this training loss and complexity bound objective. The gradients of the learning objective with respect to the hyperparameters is obtained using automatic differentiation.
 	
 	\begin{algorithm}[tb]
-		\caption{Kernel Embedding Classifier Training with Stochastic Gradient Descent}
+		\caption{KEC Hyperparameter Learning with Batch Stochastic Gradient Descent}
 		\label{alg:kernel_embedding_classifier_training}
 		\begin{algorithmic}[1]
 			\STATE {\bfseries Input:} kernel family $k_{\theta} : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial kernel parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
 			\STATE $\theta \leftarrow \theta_{0}$, $\lambda \leftarrow \lambda_{0}$
 			\REPEAT
-			\STATE Sample the next batch batch $\mathcal{I} \subseteq \mathbb{N}_{n}$, $| \mathcal{I} | = n_{b}$ \hspace{\fill} (For gradient descent, $n_{b} = n$ and $\mathcal{I} = \mathbb{N}_{n}$)
+			\STATE Sample the next batch $\mathcal{I} \subseteq \mathbb{N}_{n}$, $| \mathcal{I} | = n_{b}$ \hspace{\fill} (For gradient descent, $n_{b} = n$ and $\mathcal{I} = \mathbb{N}_{n}$)
 			\STATE $Y \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
 			\STATE $K_{\theta} \leftarrow \{k_{\theta}(x_{i}, x_{j}) : i \in \mathcal{I}, j \in \mathcal{I}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
 			\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n_{b} \lambda I_{n_{b}}) \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
 			\STATE $V_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash Y) \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
 			\STATE $P_{\theta, \lambda} \leftarrow K_{\theta} V_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
-			\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \alpha(\theta) \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$ 
+			\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \alpha(\theta) \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
 			\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
 			\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial r}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial r}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
 			\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
 		\end{algorithmic}
 	\end{algorithm}
 	
-	\subsection{Mini-Batch Stochastic Gradient Descent}
+	\subsection{Batch Stochastic Gradient Descent}
 	\label{sec:stochastic_gradient_descent}
 
 		With standard gradient descent, the time complexity of each training iteration is dominated by the Cholesky decomposition of the regularised gram matrix $K_{\theta} + n \lambda I$ of size $n \times n$, which has a time complexity of $O(n^{3})$. In order to scale the hyperparameter training of kernel embedding classifiers to large datasets, we propose to optimise the objective \eqref{eq:objective} with stochastic gradient descent.
@@ -338,20 +300,6 @@ Data dependent risk bounds
 		\note{Justify with the bound after discussing with Richard}
 
 \section{Experiments}
-
-%	\note{Note that while it would certainly be great, the point of developing this kernel embedding classifier is not to beat other existing classification algorithms. The purpose is to develop a simple and elegant fully probabilistic multiclass classifier based on embedding the observed data directly into a reproducing kernel Hilbert space, with a quantifiable notion of model complexity. This is what we will aim to show here in the experiments as well. Below is just a summary of what has been done but has not been put together neatly yet.}
-%	
-%	\textbf{Experiments to Show}: We are aiming to do experiments on one toy dataset for illustration and visualisation, and on two real world datasets for benchmarking performance. So far, I am using the iris dataset for the toy dataset, and MNIST for one of the real world datasets. We should still find a third real world dataset that will really benefit from such a flexible nonparametric, probabilistic multiclass classifier.
-%	
-%	\begin{itemize}
-%		\item A toy 2D classification tasks for visualising the properties and capabilities of the kernel embedding classifier. An simple example is the iris dataset, where we take only 2 attributes. There are three classes, so the probabilities can be visualised using RGB. We first use the first two attributes of the dataset, where the training examples are very non-separable. The point is to demonstrate that the kernel embedding classifier learns a simple and reasonable model that does not overfit, even though it has the capacity to shatter all the training data and have 100\% training accuracy. We then show that if we use the standard cross entropy loss as the objective for training, then we easily overfit the data.
-%		\item We also show plots illustrating how the training objective, performance of the classifier, and the hyperparameters changes during the training procedure.
-%		\item We then show results for training using SGD, which reveals that at a faster speed we arrive at the same solution as before.
-%		\item We can then move on to actual real world datasets, like MNIST.
-%		\item The MNIST dataset has 60000 training images and 10000 test images. So far I have results for only giving the first 500 training images to the kernel embedding classifier (much smaller than the dimensionality of the problem, which is 784), and it is to perform on the whole 10000 test images. We show that with a Gaussian kernel, we get around 82\% accuracy. Then, with a simple extension by adding three convolutional layers before give it to the Gaussian kernel, we get around 92\% accuracy. Of course, we also report the cross entropy loss. We do this with both gradient descent and SGD. We then compare this to support vector classifiers and Gaussian process classifiers. Then also compare this to state of the art convolutional neural networks with 500 observations for training data.
-%		\item We can also use the learned length scale of a stationary kernel to visualise the most discriminative pixels in the image useful to the classifier.
-%		\item More to come...
-%	\end{itemize}
 	
 	We will also open-source the code on GitHub. All the core algorithms presented in this paper will be available and implemented in TensorFlow \citep{abadi2016tensorflow}, while having the same API as \texttt{scikit-learn} models so that it is straightforward to use.
 	
@@ -471,7 +419,7 @@ Data dependent risk bounds
 \appendix
 
 \section{Information Entropy}
-\label{sec:information_entropy}
+\label{app:information_entropy}
 
 	The kernel embedding classifier provides decision probabilities instead of just a single label prediction. Such a probabilistic classifier allows us to quantify the uncertainty of its predictions for any given example $x \in \mathcal{X}$ through the information entropy \citep{shannon1951prediction, jaynes1957information}. This is ideal for detecting the decision boundaries of the classifier and areas of low data density.
 	
@@ -496,7 +444,7 @@ Data dependent risk bounds
 	
 	Assuming that $\mathbb{P}[Y = y | X = x]$ is never exactly zero for all labels $y \in \mathcal{Y}$ and examples $x \in \mathcal{X}$, then $u_{x}(y)$ is bounded on its discrete domain $\mathbb{N}_{m}$. We can thus write $u_{x} = \sum_{c = 1}^{m} - \log{\mathbb{P}[Y = c | X = x]} \delta(c, \cdot)$ which shows that $u_{x}$ is in the span of the canonical kernel features and is thus in the RKHS. Hence, similar to the case with decision probabilities, with $u_{x} \in \mathcal{H}_{\delta}$ and $\bvec{u}_{x} := \{u_{x}(y_{i})\}_{i = 1}^{n}$ we let $g = u_{x}$ in \eqref{eq:empirical_conditional_expectation} and estimate $h(x)$ by
 	\begin{equation}
-		\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle = \bvec{u}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}.
+		\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle = \bvec{u}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}(x).
 	\end{equation}
 	Unfortunately, $u_{x}$ is not known exactly, since $\mathbb{P}[Y = y | X = x]$ is not known exactly. Instead, since $\hat{p}_{c}(x)$ is a consistent estimate for $\mathbb{P}[Y = c | X = x]$ by \cref{thm:probability_convergence}, we propose to replace $u_{x}(y)$ with the negative log of $\hat{p}_{y}(x)$. However, we cannot simply take the log of this estimator, as $\hat{p}_{y}(x)$ may produce non-positive estimates to the prediction probabilities. The straight forward way to mitigate this problem is to clip $\hat{p}_{y}(x)$ from the bottom by a very small number, before taking the log. However, experiments show that this produces non-smooth estimates over $\mathcal{X}$ and the degree of smoothness varies drastically between different choices of that small number (see \cref{app:design_choices}). Instead, in virtue of the fact that $\lim_{p \to 0} - p \log{p} = 0$ even though $\lim_{p \to 0} - \log{p} = \infty$, we simply define the information estimate $\hat{u}_{x}(y)$ as zero if the empirical decision probability is non-positive,
 	\begin{equation}
@@ -507,7 +455,7 @@ Data dependent risk bounds
 	\end{equation}
 	It remains to show that $\hat{u}_{x} \in \mathcal{H}_{\delta}$. Indeed, the identity $\hat{u}_{x} = \sum_{c = 1}^{m} \hat{u}_{x}(c) \delta(c, \cdot)$ holds and thus $\hat{u}_{x}$ is in the span of the kernel canonical features. We then arrive at the following estimate for $h(x)$,
 	\begin{equation}
-		\hat{h}(x) := \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} \rangle = \hat{\bvec{u}}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x},
+		\hat{h}(x) := \langle \hat{\mu}_{Y | X = x}, \hat{u}_{x} \rangle = \hat{\bvec{u}}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}(x),
 		\label{eq:empirical_information_entropy}
 	\end{equation}
 	where $\hat{\bvec{u}}_{x} := \{\hat{u}_{x}(y_{i})\}_{i = 1}^{n}$. Similar to the case with decision probabilities \eqref{eq:decision_probability}, the information entropy estimate \eqref{eq:empirical_information_entropy} is not guaranteed to be non-negative. However, in practice these negative values are close to zero. Furthermore, negative estimated information entropy implies that the model is very confident about its prediction, and it suffices to simply clip the entropy at zero if strict information entropy is required (see \cref{app:design_choices}). We give the proof of convergence of \eqref{eq:empirical_information_entropy} in \cref{app:convergence_theorems}.
@@ -521,7 +469,7 @@ Data dependent risk bounds
 
 	In this section we provide a few theorems, lemmas, and derivations which proves the convergence properties of estimators derived from our kernel embedding classifier.
 	
-	We consider the case in which a dataset, represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$, is collected in a \textit{iid} fashion from some distribution $\mathbb{P}_{X Y}$. That is $\{X_{i}, Y_{i}\} \sim \mathbb{P}_{X Y}$ for all $i \in \mathbb{N}_{n}$ and each observed sample is independent from each other. Suppose we have an estimator function $\hat{f}^{(n)} : \mathcal{X} \to \mathbb{R}$ which is to estimate some target function  $f : \mathcal{X} \to \mathbb{R}$, usually but not necessarily derived from $\mathbb{P}_{Y |X }$, empirically using the collected dataset $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of size $n \in \mathbb{N}_{+}$. Here, we use the superscript $(n)$ to denote the estimator's dependence on the dataset. From this point on, we drop this superscript to avoid cluttered notation. However, one should keep in mind that $\hat{f}$ is estimated using the dataset $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ and is thus random over the possible data observation events $\omega \in \Omega$. We would like to provide a sense of the stochastic convergence of $\hat{f}$ to $f$ by providing an upper bound of their absolute pointwise difference $| \hat{f}(x) - f(x) |$ which we know convergences to zero at some stochastic rate. Since the kernel embedding classifier is based on conditional embeddings, this upper bound will be provided by the RKHS norm of the error between empirical and true conditional embeddings. Specifically, the empirical conditional embedding stochastically converges to the true conditional embedding $\mu_{Y | X = x}$ in the RKHS norm at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, under the assumption that $k(x, \cdot)$ is in the image of $C_{XX}$ \citet[Theorem 6]{song2009hilbert}. That is,
+	We consider the case in which a dataset, represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$, is collected in a \textit{iid} fashion from some distribution $\mathbb{P}_{X Y}$. That is $\{X_{i}, Y_{i}\} \sim \mathbb{P}_{X Y}$ for all $i \in \mathbb{N}_{n}$ and each observed sample is independent from each other. Suppose we have an estimator function $\hat{f}^{(n)} : \mathcal{X} \to \mathbb{R}$ which is to estimate some target function  $f : \mathcal{X} \to \mathbb{R}$, usually but not necessarily derived from $\mathbb{P}_{Y |X }$, empirically using the collected dataset $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of size $n \in \mathbb{N}_{+}$. Here, we use the superscript $(n)$ to denote the estimator's dependence on the dataset. From this point on, we drop this superscript to avoid cluttered notation. However, one should keep in mind that $\hat{f}$ is estimated using the dataset $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ and is thus random over the possible data observation events $\omega \in \Omega$. We would like to provide a sense of the stochastic convergence of $\hat{f}$ to $f$ by providing an upper bound of their absolute pointwise difference $| \hat{f}(x) - f(x) |$ which we know convergences to zero at some stochastic rate. Since the kernel embedding classifier is based on conditional embeddings, this upper bound will be provided by the RKHS norm of the error between empirical and true conditional embeddings. Specifically, the empirical conditional embedding stochastically converges to the true conditional embedding $\mu_{Y | X = x}$ in the RKHS norm at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, under the assumption that $k(x, \cdot)$ is in the image of $C_{XX}$ \cite[Theorem 6]{song2009hilbert}. That is,
 	
 		\begin{equation}
 			\forall x \in \mathcal{X}, \; \epsilon > 0, \; \exists M_{\epsilon} > 0 \quad s.t. \quad \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] < \epsilon.
@@ -715,7 +663,7 @@ Data dependent risk bounds
 				&= \psi(c)^{T} \hat{\mu}_{Y | X = x} \\
 				&= \psi(c)^{T} \hat{\mathcal{U}}_{Y | X} \phi(x) \\
 				&= \psi(c)^{T} \Psi (K + n \lambda I)^{-1} \Phi^{T} \phi(x) \\
-				&= \bvec{l}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x}, \\
+				&= \bvec{l}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}(x), \\
 			\end{aligned}
 			\end{equation}
 			
@@ -728,7 +676,7 @@ Data dependent risk bounds
 			The claim then immediately follows by the definition of our decision probability estimator,
 			
 			\begin{equation}
-				\hat{\mu}_{Y | X = x}(c) = \bvec{1}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}_{x} =: \hat{p}_{c}(x).
+				\hat{\mu}_{Y | X = x}(c) = \bvec{1}_{c}^{T} (K + n \lambda I)^{-1} \bvec{k}(x) =: \hat{p}_{c}(x).
 			\end{equation}
 		\end{proof}
 		
@@ -770,7 +718,7 @@ Data dependent risk bounds
 		\end{proof}
 	\end{lemma}
 		
-	In \cref{sec:information_entropy}, we proposed an estimator for the information entropy $h(x)$ for a prediction at $x \in \mathcal{X}$. Since this estimator is now based on the inner product between the empirical conditional embedding and another empirically estimate function, instead of between the empirical conditional embedding and a known function, it is not immediately clear that such an estimator converges. Nevertheless, intuition tells us that the inner product between two converging quantities should converge. We proceed to show that this intuition is correct.
+	In \cref{app:information_entropy}, we proposed an estimator for the information entropy $h(x)$ for a prediction at $x \in \mathcal{X}$. Since this estimator is now based on the inner product between the empirical conditional embedding and another empirically estimate function, instead of between the empirical conditional embedding and a known function, it is not immediately clear that such an estimator converges. Nevertheless, intuition tells us that the inner product between two converging quantities should converge. We proceed to show that this intuition is correct.
 	
 	\begin{theorem}[Convergence of Empirical Information Entropy Function]
 		\label{thm:entropy_convergence}
@@ -794,7 +742,7 @@ Data dependent risk bounds
 			
 			where the we used the triangle inequality and Cauchy–Schwarz inequality in a Hilbert space respectively.
 			
-			Now, since $l = \delta$ is bounded, so is $\hat{\mu}_{Y | X = x}(c) = \sum_{i = 1}^{n} w_{i} \delta(y_{i}, c)$ for some embedding weights $w_{i}$ and all $c \in \mathbb{N}_{m}$, and thus its RKHS norm is finite for all $n \in \mathbb{N}_{n}$. Similarly, assuming that $p_{c}(x)$ is never exactly zero, $u_{x}(c)$ is also finite for all $c \in \mathbb{N}_{m}$ and thus so is its RKHS norm. We already know that $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$ stochastically converges to zero at the rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ \citep{song2009hilbert}. Thus, it remains to bound $\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}}$ by a multiple of $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$.
+			Now, since $l = \delta$ is bounded, so is $\hat{\mu}_{Y | X = x}(c) = \sum_{i = 1}^{n} w_{i} \delta(y_{i}, c)$ for some embedding weights $w_{i}$ and all $c \in \mathbb{N}_{m}$, and thus its RKHS norm is finite for all $n \in \mathbb{N}_{n}$. Similarly, assuming that $p_{c}(x)$ is never exactly zero, $u_{x}(c)$ is also finite for all $c \in \mathbb{N}_{m}$ and thus so is its RKHS norm. We already know that $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$ stochastically converges to zero at the rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ \citep[Theorem 6]{song2009hilbert}. Thus, it remains to bound $\| \hat{u}_{x} - u_{x} \|_{\mathcal{H}_{\delta}}$ by a multiple of $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|_{\mathcal{H}_{\delta}}$.
 			
 			To this end, we first use \cref{thm:probability_is_embedding} and \cref{thm:empirical_probability_is_embedding} and to express the theoretical and empirical information as the negative log of the embedding, so that it is explicitly written as a function of $c \in \mathcal{Y}$ in $\mathcal{H}_{\delta}$ indexed by $x \in \mathcal{X}$,
 			
@@ -846,7 +794,7 @@ Data dependent risk bounds
 \section{Learning Theoretic Bounds for the Kernel Embedding Classifiers}
 \label{app:learning_theoretic_bounds}
 
-	In this section we derive the Rademacher complexity bound of the kernel embedding classifier, and show that it can be used in conjunction with the training loss to bound the expected risk with high probability. With such a bound, we devise a training objective to learn the hyperparameters for the kernel embedding classifier.
+	In this section we derive the Rademacher complexity bound of the kernel embedding classifier, and show that it can be used in conjunction with the training loss to bound the expected risk with high probability.
 		
 	\subsection{Rademacher Complexity Bounds}
 	\label{app:rademacher_complexity_theorems}
@@ -858,7 +806,7 @@ Data dependent risk bounds
 		\label{eq:predictor}
 		\end{equation}
 		
-		where each entry of the predictor $\bvec{f}_{\theta, \lambda}(x)$ is the decision probability estimate for $p_{c}(x)$. This defines the function class of the predictor over the kernel family and a set of regularisation parameters for a given training set $\{x_{i}, y_{i}\}_{i = 1}^{n}$,
+		where each entry of the predictor $\bvec{f}_{\theta, \lambda}(x)$ is the decision probability estimate for $p_{c}(x)$. This defines the function class of the predictor over the kernel family and a set of regularisation parameters for any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$,
 		
 		\begin{equation}
 			F_{n}(\Theta, \Lambda) := \{ \bvec{f}_{\theta, \lambda}(x) : \theta \in \Theta, \lambda \in \Lambda \}.
@@ -880,10 +828,10 @@ Data dependent risk bounds
 		\begin{theorem}[Rademacher Complexity Bound for the Kernel Embedding Classifier]
 		\label{thm:rademacher_complexity_bound}
 		
-			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Further suppose that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2}$ is bounded in RKHS norm for all $x \in \mathcal{X}, \theta \in \Theta$. The Rademacher complexity of the class of kernel embedding classifiers $F$ \eqref{eq:predictor_class} defined over $\theta \in \Theta, \lambda \in \Lambda$ is bounded by
+			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Further suppose that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2}$ is bounded in RKHS norm for all $x \in \mathcal{X}, \theta \in \Theta$. For any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, the Rademacher complexity of the class of kernel embedding classifiers $F_{n}(\Theta, \Lambda)$ \eqref{eq:predictor_class} defined over $\theta \in \Theta, \lambda \in \Lambda$ is bounded by
 				
 			\begin{equation}
-				\mathcal{R}(F_{n}(\Theta, \Lambda)) \leq 2 \alpha \rho.
+				\mathcal{R}_{n}(F_{n}(\Theta, \Lambda)) \leq 2 \alpha \rho.
 			\label{eq:rademacher_complexity_bound}
 			\end{equation}
 	
@@ -945,7 +893,7 @@ Data dependent risk bounds
 		\begin{corollary}[Rademacher Complexity Bound for Stationary Kernels]
 		\label{thm:rademacher_complexity_stationary_kernels_bound}
 	
-			Suppose that $k_{\theta}$ is a family of positive definite stationary kernels. That is, $k_{\theta} (x, x') = \tilde{k}_{\theta}( \| x - x' \| )$ for some real-valued function $\tilde{k} : [0, \infty) \to [0, \infty)$. Further suppose there exists $\tilde{\theta} \in \Theta$ such that that $k_{\theta}(0, 0) \leq k_{\tilde{\theta}}(0, 0)$ for all $\theta \in \Theta$. The Rademacher complexity of the class of kernel embedding classifiers $F$ defined over $\theta \in \Theta, \lambda \in \Lambda$ is bounded by
+			Suppose that $k_{\theta}$ is a family of positive definite stationary kernels. That is, $k_{\theta} (x, x') = \tilde{k}_{\theta}( \| x - x' \| )$ for some real-valued function $\tilde{k} : [0, \infty) \to [0, \infty)$. Further suppose there exists $\tilde{\theta} \in \Theta$ such that that $k_{\theta}(0, 0) \leq k_{\tilde{\theta}}(0, 0)$ for all $\theta \in \Theta$. For any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, the Rademacher complexity of the class of kernel embedding classifiers $F_{n}(\Theta, \Lambda)$ defined over $\theta \in \Theta, \lambda \in \Lambda$ is bounded by
 		
 			\begin{equation}
 				\mathcal{R}_{n}(F_{n}(\Theta, \Lambda)) \leq 2 \rho \sqrt{k_{\tilde{\theta}}(0, 0)}.
@@ -967,28 +915,28 @@ Data dependent risk bounds
 		\end{corollary}
 	
 	\subsection{Expected Risk Bounds}
-	\label{thm:expected_risk_bound}
+	\label{app:expected_risk_bounds}
 	
 		In order to quantify the performance of the kernel embedding classifier, we specify a loss function $\mathcal{L} : \mathcal{Y} \times \mathcal{A} \to [0, \infty)$, where $\mathcal{L}(y, f(x))$ measures the loss of a decision function $f : \mathcal{X} \to \mathcal{A}$ on a paired example $x \in \mathcal{X}$ and $y \in \mathcal{Y}$. In the kernel embedding classification context, the decision function is $\bvec{f}_{\theta, \lambda} : \mathcal{X} \to \mathbb{R}^{m}$, with $\mathcal{A} = \mathbb{R}^{m}$ and $\mathcal{Y} = \mathbb{N}_{m}$. The loss function is to capture the desire for $\bvec{y}^{T} \bvec{f}_{\theta, \lambda}(x) = \bvec{f}_{y}^{(\theta, \lambda)}(x)$ to be high for all likely test points $x \in \mathcal{X}$ and $y \in \mathcal{Y}$.
 		
 		A suitable choice of the loss function in the probabilistic multiclass classification context is the cross entropy loss,
 		
 		\begin{equation}
-			\mathcal{L}(y, \hat{\bvec{p}}(x)) := - \log{\bvec{y}^{T} \hat{\bvec{p}}(x)} = - \log{\hat{p}_{y}(x)},
+			\mathcal{L}(y, \bvec{f}(x)) := - \log{\bvec{y}^{T} \bvec{f}(x)} = - \log{f_{y}(x)},
 		\end{equation}
 		
-		where $\hat{\bvec{p}}(x)$ are the inferred probabilities of each class for the example $x \in \mathcal{X}$. Since logarithms explode at zero, in practice the probability estimate is often clipped beforehand at a small threshold $\epsilon \in (0, 1)$,
+		where $\bvec{f}(x)$ are the inferred decision probability estimates of each class for the example $x \in \mathcal{X}$. Since logarithms explode at zero, in practice the probability estimate is often clipped from below at a predetermined threshold $\epsilon \in (0, 1)$. Furthermore, it is also convenient to clip the probability estimate from above at one to avoid negative losses, as further reward for high prediction probabilities are not necessary. In other words, assigning a probability estimate greater than one to the correct label is really just correctly assigning a probability estimate of one but with slight approximation error. Consequently, with the notation $[\;\cdot\;]_{\epsilon}^{1} := \min\{\max\{\;\cdot\;, \epsilon\}, 1\}$, we define the effective cross entropy loss as
 		
 		\begin{equation}
-			\mathcal{L}_{\epsilon}(y, \hat{\bvec{p}}(x)) := - \log{\max \{\bvec{y}^{T} \hat{\bvec{p}}(x), \epsilon \} } = - \log{\max \{ \hat{p}_{y}(x), \epsilon \}}.
+			\mathcal{L}_{\epsilon}(y, \bvec{f}(x)) := - \log{ [\bvec{y}^{T} \bvec{f}(x)]_{\epsilon}^{1} } = - \log{ [f_{y}(x)]_{\epsilon}^{1} },
 		\label{eq:cross_entropy_loss}
 		\end{equation}
 		
-		In our subsequent analysis, we require that our loss function has an image in $[0, 1]$. To do this, we simply rescale the loss function by dividing it by its largest value,
+		In this way, our cross entropy loss \eqref{eq:cross_entropy_loss} is both bounded and positive. In our subsequent analysis, we require that our loss function has an image in $[0, 1]$. To do this, we simply rescale the loss function by dividing it by its largest value,
 		
 		\begin{equation}
 			\begin{aligned}
-				\bar{\mathcal{L}}_{\epsilon}(y, \hat{\bvec{p}}(x)) &:= \frac{1}{M_{\epsilon}} \mathcal{L}_{\epsilon}(y, \hat{\bvec{p}}(x)) = - \frac{1}{M_{\epsilon}} \log{\max \{ \hat{p}_{y}(x), \epsilon \}}, \\
+				\bar{\mathcal{L}}_{\epsilon}(y, \bvec{f}(x)) &:= \frac{1}{M_{\epsilon}} \mathcal{L}_{\epsilon}(y, \bvec{f}(x)) = - \frac{1}{M_{\epsilon}} \log{ [f_{y}(x)]_{\epsilon}^{1} }, \\
 				M_{\epsilon} &:= - \log{\epsilon}.
 			\end{aligned}
 		\label{eq:normalised_cross_entropy_loss}
@@ -997,15 +945,15 @@ Data dependent risk bounds
 		We will refer to \eqref{eq:normalised_cross_entropy_loss} as the normalised cross entropy loss \footnote{Of course, the above normalisation only ensures that the loss function attains a maximum of one, but can still be negative if $\hat{p}_{y}(x)$ higher than $1$. We can enforce this requirement by clipping the loss function at zero through $\max\{\cdot, 0\}$. However, for brevity, we will avoid explicitly writing this clipping operation, as it does not principally affect our subsequent analysis. It should nevertheless be understood that all losses discussed in this section are clipped from below at zero or, equivalently, the probability estimates $\hat{p}_{y}(x)$ are clipped from above at one.}. We then further define the centred normalised cross entropy loss,
 		
 		\begin{equation}
-			\tilde{\mathcal{L}}_{\epsilon}(y, \hat{\bvec{p}}(x)) := \bar{\mathcal{L}}_{\epsilon}(y, \hat{\bvec{p}}(x)) - \bar{\mathcal{L}}_{\epsilon}(y, \bvec{0}) = - \frac{1}{M_{\epsilon}} \log{\max \{ \hat{p}_{y}(x), \epsilon \}} - 1.
+			\tilde{\mathcal{L}}_{\epsilon}(y, \bvec{f}(x)) := \bar{\mathcal{L}}_{\epsilon}(y, \bvec{f}(x)) - \bar{\mathcal{L}}_{\epsilon}(y, \bvec{0}) = - \frac{1}{M_{\epsilon}} \log{ [f_{y}(x)]_{\epsilon}^{1} } - 1.
 		\label{eq:centred_normalised_cross_entropy_loss}
 		\end{equation}
 		
 		With the normalised cross entropy loss \eqref{eq:normalised_cross_entropy_loss} as our loss function, we now employ Theorem 8 of \cite{bartlett2002rademacher} for this loss and provide a bound for the expected normalised cross entropy loss for an unseen test example.
 		
-		\begin{corollary}[Expected Risk Bound]
+		\begin{lemma}[Expected Risk Bound]
 		\label{thm:expected_normalised_cross_entropy_loss_bound}
-			For any integer $n \in \mathbb{N}_{+}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $f \in F$ satisfies
+			For any integer $n \in \mathbb{N}_{+}$ and any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $f \in F_{n}(\Theta, \Lambda)$ satisfies
 			
 			\begin{equation}
 				\frac{1}{M_{\epsilon}} \mathbb{E}[\mathcal{L}_{\epsilon}(Y, f(X))] \leq \frac{1}{n M_{\epsilon}} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}(Y_{i}, f(X_{i})) + \mathcal{R}_{n}(\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda)) + \sqrt{\frac{8 \log{\frac{2}{\beta}}}{n}}.
@@ -1015,14 +963,14 @@ Data dependent risk bounds
 			\begin{proof}
 				Since $\bar{\mathcal{L}}_{\epsilon} : \mathcal{Y} \times \mathcal{A} \to [0, 1]$ has a unit range and dominates itself, $\bar{\mathcal{L}}_{\epsilon}(y, f(x)) \leq \bar{\mathcal{L}}_{\epsilon}(y, f(x))$, the result follows directly from Theorem 8 of \cite{bartlett2002rademacher}. We then use the definition \eqref{eq:normalised_cross_entropy_loss} for the normalised cross entropy loss.
 			\end{proof}
-		\end{corollary}
+		\end{lemma}
 		
-		The bound \eqref{eq:expected_loss_bound} involves the Rademacher complexity $\mathcal{R}_{n}(\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda))$ of the centred normalised cross entropy loss applied onto the class of functions $F_{n}(\Theta, \Lambda)$, and not just the Rademacher complexity $\mathcal{R}_{n}(F_{n}(\Theta, \Lambda))$ of the class of functions $F_{n}(\Theta, \Lambda)$ itself. In \cref{thm:rademacher_complexity_bound}, we have bounded the latter. We now proceed to bound the former with the latter, so that the former is also bounded by the bound on the latter \eqref{eq:rademacher_complexity_bound}.
+		Equivalently, by definition \eqref{eq:predictor_class}, this result holds for $f = \bvec{f}_{\theta, \lambda}(x)$ for every $\theta \in \Theta, \lambda \in \Lambda$. The bound \eqref{eq:expected_loss_bound} involves the Rademacher complexity $\mathcal{R}_{n}(\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda))$ of the centred normalised cross entropy loss applied onto the class of functions $F_{n}(\Theta, \Lambda)$, and not just the Rademacher complexity $\mathcal{R}_{n}(F_{n}(\Theta, \Lambda))$ of the class of functions $F_{n}(\Theta, \Lambda)$ itself. In \cref{thm:rademacher_complexity_bound}, we have bounded the latter. We now proceed to bound the former with the latter, so that the former is also bounded by the bound on the latter \eqref{eq:rademacher_complexity_bound}.
 		
 		\begin{lemma}[Rademacher Complexity Bound with Cross Entropy Loss]
 		\label{thm:rademacher_complexity_bound_with_cross_entropy_loss}
 		
-			The Rademacher complexity of the class of cross entropy loss applied onto the kernel embedding classifier is bounded by
+			For any integer $n \in \mathbb{N}_{+}$ and any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, the Rademacher complexity of the class of cross entropy loss applied onto the kernel embedding classifier is bounded by
 			
 			\begin{equation}
 				\mathcal{R}_{n}(\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda)) \leq 2 \frac{1}{\epsilon \log{\frac{1}{\epsilon}}} \mathcal{R}_{n}(F_{n}(\Theta, \Lambda)),
@@ -1032,39 +980,40 @@ Data dependent risk bounds
 			where $\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda) := \{(x, y) \mapsto \tilde{\mathcal{L}}_{\epsilon}(y, \bvec{f}_{\theta, \lambda}(x)) : \theta \in \Theta, \lambda \in \Lambda\}$.
 			
 			\begin{proof}
-				Let $\tilde{\psi}(z) := - \frac{1}{M_{\epsilon}} \log{\max \{z, \epsilon \}} - 1$ so that $\tilde{\psi} : \mathbb{R} \to \mathbb{R}$ satisfies $\tilde{\psi}(0) = 0$. Then, the centered normalised cross entropy loss can be written as $\tilde{\mathcal{L}}_{\epsilon}(y, \hat{\bvec{p}}(x)) = \tilde{\psi}(\hat{p}_{y}(x))$. In particular, $\tilde{\psi}(z)$ is piecewise differentiable. We proceed to show that $\tilde{\psi}$ is Lipschitz by showing that the suprenum of its absolute derivative over all piecewise regions is finite, and thus infer its Lipschitz constant.
+				Let $\tilde{\psi}(z) := - \frac{1}{M_{\epsilon}} \log{[z]_{\epsilon}^{1}} - 1$ so that $\tilde{\psi} : \mathbb{R} \to \mathbb{R}$ satisfies $\tilde{\psi}(0) = 0$. Then, the centered normalised cross entropy loss can be written as $\tilde{\mathcal{L}}_{\epsilon}(y, \bvec{f}(x)) = \tilde{\psi}(f_{y}(x))$. In particular, $\tilde{\psi}(z)$ is piecewise differentiable. We proceed to show that $\tilde{\psi}$ is Lipschitz by showing that the suprenum of its absolute derivative over all piecewise regions is finite, and thus infer its Lipschitz constant.
 				
-				The real-valued function $\tilde{\psi}$ can be split into two piecewise regions over the real domain,
+				The real-valued function $\tilde{\psi}$ can be split into three piecewise regions over the real domain,
 				
 				\begin{equation}
 					\tilde{\psi}(z) = \begin{cases}
-						0, \qquad &z \leq \epsilon, \\
-						- \frac{1}{M_{\epsilon}}\log{z} - 1, \qquad &z > \epsilon.
+						0, \qquad &z \in (-\infty, \epsilon], \\
+						- \frac{1}{M_{\epsilon}}\log{z} - 1, \qquad & z \in (\epsilon, 1), \\
+						-1, & z \in [1, \infty).
 					\end{cases}
 				\end{equation}
 				
-				The derivative over the region $z \leq \epsilon$ is thus $0$ and the local Lipschitz constant over that region is thus $0$. We then focus on the other region,
+				The derivative over the regions $z \in (-\infty, \epsilon]$ and $z \in [1, \infty)$ is thus $0$ and the local Lipschitz constant over that region is thus $0$. We then focus on the other region,
 				
 				\begin{equation}
 					\begin{aligned}
-						\sup_{z \in (\epsilon, \infty)} | \tilde{\psi}'(z) | = \sup_{z \in (\epsilon, \infty)} \Big| - \frac{1}{z M_{\epsilon}} \Big| = \Big| - \frac{1}{\epsilon M_{\epsilon}} \Big| = \Big| \frac{1}{\epsilon \log{\epsilon}} \Big| = \frac{1}{\epsilon \log{\frac{1}{\epsilon}}}.
+						\sup_{z \in (\epsilon, 1)} | \tilde{\psi}'(z) | = \sup_{z \in (\epsilon, 1)} \bigg| - \frac{1}{z M_{\epsilon}} \bigg| = \sup_{z \in (\epsilon, 1)} \frac{1}{z M_{\epsilon}} = \frac{1}{\epsilon M_{\epsilon}} = \frac{1}{\epsilon \log{\frac{1}{\epsilon}}}.
 					\end{aligned}
 				\end{equation}
 				
 				Thus, $\tilde{\psi}$ is Lipschitz with a Lipschitz constant of $L_{\tilde{\psi}} = \frac{1}{\epsilon \log{\frac{1}{\epsilon}}}$.
 				
-				For a given general loss function $\mathcal{L}$, \citet[Corollary 3.17]{ledoux2013probability} proved that if there exists a Lipschitz real-valued function $\psi : \mathbb{R} \to \mathbb{R}$, $\psi(0) = 0$, with constant $L_{\tilde{\psi}}$ such that $\mathcal{L}(y, f(x)) = \psi(f_{y}(x))$, then $\mathcal{R}_{n}(\mathcal{L} \circ F) \leq 2 L_{\psi} \mathcal{R}_{n}(F)$. This result is also described in \citet[Theorem 12.4]{bartlett2002rademacher}.
+				For a given general loss function $\mathcal{L}$, \citet[Corollary 3.17]{ledoux2013probability} proved that if there exists a Lipschitz real-valued function $\psi : \mathbb{R} \to \mathbb{R}$, $\psi(0) = 0$, with constant $L_{\psi}$ such that $\mathcal{L}(y, f(x)) = \psi(f_{y}(x))$, then $\mathcal{R}_{n}(\mathcal{L} \circ F) \leq 2 L_{\psi} \mathcal{R}_{n}(F)$ for any class of functions $F$. This result is also described in \citet[Theorem 12.4]{bartlett2002rademacher}.
 				
-				Applying this result to our loss function $\tilde{\mathcal{L}}_{\epsilon}$ with $\psi = \tilde{\psi}$ and $F = F_{n}(\Theta, \Lambda)$ the function class of the kernel embedding classifier over $\theta \in \Theta$ and $\lambda \in \Lambda$, we have $\mathcal{R}_{n}(\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda)) \leq 2 L_{\tilde{\psi}} \mathcal{R}_{n}(F_{n}(\Theta, \Lambda))$, which proves the claim.
+				Applying this result to our loss function with $\mathcal{L} = \tilde{\mathcal{L}}_{\epsilon}$ with $\psi = \tilde{\psi}$ and $F = F_{n}(\Theta, \Lambda)$, we have $\mathcal{R}_{n}(\tilde{\mathcal{L}}_{\epsilon} \circ F_{n}(\Theta, \Lambda)) \leq 2 L_{\tilde{\psi}} \mathcal{R}_{n}(F_{n}(\Theta, \Lambda))$, which proves the claim.
 			\end{proof}
 		\end{lemma}
 		
 		The bound \eqref{eq:composed_rademacher_complexity_bound} in \cref{thm:rademacher_complexity_bound_with_cross_entropy_loss} will be the bridge that relates the expected cross entropy loss over our function class to the Rademacher complexity of our function class. We now proceed to state the main theorem which forms the backbone of our learning algorithm for the kernel embedding classifier.
 		
-		\begin{theorem}[General Expected Risk Bound for the Kernel Embedding Classifier]
+		\begin{lemma}[General Expected Risk Bound for the Kernel Embedding Classifier]
 			\label{thm:expected_loss_bound_for_kec}
 			
-			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Further suppose that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2}$ is bounded in RKHS norm for all $x \in \mathcal{X}, \theta \in \Theta$. For any integer $n \in \mathbb{N}_{+}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $f \in F_{n}(\Theta, \Lambda)$ satisfies
+			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Further suppose that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2}$ is bounded in RKHS norm for all $x \in \mathcal{X}, \theta \in \Theta$. For any integer $n \in \mathbb{N}_{+}$ and any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $f \in F_{n}(\Theta, \Lambda)$ satisfies
 			
 			\begin{equation}
 				\frac{1}{M_{\epsilon}} \mathbb{E}[\mathcal{L}_{\epsilon}(Y, f(X))] \leq \frac{1}{n M_{\epsilon}} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}(Y_{i}, f(X_{i})) + 4 \frac{1}{\epsilon \log{\frac{1}{\epsilon}}} \alpha \rho + \sqrt{\frac{8 \log{\frac{2}{\beta}}}{n}},
@@ -1076,7 +1025,7 @@ Data dependent risk bounds
 			\begin{proof}
 				The claim is a direct consequence of \cref{thm:rademacher_complexity_bound} and \cref{thm:rademacher_complexity_bound_with_cross_entropy_loss}.
 			\end{proof}
-		\end{theorem}
+		\end{lemma}
 
 		Similar to many learning theoretic bounds, the expected risk bound \eqref{eq:expected_loss_bound_for_kec} is composed of three qualitatively different terms. The first term is a training loss or data fit term, which is a measure of how poorly the decision function $f$ is performing on a given training dataset. The second term is a model complexity or regularisation term, which measures how complicated the model is. In this case, the model complexity is measured by the Rademacher complexity, which captures the expressiveness of the function class by quantifying how well the function class is able to shatter pure noise. The third term is a statistical constant which plays no specific role to the function class.
 		
@@ -1102,7 +1051,7 @@ Data dependent risk bounds
 		
 %		In fact, the inequality $\mathcal{L}_{\epsilon_{1}}(y, f(x)) \leq \mathcal{L}_{\epsilon_{2}}(y, f(x))$ holds in general for all $\epsilon_{1} \leq \epsilon_{2}, x \in \mathcal{X}, y \in \mathcal{Y}$.
 		
-		To see why inequality \eqref{eq:loss_inequality} holds, note that $\max \{ \hat{p}_{y}(x), \epsilon \} \leq \max \{ \hat{p}_{y}(x), e^{-1} \}$ holds for all $\epsilon \in (0, e^{-1}), x \in \mathcal{X}, y \in \mathcal{Y}$. Applying negative log to both sides yields the inequality from definition \eqref{eq:cross_entropy_loss}.
+		To see why inequality \eqref{eq:loss_inequality} holds, note that $[f_{y}(x)]_{\epsilon}^{1} \leq [f_{y}(x)]_{e^{-1}}^{1}$ holds for all $\epsilon \in (0, e^{-1}), x \in \mathcal{X}, y \in \mathcal{Y}$. Applying negative log to both sides yields the inequality from definition \eqref{eq:cross_entropy_loss}.
 
 		Therefore, we propose to choose $\epsilon = e^{-1}$, and then replace replace $\mathcal{L}_{e^{-1}}$ with $\mathcal{L}_{\epsilon}$ for some new generic $\epsilon \in (0, e^{-1})$ much smaller than $e^{-1}$. In this way, we still maintain an upper bound for the training loss term. While this bound would not necessarily be tight for high training losses, the gradients from the high training loss would drive the system to a lower training loss, where the bound would become tight again.
 		
@@ -1111,7 +1060,7 @@ Data dependent risk bounds
 		\begin{theorem}[Specific Expected Risk Bound for the Kernel Embedding Classifier]
 			\label{thm:specific_expected_loss_bound_for_kec}
 			
-			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Further suppose that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2}$ is bounded in RKHS norm for all $x \in \mathcal{X}, \theta \in \Theta$. For any integer $n \in \mathbb{N}_{+}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $f \in F$ satisfies
+			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Further suppose that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2}$ is bounded in RKHS norm for all $x \in \mathcal{X}, \theta \in \Theta$. For any integer $n \in \mathbb{N}_{+}$ and any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $f \in F_{n}(\Theta, \Lambda)$ satisfies
 			
 			\begin{equation}
 			\mathbb{E}[\mathcal{L}_{e^{-1}}(Y, f(X))] \leq \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}(Y_{i}, f(X_{i})) + 4 e \alpha \rho + \sqrt{\frac{8 \log{\frac{2}{\beta}}}{n}},
@@ -1133,8 +1082,8 @@ Data dependent risk bounds
 			\end{proof}
 		\end{theorem}
 
-	\subsection{Hyperparameter Specific Bounds for Learning}
-	\label{sec:hyperparamter_bounds}
+	\subsection{Expected Risk Bounds for Hyperparameter Learning}
+	\label{app:expected_risk_bounds_for_hyperparameter_learning}
 	
 		We are now ready to use the result of \cref{thm:specific_expected_loss_bound_for_kec} to derive a specific expected risk bound for a given choice of hyperparameters $\theta \in \Theta$ and $\lambda \in \Lambda$ of the kernel embedding classifier, and not just for a general set of hyperparameters. We focus on kernels $k_{\theta}$ that are bounded over the domain $\mathcal{X}$ in the sense that for each $\theta \in \Theta$, $k_{\theta}(x, x) < \infty$ for all $x \in \mathcal{X}$.
 		
@@ -1153,17 +1102,17 @@ Data dependent risk bounds
 		
 		Thus, we can assert that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho = \| W_{\tilde{\theta}, \tilde{\lambda}} \|_{\mathrm{tr}}$ is bounded for all $(\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$, and that the canonical feature map $\| \phi_{\theta}(x) \|_{\mathcal{H}_{k_{\theta}}} = k_{\theta}(x, x) \leq \alpha^{2} = \sup_{x \in \mathcal{X}} k_{\tilde{\theta}}(x, x)$ is bounded in RKHS norm for all $x \in \mathcal{X}, (\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$. By \cref{thm:specific_expected_loss_bound_for_kec}, we can now claim the following.
 
-		\begin{claim}
-			\label{thm:general_trace_norm_bound}
+		\begin{lemma}[General Expected Risk Bound for KEC Hyperparameter Learning]
+			\label{thm:general_expected_risk_bound_hyperparameter_learning}
 			
-			For any integer $n \in \mathbb{N}_{+}$ and $\epsilon \in (0, e^{-1})$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $(\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$ satisfies
+			For any integer $n \in \mathbb{N}_{+}$ and any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $(\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$ satisfies
 			
 			\begin{equation}
 				\mathbb{E}[\mathcal{L}_{e^{-1}}(Y, \bvec{f}_{\theta, \lambda}(X))] \leq \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}(Y_{i}, \bvec{f}_{\theta, \lambda}(X_{i})) + 4 e \sqrt{\sup_{x \in \mathcal{X}} k_{\tilde{\theta}}(x, x)} \| W_{\tilde{\theta}, \tilde{\lambda}} \|_{\mathrm{tr}} + \sqrt{\frac{8 \log{\frac{2}{\beta}}}{n}},
-			\label{eq:general_trace_norm_bound}
+			\label{eq:general_expected_risk_bound_hyperparameter_learning}
 			\end{equation}
 			
-			where 
+			for every $\epsilon \in (0, e^{-1})$, where 
 			
 			\begin{equation}
 				\begin{aligned}
@@ -1175,21 +1124,21 @@ Data dependent risk bounds
 			\begin{proof}
 				This result is a direct consequence of applying \cref{thm:specific_expected_loss_bound_for_kec} with the choice of $\rho = \| W_{\tilde{\theta}, \tilde{\lambda}} \|_{\mathrm{tr}}$ and $\alpha^{2} = \sup_{x \in \mathcal{X}} k_{\tilde{\theta}}(x, x)$. The inequality \eqref{eq:specific_expected_loss_bound_for_kec} then only holds for a subset of kernel parameter and regularisation $(\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$ as defined by \eqref{eq:hyperparameter_subset_definition}.
 			\end{proof}
-		\end{claim}
+		\end{lemma}
 		
-		Since inequality \eqref{eq:general_trace_norm_bound} holds for any $(\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$ and we know that $(\tilde{\theta}, \tilde{\lambda}) \in \Xi(\tilde{\theta}, \tilde{\lambda})$, we choose $\theta = \tilde{\theta}$ and $\lambda = \tilde{\lambda}$.  We now arrive at our final result from which we construct our training objective, where the bound is specific to a choice of hyperparameters $\theta \in \Theta$ and $\lambda \in \Lambda$.
+		Since inequality \eqref{eq:general_expected_risk_bound_hyperparameter_learning} holds for any $(\theta, \lambda) \in \Xi(\tilde{\theta}, \tilde{\lambda})$ and we know that $(\tilde{\theta}, \tilde{\lambda}) \in \Xi(\tilde{\theta}, \tilde{\lambda})$, we choose $\theta = \tilde{\theta}$ and $\lambda = \tilde{\lambda}$.  We now arrive at our final result from which we can bound the expected risk for a specific choice of hyperparameters $\theta \in \Theta$ and $\lambda \in \Lambda$.
 		
-		\begin{theorem}[Expected Risk Bound under Trace Norm of the Kernel Embedding Classifier]
-			\label{thm:trace_norm_bound}
+		\begin{theorem}[Expected Risk Bound for KEC Hyperparameter Learning]
+			\label{thm:expected_risk_bound_hyperparameter_learning}
 			
-			For any integer $n \in \mathbb{N}_{+}$ and $\epsilon \in (0, e^{-1})$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $\theta \in \Theta$ and $\lambda \in \Lambda$,
+			For any integer $n \in \mathbb{N}_{+}$ and any set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, with probability $1 - \beta$ over \textit{iid} samples $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ of length $n$ from $\mathbb{P}_{X Y}$, every $\theta \in \Theta$ and $\lambda \in \Lambda$ satisfies
 			
 			\begin{equation}
 				\mathbb{E}[\mathcal{L}_{e^{-1}}(Y, \bvec{f}_{\theta, \lambda}(X))] \leq \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}(Y_{i}, \bvec{f}_{\theta, \lambda}(X_{i})) + 4 e r(\theta, \lambda) + \sqrt{\frac{8 \log{\frac{2}{\beta}}}{n}},
-			\label{eq:trace_norm_bound}
+			\label{eq:expected_risk_bound_hyperparameter_learning}
 			\end{equation}
 			
-			where 
+			for every $\epsilon \in (0, e^{-1})$, where 
 			
 			\begin{equation}
 				\begin{aligned}
@@ -1199,7 +1148,7 @@ Data dependent risk bounds
 			\end{equation}
 			
 			\begin{proof}
-				This result is a direct consequence of applying \cref{thm:general_trace_norm_bound} with the choice of $\theta = \tilde{\theta}$ and $\lambda = \tilde{\lambda}$. We then replace the notation $\tilde{\theta} \rightarrow \theta$ and $\tilde{\lambda} \rightarrow \lambda$ back to avoid cluttered notation. Note that this should not be confused with the general $\theta$ and $\lambda$ from earlier theorems.
+				This result is a direct consequence of applying \cref{thm:general_expected_risk_bound_hyperparameter_learning} with the choice of $\theta = \tilde{\theta}$ and $\lambda = \tilde{\lambda}$. We then replace the notation $\tilde{\theta} \rightarrow \theta$ and $\tilde{\lambda} \rightarrow \lambda$ back to avoid cluttered notation. Note that this should not be confused with the general $\theta$ and $\lambda$ from earlier theorems.
 			\end{proof}
 		\end{theorem}
 		
@@ -1211,9 +1160,9 @@ Data dependent risk bounds
 
 	For a kernel embedding classifier, the modelling lies in the choice of the kernel family $k_{\theta} : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ over the input space $\mathcal{X}$. The only requirement for the kernel $k$ is that it is symmetric and positive definite. In some cases, positive semi-definite kernels also suffice. There are no other requirements, and thus we may construct richer and more expressive kernel families in any way we prefer, subject to those requirements. Once such a kernel family is constructed, the kernel parameters $\theta$, as well as the regularisation parameter $\lambda$, can be learned effectively using the training algorithm described in \cref{sec:hyperparameter_learning}.
 	
-	One way to construct richer and more expressive kernels is to compose them from simpler kernels. For example, we can construct new kernels through convex combinations or products of multiple simpler kernels \citep{genton2001classes}. Alternatively, there may be domain specific structures or representations within the data that can be exploited. We can then construct the kernel family by incorporating such structural representations into the kernel. Even better, we can construct the kernel family so that it is capable or learning such structural representations by itself.
+	One way to construct richer and more expressive kernels is to compose them from simpler kernels. For example, we can construct new kernels through convex combinations or products of multiple simpler kernels \citep{genton2001classes}. Any new parameters, such as coefficients for linear combinations of simpler kernels, can be included into the kernel parameters $\theta$ and learned in the same way as before. Alternatively, there may be domain specific structures or representations within the data that can be exploited. We can then construct the kernel family by incorporating such structural representations into the kernel. Even better, we can construct the kernel family so that it is capable or learning such structural representations by itself.
 	
-	In this section, we focus on special cases of the kernel embedding classifier where the kernel family is constructed through explicit feature maps. This construction allows the incorporation of trainable domain specific structures and enables scalability to larger datasets. We first begin by introducing the linear kernel embedding classifier (LKEC, Linear CAKE, or LAKE) in \cref{app:linear_kernel_embedding_classifier}, where explicit feature maps can be learned while enabling scalability to larger datasets. We then construct the deep kernel embedding network (DKEN, or Deep CAKE) in \cref{app:deep_kernel_embeddings}, where the kernel family is formed from multiple layers of learned representations before a simpler kernel encodes their similarity for inference. Finally, we marry both constructions into the deep linear kernel embedding network (DLKEN, or Deep LAKE) in \cref{app:deep_linear_kernel_embedding_network}, which provides a scalable and more applicable version of the deep kernel embedding network by placing a linear kernel on the last layer of the network.
+	In this section, we focus on special cases of the kernel embedding classifier where the kernel family is constructed through explicit feature maps. This construction allows the incorporation of trainable domain specific structures and enables scalability to larger datasets. We first begin by introducing the linear kernel embedding classifier (Linear KEC) in \cref{app:linear_kernel_embedding_classifier}, where explicit feature maps can be learned while enabling scalability to larger datasets. We then construct the deep nonlinear kernel embedding network (Deep Nonlinear KEN) in \cref{app:deep_kernel_embeddings}, where the kernel family is formed from multiple layers of learned representations before a simpler yet potentially nonlinear kernel encodes their similarity for inference. Finally, we marry both constructions into the deep linear kernel embedding network (Deep Linear KEN) in \cref{app:deep_linear_kernel_embedding_network}, which provides a scalable and more applicable version of the deep kernel embedding network by placing a linear kernel on the last layer of the network.
 
 	In essence, we can categorise the kernel embedding classifier using two properties: the model width and the model depth. The model width represents the dimensionality of the feature space used to construct the linear decision boundaries. The model depth represents the number of transformations used to map examples from the input space to the feature space. By implicitly defining a high dimensional feature space through simple transformations, typical nonlinear kernels produces classifiers that have a shallow but wide architecture. In contrast, the three kernel embedding classifier variants to be introduced in this section form other combinations of model architecture in both depth and width. We summarise those architectures in \cref{tab:kernel_embedding_classifier_variants}.
 
@@ -1237,23 +1186,22 @@ Data dependent risk bounds
 	
 		The advantage of using a kernel-based classifier is that the kernel $k$ allows us to express nonlinearities in a simple way. It does this by implicitly mapping the input space $\mathcal{X}$ to a high dimensional feature space $\mathcal{H}_{k}$ of non-linear basis functions such that decision boundaries become linear in that space. For many kernels, such as the Gaussian kernel defined over the Euclidean space, the feature space $\mathcal{H}_{k}$ has dimensionality that is uncountably infinite. Nevertheless, by virtue of the Representer Theorem \citep{kimeldorf1971some}, the resulting decision functions can be represented by a finite linear combination of kernels centred at the training data, and the kernel embedding classifier is no exception. This elegant and convenient result enables exact inference to be performed while only requiring a finite kernel gram matrix of the size of the dataset ($n \times n$) to be computed. In this way, the capacity of the model grows with the size of the dataset, which makes kernel methods nonparametric and very flexible, as it can adapt to the complexity of a dataset even with relatively simple kernels. 
 		
-		However, this elegant property is also the very reason that prevents kernel-based methods from scaling to larger datasets, as the size of such a matrix grows very quickly by $O(n^{2})$ as the dataset grows. Furthermore, many kernel-based methods require the inversion of a regularised gram matrix, which has a time complexity of $O(n^{3})$, and cannot be easily parallelised unlike standard matrix multiplications. As such, inference on datasets beyond tens of thousands of observations quickly becomes impractical to perform with kernel-based techniques.
+		However, this elegant property is also the very reason that prevents kernel-based methods from scaling to larger datasets, as the size of such a matrix grows very quickly by $O(n^{2})$ as the dataset grows. Many kernel-based methods also require the inversion of a regularised gram matrix, which has a time complexity of $O(n^{3})$, and cannot be easily parallelised like standard matrix multiplications. As such, inference on datasets beyond tens of thousands of observations quickly becomes impractical to perform with kernel-based techniques.
 		
-		Furthermore, in many situations, simple conventional kernels such as the Gaussian kernel is not able to fully represent the underlying structure of the data for the specific application domain at hand. For example, in an image recognition task, a Gaussian kernel over the flattened pixels of an image is unable to capture the local relationships between nearby pixels in the original image. In this example, inference would greatly benefit from using convolutional features. In general, we would like to be able to compose kernels from any features that can potentially learn to capture structural information within the data.
-		
-		These two insights motivate a special case of the kernel embedding classifier, the linear kernel embedding classifier. As its name implies, instead of placing a kernel over the input space directly and let it implicitly define the feature space, we simply explicitly define a finite dimensional feature space $\mathbb{R}^{p}$ of dimension $p$ and place a linear kernel over it. By explicitly defining a finite dimensional feature space, the matrix to be inverted during both learning and inference in the kernel embedding classifier can be reduced from size $n \times n$ to size $p \times p$ by using a special case of the Woodbury matrix identity.
-		
-		However, with a fixed and finite amount of feature basis, the model becomes parametric and its flexibility is compromised. We therefore employ the deep learning philosophy, where the flexibility of a model comes from a narrow but deep architecture instead of a wide but shallow architecture such as the one defined by a kernel with implicit infinite dimensional features. 
-		
-		
-		
+		In order to scale to big datasets, instead of placing a kernel over the input space directly and let it implicitly define the feature space, we explicitly define a finite dimensional feature space $\mathcal{Z} \subseteq \mathbb{R}^{p}$ of dimension $p$, where $p < n$, and place a linear kernel over it. That is, we specify a family of explicit features maps $\varphi_{\theta} : \mathcal{X} \to \mathcal{Z}$, and place a linear kernel on top of these explicit features,
 		
 		\begin{equation}
-		k_{\theta}(x, x') = \varphi_{\theta}(x)^{T} \varphi_{\theta}(x')
+			k_{\theta}(x, x') = \varphi_{\theta}(x)^{T} \varphi_{\theta}(x').
 		\end{equation}
 		
+		By explicitly defining a finite dimensional feature space, the matrix to be inverted during both learning and inference in the kernel embedding classifier can be reduced from size $n \times n$ to size $p \times p$ by using the Woodbury matrix identity. We use this identity to modify \cref{alg:kernel_embedding_classifier_training} to \cref{alg:linear_kernel_embedding_classifier_training} to exploit this computational speed up.
+		
+%		\note{Choose each batch to be greater than the dimensionality of the last layer to avoid numerical instability with Cholesky Decomposition as the upper bound is not tight for small $n$ and the gradients may send it off to some unstable region instead}
+		
+		However, with a fixed and finite amount of feature basis, the model becomes parametric and its flexibility is compromised. In other words, the model is narrow in the number of feature representations, and also shallow in the number of transformations used to define each feature. We therefore turn to multi-layered feature compositions, where the flexibility of a model comes from the deep architecture instead of implicit high dimensional features.
+
 		\begin{algorithm}[tb]
-			\caption{Linear Kernel Embedding Classifier Training with Stochastic Gradient Descent}
+			\caption{Linear KEC Hyperparameter Learning with Batch Stochastic Gradient Descent}
 			\label{alg:linear_kernel_embedding_classifier_training}
 			\begin{algorithmic}[1]
 				\STATE {\bfseries Input:} feature family $\varphi_{\theta} : \mathcal{X} \to \mathcal{Z} \subseteq \mathbb{R}^{p}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial feature parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
@@ -1264,61 +1212,64 @@ Data dependent risk bounds
 				\STATE $Z_{\theta} \leftarrow \{\varphi_{\theta}(x_{i}) : i \in \mathcal{I}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times p}$
 				\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(Z_{\theta}^{T} Z_{\theta} + n_{b} \lambda I_{p}) \hspace{\fill} \in \mathbb{R}^{p \times p}$
 				\STATE $W_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash Z_{\theta}^{T} Y) \hspace{\fill} \in \mathbb{R}^{p \times m}$
-				\STATE $r(\theta, \lambda) \leftarrow \sqrt{\sum_{c = 1}^{m} \sum_{j = 1}^{p} (W_{\theta, \lambda})_{j, c}^{2}}$
 				\STATE $P_{\theta, \lambda} \leftarrow Z_{\theta} W_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
-				\STATE $q(\theta, \lambda) \leftarrow \mathrm{loss}(Y, P_{\theta, \lambda}) + r(\theta, \lambda)$ \hspace{\fill} (For example, use the cross entropy loss or squared loss)
+				\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \alpha(\theta) \sqrt{\sum_{c = 1}^{m} \sum_{j = 1}^{p} (W_{\theta, \lambda})_{j, c}^{2}}$
 				\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
 				\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial r}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial r}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
 				\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
 			\end{algorithmic}
 		\end{algorithm}
-		
-		\note{Choose each batch to be greater than the dimensionality of the last layer to avoid numerical instability with Cholesky Decomposition as the upper bound is not tight for small $n$ and the gradients may send it off to some unstable region instead}
-
 
 	\subsection{Deep Kernel Embedding Network}
 	\label{app:deep_kernel_embeddings}
 	
 		For many application domains, there are natural structures in the data. For example, in image recognition, pixel dimensions are spatially correlated: nearby pixels are more related, and ordering between the pixel dimensions matter. One would expect that convolutional features \citep{lecun1998gradient} would be natural in this domain and provide a performance boost to our classifier should it be included. In this way, we can often benefit by including domain specific structures and features into our model.
-	
-	
 
-
-		In this section, we focus on constructing kernels, in which inputs $x, x' \in \mathcal{X}$ is to undergo various stages of feature transformations before being fed into a simple positive definite kernel. Specifically, we pay particular attention to feature transformations in the form of a perceptron, so that the cumulative stages of feature transformation become the (feed-forward) multi-layer perceptron that is familiar within the neural network literature. Although our approach can generalise to other architectures, such as recurrent neural networks, we omit such consideration for simplicity.
+		In this section, we focus on constructing kernels for which inputs $x, x' \in \mathcal{X}$ is to undergo various stages of feature transformations before such it is passed into a simpler kernel $\kappa$ which captures the similarity between the representations. Specifically, we pay particular attention to feature transformations in the form of a perceptron, so that the cumulative stages of feature transformation become the (feed-forward) multi-layer perceptron that is familiar within the neural network literature. Although our approach can generalise to other architectures, such as recurrent neural networks, we omit such consideration for simplicity.
 	
-		Formally, let $\mathcal{F}_{0} := \mathcal{X}$ be the original input space. The $j^{\mathrm{th}}$ layer of the network $\varphi^{(j)}_{\theta_{j}} : \mathcal{F}_{j - 1} \to \mathcal{F}_{j}, j = 1, 2, \dots, q$ is to transform features from the previous layer to features in the current layer, where $q$ is the total number of such feature transformation layers, and $\theta_{j} \in \Theta_{j}$ parametrises each of those transformations.
+		Formally, let $\mathcal{F}_{0} := \mathcal{X}$ be the original input space. The $j^{\mathrm{th}}$ layer of the network $\varphi^{(j)}_{\theta_{j}} : \mathcal{F}_{j - 1} \to \mathcal{F}_{j}, j = 1, 2, \dots, L$ is to transform features from the previous layer to features in the current layer, where $L$ is the total number of such feature transformation layers, and $\theta_{j} \in \Theta_{j}$ parametrises each of those transformations.
 		
 		For example, in a typical multi-layer perceptron context, each layer can be written as $\varphi^{(j)}_{\theta_{j}}(x) = \sigma(W_{j} x + b_{j})$, where $W$ and $b$ are the weight and bias parameters of the layer, and $\sigma$ is an element-wise activation function, typically the rectified linear unit (ReLU) or the sigmoid. In this case, the layer is parametrised by $\theta_{j} = \{W_{j}, b_{j}\}$. The setup for a feed-forward convolutional neural network is also very similar.
 		
-		Our aim is to construct a positive definite kernel $k$ which can learn representations of the inputs at various levels before such these representations are passed into a simpler kernel $\kappa$ which captures the similarity between the representations.
-		
-		Let $\kappa_{\theta_{\kappa}} : \mathcal{F}_{p} \times \mathcal{F}_{p} \to \mathbb{R}$ be parametrised by $\theta_{\kappa} \in \Theta_{\kappa}$. We will construct our kernel network $k$ by
+		Let $\kappa_{\theta_{0}} : \mathcal{F}_{p} \times \mathcal{F}_{p} \to \mathbb{R}$ be parametrised by $\theta_{0} \in \Theta_{0}$. We will construct our kernel network $k$ by
 		
 		\begin{equation}
-		k_{\theta}(x, x') := \kappa_{\theta_{\kappa}}\Bigg(
-		\varphi^{(p)}_{\theta_{p}}\bigg(\varphi^{(p - 1)}_{\theta_{p - 1}}\Big(\dots\varphi^{(2)}_{\theta_{2}}\big(\varphi^{(1)}_{\theta_{1}}(x)\big)\Big)\bigg),
-		\varphi^{(p)}_{\theta_{p}}\bigg(\varphi^{(p - 1)}_{\theta_{p - 1}}\Big(\dots\varphi^{(2)}_{\theta_{2}}\big(\varphi^{(1)}_{\theta_{1}}(x')\big)\Big)\bigg)
-		\Bigg)
+			k_{\theta}(x, x') := \kappa_{\theta_{0}}\Bigg( \varphi^{(L)}_{\theta_{L}}\bigg(\varphi^{(L - 1)}_{\theta_{L - 1}}\Big(\dots\varphi^{(2)}_{\theta_{2}}\big(\varphi^{(1)}_{\theta_{1}}(x)\big)\Big)\bigg), \varphi^{(L)}_{\theta_{L}}\bigg(\varphi^{(L - 1)}_{\theta_{L - 1}}\Big(\dots\varphi^{(2)}_{\theta_{2}}\big(\varphi^{(1)}_{\theta_{1}}(x')\big)\Big)\bigg) \Bigg)
 		\label{eq:deep_kernel_embedding_network}
 		\end{equation}
 		
-		where $\theta = \{\theta_{1}, \theta_{2}, \dots, \theta_{p -1}, \theta_{p}, \theta_{\kappa}\} \in \Theta = \Theta_{1} \otimes \Theta_{2} \otimes \dots \otimes \Theta_{p - 1} \otimes \Theta_{p} \otimes \Theta_{\kappa}$ are the collection of all parameters of each layer and the kernel $\kappa$.
+		where $\theta = (\theta_{1}, \theta_{2}, \dots, \theta_{L -1}, \theta_{L}, \theta_{0}) \in \Theta = \Theta_{1} \otimes \Theta_{2} \otimes \dots \otimes \Theta_{L - 1} \otimes \Theta_{L} \otimes \Theta_{0}$ are the collection of all parameters of each layer and the kernel $\kappa$.
+		
+		In order to train the multi-layered features in an end-to-end fashion, we employ \cref{alg:kernel_embedding_classifier_training}. With a deep architecture, the feature representations the kernel embedding network can learn are very flexible, and can work very well for structured data by employing suitable network architectures.
+		
+		If we choose to employ nonlinear kernels $\kappa$, the model architecture is also wide in that an even higher dimensional feature space is implicitly defined on top of the feature space of the last network layer. Despite its supreme flexibility, this again prevents the model from being scalable. We therefore turn to the specific case where we employ a linear kernel $\kappa$ on top of the multi-layered features.
 
 	\subsection{Deep Linear Kernel Embedding Network}
 	\label{app:deep_linear_kernel_embedding_network}
-	
-\newpage
-\section{Full Probabilistic Inference and Mode Reconstruction}
-\label{app:mode_reconstruction}
 
-	Formulated as a conditional embedding learning task in a reproducing kernel Hilbert space, the kernel embedding classifier is able to learn a discriminative model to nonparametrically infer about the distribution of discrete labels $Y$ given an example input $X$. In the previous section, we devised a training algorithm for learning the optimal hyperparameters for the conditional embedding corresponding to the classifier. Now that the conditional embedding is learned, we can perform full probabilistic inference between all the observed and hidden variables (if any) of the kernel embedding network. That is, 
+		The deep linear kernel embedding network is simply a special case at the intersection of the linear kernel embedding classifier and the deep kernel embedding network. From the linear KEC perspective, we simply choose $\varphi_{\theta}(x) = \varphi^{(L)}_{\theta_{L}}\big(\varphi^{(L - 1)}_{\theta_{L - 1}}(\dots\varphi^{(2)}_{\theta_{2}}(\varphi^{(1)}_{\theta_{1}}(x)))\big)$. From the deep kernel embedding network perspective, we simply choose $\kappa(z, z') = z^{T} z'$ to be a linear kernel.
+		
+		Nevertheless, this model architecture is perhaps the most practical and powerful form of the kernel embedding classifier. By having a deep architecture, the classifier is still capable of learning flexible representations on structured data, while being able to scale to larger datasets due to the linear kernel at the output layer, provided that the dimensionality of the last layer is relatively small compared to the size of the dataset.
+		
+		As a subclass of linear KEC, we can employ \cref{alg:linear_kernel_embedding_classifier_training} to learn the multi-layered features effectively. In fact, by not mapping the multi-layered features into a nonlinear kernel, the gradients for each network weight and bias are usually more pronounced, and learning is usually faster in comparison.
+				
+	\subsection{Learning Objective Intuitions}
+	\label{app:learning_objective_intuitions}
 	
-	\note{Note: Not completed yet.}
+		The learning objective \eqref{eq:objective} for the kernel embedding classifier is composed of two terms: a training loss (or data fit) term and a model complexity (or regularisation) term. In this section we provide some intuition towards the relative effects of each term for two types of kernel models: a radial basis type kernel, producing a nonlinear kernel embedding classifier, and a linear kernel, producing a linear kernel embedding classifier.
+		
+		Consider a typical radial basis type kernels such as the Gaussian (squared exponential) or Mat\'{e}rn kernel $k_{\theta}$. These types of kernels are usually placed on top of subsets of Euclidean spaces $\mathcal{X} \subseteq \mathbb{R}^{d}$ where $d$ is the dimensionality of an input $x \in \mathcal{X}$. Here, the hyperparameters $\theta$ usually includes length scale parameters ($1$ parameter for isotropic kernels, $d$ parameters for anisotropic kernels, or $\frac{d (d - 1)}{2}$ parameters for non-diagonal kernels) and possibly a sensitivity parameter which is simply a multiplicative constant that scales the magnitude of the kernel.
+		
+		These types of kernels implicitly map the input space $\mathcal{X}$ to an uncountably infinite dimensional RKHS $\mathcal{H}_{k_{\theta}}$, making the model nonparametric. This means that the feature space $\mathcal{H}_{k_{\theta}}$ is already quite flexible for any $\theta \in \Theta$, since for any $\theta \in \Theta$ it has an uncountably infinite amount of feature basis to use for creating linear decision boundaries. As such, and it is relatively easy to find linear decision boundaries within such a high dimensional space. In this way, experiments show that for most datasets, most initialisations of $\theta$ already produces a very reasonable model of low training loss. In fact, there is often a subset of length scales and sensitivity parameters within $\Theta$ in which the training loss is relatively constant.
+		
+		In these scenarios, the gradients from the training loss term is usually very small, and the gradient from the learning objective is dominated by the complexity term. Intuitively, the learning objective communicating the following message: ``the model is already performing quite well, or at least as best as it can, on the dataset, so let us focus on finding the simplest model that can still produce a similar performance''.
+		
+		This is in contrast to the case with linear kernels $k_{\theta}(x, x') = \varphi_{\theta}(x)^{T} \varphi_{\theta}(x')$. In this case, the input space $\mathcal{X}$, usually but not necessarily also a subset of the Euclidean space $\mathbb{R}^{d}$, is explicitly mapped to a finite dimensional RKHS $\mathcal{H}_{k_{\theta}} = \mathcal{Z} \subseteq \mathbb{R}^{p}$ through the feature map $\varphi_{\theta} : \mathcal{X} \to \mathcal{Z}$. With only finitely many feature basis, the model becomes parametric, and the number of features is fixed at $p$ so that its capacity does not grow with the size of the dataset like a nonparametric model.
+		
+		In \cref{app:deep_linear_kernel_embedding_network}, we focused on linear kernel embedding classifiers with deep neural network features, where the flexibility of such a narrow model comes from the deep architecture instead. This is in contrast to the case of radial basis type kernels which has a shallow architecture and the flexibility comes from the wide collection of implicit feature basis (uncountably many) which becomes more expressive as we observe more data. In this case, for most initialisations of the model parameters $\theta \in \Theta$, the model will not necessarily perform well on the training data. As such, the training loss is large and its gradients will be larger in magnitude, in order to drive the model towards a better model fit.
+		
+		On the other hand, the complexity term is comparatively smaller. Recall that the model complexity is measured in the RKHS $\mathcal{H}_{k_{\theta}}$, which in this case is the space of the last layer $\mathcal{Z} \subseteq \mathbb{R}^{p}$ of the neural network. Earlier layers are free to learn very complicated feature representations. As long as the learned feature representations in the last layer is simple, the complexity term will be small. Since the number of features is fixed, the capacity of the model is limited, and thus the complexity term is usually not as big as the training loss term. In this way, the gradients from the learning objective is dominated by the training loss term. Intuitively, the learning objective is communicating the following message: ``the model is performing very poorly on the dataset, so let us first focus on learning representations to explain the dataset before we worry about finding the simplest model''.
 	
-	\subsection{Hidden Representation Reconstruction}
-
-		\note{Note: Observed quantities are done, but hidden quantities needs experimental verification.}
-
 \newpage
 \section{Design Choices and More Discussion}
 \label{app:design_choices}
@@ -1346,20 +1297,6 @@ Data dependent risk bounds
 	\subsection{Cross Entropy Loss: Why use the raw decision probabilities?}
 	
 		
-	\subsection{More about the training objective}
-	
-		The training objective \eqref{eq:objective} for the kernel embedding classifier is composed of two terms: a training loss (or data fit) term and a model complexity (or regularisation) term. In this section we provide some intuition towards the relative effects of each term for two types of kernel models: a radial basis type kernel and a linear kernel.
-		
-		Consider a typical radial basis type kernels such as the Gaussian (squared exponential) or Mat\'{e}rn kernel $k_{\theta}$. These types of kernels are usually placed on top of subsets of Euclidean spaces $\mathcal{X} \subseteq \mathbb{R}^{d}$ where $d$ is the dimensionality of an input $x \in \mathcal{X}$. Here, the hyperparameters $\theta$ usually includes length scale parameters ($1$ parameter for isotropic kernels, $d$ parameters for anisotropic kernels, or $\frac{d (d - 1)}{2}$ parameters for non-diagonal kernels) and possibly a sensitivity parameter which is simply a multiplicative constant that scales the magnitude of the kernel.
-		
-		These types of kernels implicitly map the input space $\mathcal{X}$ to an uncountably infinite dimensional RKHS $\mathcal{H}_{k_{\theta}}$, making the model nonparametric. This means that the feature space $\mathcal{H}_{k_{\theta}}$ is already quite flexible for any $\theta \in \Theta$, since for any $\theta \in \Theta$ it has an uncountably infinite amount of feature basis to use for creating linear decision boundaries. As such, and it is relatively easy to find linear decision boundaries within such a high dimensional space. In this way, experiments show that for most datasets, most initialisations of $\theta$ already produces a very reasonable model of low training loss. In fact, there is often a subset of length scales and sensitivity parameters within $\Theta$ in which the training loss is relatively constant.
-		
-		In these scenarios, the gradients from the training loss term is usually very small, and the gradient from the training objective is dominated by the complexity term. Intuitively, the training objective communicating the following message: ``the model is already performing quite well, or at least as best as it can, on the dataset, so let us focus on finding the simplest model that can still produce a similar performance''.
-		
-		This is in contrast to the case with linear kernels $k_{\theta}(x, x') = \varphi_{\theta}(x)^{T} \varphi_{\theta}(x')$. In this case, the input space $\mathcal{X}$, usually but not necessarily also a subset of the Euclidean space $\mathbb{R}^{d}$, is explicitly mapped to a finite dimensional RKHS $\mathcal{H}_{k_{\theta}} = \mathcal{Z} \subseteq \mathbb{R}^{p}$ through the feature map $\varphi_{\theta} : \mathcal{X} \to \mathcal{Z}$. With only finitely many feature basis, the model becomes parametric, and the number of features is fixed at $p$ so that its capacity does not grow with the size of the dataset like a nonparametric model. In \cref{app:linear_kernel_embedding_classifier}, we focused on linear kernel embedding classifiers with deep neural network features, where the flexibility of such a narrow model comes from the deep architecture instead. This is in contrast to the case of radial basis type kernels which has a shallow architecture and the flexibility comes from the wide collection of feature basis (uncountably many) which becomes more expressive as we observe more data.
-		
-		In this case, for most initialisations of the model parameters $\theta \in \Theta$, the model will not necessarily perform well on the training data. As such, the training loss is large and its gradients will be larger in magnitude, in order to drive the model towards a better model fit.
-		
-		On the other hand, the complexity term is comparatively smaller. Recall that the model complexity is measured in the RKHS $\mathcal{H}_{k_{\theta}}$, which in this case is the space of the last layer $\mathcal{Z} \subseteq \mathbb{R}^{p}$ of the neural network. Earlier layers are free to learn very complicated feature extractions. As long as the learned feature representations in the last layer is simple, the complexity term will be small. Since the number of features is fixed, the capacity of the model is limited, and thus the complexity term is usually not as big as the training loss term. In this way, the gradients from the training objective is dominated by the training loss term. Intuitively, the training objective is communicating the following message: ``the model is performing very poorly on the dataset, so let us first focus on learning representations to explain the dataset before we worry about finding the simplest model''.
+
 	
 \end{document}
