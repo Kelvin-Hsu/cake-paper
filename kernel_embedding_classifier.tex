@@ -128,29 +128,26 @@
 \maketitle
 
 \begin{abstract}
+
 	We propose learning-theoretic bounds for learning the hyperparameters of kernel embeddings in the probabilistic multiclass classification context. Kernel embeddings are nonparametric methods to represent probability distributions directly through observed data in a reproducing kernel Hilbert space (RKHS). However, the problem of hyperparameter learning for kernel embeddings remains challenging, often relying on heuristics and domain specific knowledge. We begin by developing the kernel embedding classifier (KEC), and prove the stochastic convergence of its probabilistic predictions. We then prove that expected classification error can be bounded with high probability using Rademacher complexity based risk bounds. We use this bound to propose a scalable kernel learning algorithm for probabilistic multiclass classification. Classification performance is benchmarked on standard UCI datasets. We further apply our proposed kernel learning algorithm to learn feature representations of a deep convolutional network, with improved accuracy as compared to the original network, demonstrating the generality of this approach.
 \end{abstract}
 
+\section{Introduction}
+\label{sec:introduction}
+	
+	Kernel embeddings are a principled way to represent probability distributions in a nonparametric setting. They transform probability distributions into mean embeddings within a reproducing kernel Hilbert space (RKHS), and represent embeddings directly from data without assuming a parametric form.
+	
+	Within the kernel embedding framework, hyperparameters has been notoriously difficult to tune, and its learning is usually only restricted to heuristics or methods such as cross validation which requires pre-selecting the number of folds and the split of the folds. In this paper, we take a learning theoretic approach to learn the hyperparameters of a conditional kernel embedding in a supervised manner.
+
+	learning theoretic (be specific and mention PAC)
+	(complexity penalty terms that are not data dependent cannot be universally effective) \citep{kearns1997experimental} 
+	
 - We address the need for a principled way of obtaining probabilistic outputs from a multiclass classifier.
 - It works in domains with not a lot of data, and we later provide a way for which it can scale
 - We address hyperparameter learning for a kernel embedding model
 - We do not rely on priors
 
 Data dependent risk bounds
-
-\section{Introduction}
-\label{sec:introduction}
-	
-	Kernel embeddings are a principled way to represent probability distributions in a nonparametric setting.
-	
-	
-
-
-
-	learning theoretic (be specific and mention PAC)
-	(complexity penalty terms that are not data dependent cannot be universally effective) \citep{kearns1997experimental} 
-	
-
 	
 \section{Hilbert Space Embeddings of Conditional Probability Distributions}
 \label{sec:background}
@@ -249,7 +246,9 @@ Data dependent risk bounds
 
 	The formulation of the kernel embedding classifier requires the specification of a kernel $k : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ over the input space $\mathcal{X}$, or rather, a class of kernels $\{k_{\theta}\}_{\theta \in \Theta}$ parametrised by the kernel parameters $\theta \in \Theta$. It also requires the specification of a regularisation parameter $\lambda$ for the conditional embedding as in \eqref{eq:empirical_conditional_embedding}. These are hyperparameters of the kernel embedding classifier which needs to be learned in order to produce a reasonable classifier model. While decision probability estimates \eqref{eq:empirical_decision_probability} converge to the true decision probabilities \eqref{eq:decision_probability} for any choice of positive definite kernels $k_{\theta}$ (\cref{thm:probability_convergence_copy}), for finite $n$ we would like to find the kernel from the kernel family which produces the most appropriately discriminative model to perform classification tasks.
 
-	In the kernel embedding literature, hyperparameters has been notoriously difficult to tune, and its learning is usually only restricted to heuristics or methods such as cross validation which requires pre-selecting the number of folds and the split of the folds. In this paper, we take a learning theoretic approach to learn the hyperparameters of the KEC, inspired by the original training procedure of support vector classifiers (SVC) as described by \cite[p. 185]{m2001introduction}. Assuming a perfectly separable case, the training of a SVC begins by introducing a \textit{prediction constraint} on the training set, where the classifier is constrained to correctly classify all the available training examples. The strategy is to minimise the \textit{complexity} of the SVC model while ensuring perfect classification over training examples. The model complexity in the SVC context is measured by the VC dimension $h$ of the binary classifier, which has an upper bound $h \leq \lVert \bvec{w} \rVert^{2} R^{2} + 1$. Since it is difficult to compute the VC dimension explicitly, we instead minimise its upper bound, which is equivalent to and leads to the common interpretation of maximising the margin $\frac{2}{\lVert \bvec{w} \rVert}$.
+
+	
+	inspired by the original training procedure of support vector classifiers (SVC) as described by \cite[p. 185]{m2001introduction}. Assuming a perfectly separable case, the training of a SVC begins by introducing a \textit{prediction constraint} on the training set, where the classifier is constrained to correctly classify all the available training examples. The strategy is to minimise the \textit{complexity} of the SVC model while ensuring perfect classification over training examples. The model complexity in the SVC context is measured by the VC dimension $h$ of the binary classifier, which has an upper bound $h \leq \lVert \bvec{w} \rVert^{2} R^{2} + 1$. Since it is difficult to compute the VC dimension explicitly, we instead minimise its upper bound, which is equivalent to and leads to the common interpretation of maximising the margin $\frac{2}{\lVert \bvec{w} \rVert}$.
 	
 	Similarly, we propose to train our kernel embedding classifier with the same high level formulation: minimise the model complexity without compromising classification performance on the training data. Instead of employing the VC dimension as the complexity measure of our model, which is defined mainly for binary classifiers, we consider the \textit{Rademacher complexity} of the kernel embedding classifier. Given a function class $\mathcal{F}$ and a loss function $\mathcal{L}(y, \bvec{f}(x))$, the expected test loss $\mathbb{E}[\mathcal{L}(Y, \bvec{f}(X))]$ is bounded by the expected training loss $\frac{1}{n}\sum_{i = 1}^{n} \mathcal{L}(y_{i}, \bvec{f}(x_{i}))$ plus the Rademacher complexity and a constant with high probability, similar to the case with the VC dimension \citep{bartlett2002rademacher}. As such, if we can minimise the model complexity in the sense of the Rademacher complexity while maintaining a low training loss, we can optimise generalisation ability in the sense of low expected test loss.
 	
@@ -285,7 +284,7 @@ Data dependent risk bounds
 			\STATE $P_{\theta, \lambda} \leftarrow K_{\theta} V_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
 			\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \alpha(\theta) \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
 			\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
-			\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial r}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial r}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
+			\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial q}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial q}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
 			\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
 		\end{algorithmic}
 	\end{algorithm}
@@ -1215,7 +1214,7 @@ Data dependent risk bounds
 				\STATE $P_{\theta, \lambda} \leftarrow Z_{\theta} W_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
 				\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \alpha(\theta) \sqrt{\sum_{c = 1}^{m} \sum_{j = 1}^{p} (W_{\theta, \lambda})_{j, c}^{2}}$
 				\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
-				\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial r}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial r}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
+				\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial q}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial q}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
 				\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
 			\end{algorithmic}
 		\end{algorithm}
