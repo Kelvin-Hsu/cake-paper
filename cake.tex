@@ -44,16 +44,6 @@
 
 \title{CAKE: Classification \textit{avec} Kernel Embeddings \\ using Rademacher Complexity Bounds}
 
-% The \author macro works with any number of authors. There are two
-% commands used to separate the names and addresses of multiple
-% authors: \And and \AND.
-%
-% Using \And between authors leaves it to LaTeX to determine where to
-% break the lines. Using \AND forces a line break at that point. So,
-% if LaTeX puts 3 of 4 authors names on the first line, and the last
-% on the second line, try using \AND instead of \And before the third
-% author name.
-
 \author{
 }
 
@@ -108,7 +98,7 @@
 		\end{cases} = \delta(c, y).
 	\label{eq:indicator_function}
 	\end{equation}
-	That is, indicator functions $\mathbb{1}_{c} = \delta(c, \cdot)$, $c \in \mathbb{N}_{m}$, are simply the canonical kernel features of $\mathcal{H}_{\delta}$. Such properties do not necessarily hold for continuous domains in general. This convenient property in the case of a discrete domain $\mathcal{Y}$ with a Kronecker delta kernel $\delta$ is what allows consistent estimations of decision probabilities used in multiclass classification, which we turn to next.
+	That is, indicator functions $\mathbb{1}_{c} = \delta(c, \cdot)$, $c \in \mathbb{N}_{m}$, are simply the canonical kernel induced features of $\mathcal{H}_{\delta}$. Such properties do not necessarily hold for continuous domains in general. This convenient property in the case of a discrete domain $\mathcal{Y}$ with a Kronecker delta kernel $\delta$ is what allows consistent estimations of decision probabilities used in multiclass classification, which we turn to next.
 	
 	Let $p_{c}(x) := \mathbb{P}[Y = c | X = x]$ be the \textit{decision probability function} for class $c \in \mathbb{N}_{m}$, which is the probability of the class label $Y$ being $c$ when the example $X$ is $x$. We begin by writing this probability as an expectation of indicator functions,
 	\begin{equation}
@@ -189,7 +179,7 @@
 		\end{algorithmic}
 	\end{algorithm}
 
-	Our learning algorithm does not restrict the way the kernel $k_{\theta}$ is constructed from its parameters $\theta \in \Theta$. One particularly useful class of kernels are those with explicit neural network features, in which the kernel $k(x, x') = \langle \varphi(x), \varphi(x') \rangle$ is constructed from neural networks $\varphi : \mathcal{X} \to \mathbb{R}^{p}$ explicitly. Neural networks are typically defined by weights and biases of its hidden layers, which collectively define the parameters of the constructed kernel, and are thus trainable under our learning algorithm. These kernels benefit in both scalability and expressibility. For large datasets, the $n \times n$ Cholesky decomposition required for full gradient updates in \cref{alg:kernel_embedding_classifier_training} can be transformed into a $p \times p$ decomposition by the Woodbury matrix inversion identity \citep{higham2002accuracy}. This allows scalability for $n >> p$ without using stochastic gradient updates so that the bound \eqref{eq:expected_risk_bound_hyperparameter_learning_copy} can be as tight as possible for a given $n$. Neural networks are by construction compositional, and thus latent representations of deeper networks undergo more transformations to generate a smaller and explicit collection of more expressive nonlinear features, leading to a deeper but narrower model architecture. This is in contrast to the potentially infinitely many implicit features from nonlinear kernels, which in turn define a shallower but wider model architecture. We direct the reader to appendix C for detailed discussion on the various kernel embedding classifier architectures. 
+	Our learning algorithm does not restrict the way the kernel $k_{\theta}$ is constructed from its parameters $\theta \in \Theta$. One particularly useful class of kernel embedding classifiers are those where the input kernel $k(x, x') = \langle \varphi(x), \varphi(x') \rangle$ is constructed from neural networks $\varphi : \mathcal{X} \to \mathbb{R}^{p}$ explicitly. We refer to these types of kernel embedding classifiers as kernel embedding networks (KEN). Neural networks are typically defined by weights and biases of its hidden layers, which collectively define the parameters of the constructed kernel, and are thus trainable under our learning algorithm. These kernels benefit in both scalability and expressibility. For large datasets, the $n \times n$ Cholesky decomposition required for full gradient updates in \cref{alg:kernel_embedding_classifier_training} can be transformed into a $p \times p$ decomposition by the Woodbury matrix inversion identity \citep{higham2002accuracy}. This allows scalability for $n >> p$ without using stochastic gradient updates so that the bound \eqref{eq:expected_risk_bound_hyperparameter_learning_copy} can be as tight as possible for a given $n$. Neural networks are by construction compositional, and thus latent representations of deeper networks undergo more transformations to generate a smaller and explicit collection of expressive nonlinear features, leading to a deeper but narrower model architecture. This is in contrast to the potentially infinitely many implicit features from nonlinear kernels, which in turn define a shallower but wider model architecture. We direct the reader to appendix C for detailed discussion on the various kernel embedding classifier architectures and their implementation as compared to \cref{alg:kernel_embedding_classifier_training}. 
 
 \section{Related Work}
 \label{sec:related_work}
@@ -215,18 +205,16 @@
 		
 		The first two of four total attributes of the iris dataset \citep{fisher1936use} is known to have class labels that are not only not linearly separable, but also non-separable by any means, in that the same example $x \in \mathbb{R}^{2}$ may be assigned different output labels $y \in \mathbb{N}_{3} := \{1, 2, 3\}$ as they were only separable with the two remaining attributes. In these difficult scenarios, the notion of model complexity is extremely important, and the success of a learning algorithm greatly depends on how it balances training performance and model complexity to avoid both underfitting and overfitting. 
 		
-		\Cref{fig:iris} demonstrates \cref{alg:kernel_embedding_classifier_training} with full gradient updates ($n_{b} = n$) to learn hyperparameters of the conditional embedding on the two attribute iris dataset. The kernel used is isotropic Gaussian with diagonal length scales $\Sigma = \ell^{2} I_{2}$ and sensitivity $\alpha = \sigma_{f}$, so the hyperparameters are $\theta = (\alpha, \ell)$ and $\lambda$. We evaluate the performance of the learning algorithm on a withheld test set using 20\% of the available 150 data samples. Attributes are scaled into the unit range $[0, 1]$ and decision probability maps are plotted for the region $[-0.5, 1.05]^{2}$, where the red, green, and blue colour channel represents the clip-normalised decision probability for classes $c = 1, 2, 3$. We begin from two initial scenarios, one originally overfitting ($\alpha_{o} = 0.01$, $\ell_{o} = 0.035$, $\lambda_{o} = 10^{-6}$) and another underfitting ($\alpha_{u} = 1$, $\ell_{u} = 1$, $\lambda_{u} = 1$) the training data. Initially, both models performs sub-optimally with a test accuracy of 56.67\%. We see that the Rademacher complexity bound (RCB) $r(\theta, \lambda)$ appropriately measures the amount of overfitting with $r((\alpha_{o}, \ell_{o}), \lambda_{o}) = 4.33$ and $r(\alpha_{u}, \ell_{u}), \lambda_{u}) = 0.31$. We then learn model hyperparameters with \cref{alg:kernel_embedding_classifier_training} for 500 iterations from both initialisations at rate $\eta = 0.01$, where both models converges to a balanced model with appropriate complexity bounds $r((\alpha_{o}, \ell_{o}), \lambda_{o}) = r((0.01, 0.24), 8.62 \times 10^{-7}) = 2.23 \approx 2.14 = r((\alpha_{u}, \ell_{u}), \lambda_{u}) = r((5.1, 0.24), 0.20)$ and an improved test accuracy of 73.33\%. In particular, the initially overfitted model learns a simpler model at the expense of lower training performance, emphasising the benefits of complexity based regularisation, without which the learning would only maximise training performance at the cost of further overfitting. Meanwhile, the initially underfitted model learns to trade some complexity away to improve the unflattering performance on the training set. In both scenarios, our learning algorithm improved performance on the test set.
+		\Cref{fig:iris} demonstrates \cref{alg:kernel_embedding_classifier_training} with full gradient updates ($n_{b} = n$) to learn hyperparameters of the conditional embedding on the two attribute iris dataset. The kernel used is isotropic Gaussian with diagonal length scales $\Sigma = \ell^{2} I_{2}$ and sensitivity $\alpha = \sigma_{f}$, so the hyperparameters are $\theta = (\alpha, \ell)$ and $\lambda$. We evaluate the performance of the learning algorithm on a withheld test set using 20\% of the available 150 data samples. Attributes are scaled into the unit range $[0, 1]$ and decision probability maps are plotted for the region $[-0.5, 1.05]^{2}$, where the red, green, and blue colour channels represent the clip-normalised decision probability \eqref{eq:empirical_decision_probability_clip_normalised} for classes $c = 1, 2, 3$. We begin from two initial scenarios, one originally overfitting ($\alpha_{o} = 0.01$, $\ell_{o} = 0.035$, $\lambda_{o} = 10^{-6}$) and another underfitting ($\alpha_{u} = 1$, $\ell_{u} = 1$, $\lambda_{u} = 1$) the training data. Initially, both models performs sub-optimally with a test accuracy of 56.67\%. We see that the Rademacher complexity bound (RCB) $r(\theta, \lambda)$ appropriately measures the amount of overfitting with $r((\alpha_{o}, \ell_{o}), \lambda_{o}) = 4.33$ and $r((\alpha_{u}, \ell_{u}), \lambda_{u}) = 0.31$. We then learn model hyperparameters with \cref{alg:kernel_embedding_classifier_training} for 500 iterations from both initialisations at rate $\eta = 0.01$, where both models converges to a balanced model with appropriate complexity bounds $r((\alpha_{o}, \ell_{o}), \lambda_{o}) = r((0.01, 0.24), 8.62 \times 10^{-7}) = 2.23 \approx 2.14 = r((\alpha_{u}, \ell_{u}), \lambda_{u}) = r((5.1, 0.24), 0.20)$ and an improved test accuracy of 73.33\%. In particular, the initially overfitted model learns a simpler model at the expense of lower training performance, emphasising the benefits of complexity based regularisation, without which the learning would only maximise training performance at the cost of further overfitting. Meanwhile, the initially underfitted model learns to trade some complexity away to improve the unflattering performance on the training set. In both scenarios, our learning algorithm improved performance on the test set.
 		
-		Furthermore, while \cref{fig:iris} shows that the model has converged for all performance measures, including complexity bounds, decision probabilities, and accuracy or loss on both training and test sets, the learned hyperparameters $((\alpha, \ell), \lambda)$ themselves differ for different initialisations. For a Gaussian kernel, we have that $r((\sigma_{f}, \ell), \lambda) = r((1, \ell), \lambda \sigma^{-2}_{f})$ for $\alpha(\theta) = \sigma_{f}$, so the bound $r$ is only interested in the quantities $\lambda \sigma^{-2}_{f}$ and $\ell$. Indeed, in our example above, $\lambda_{o} \alpha_{o}^{-2} = 0.0086 \approx 0.0075 = \lambda_{u} \alpha_{u}^{-2}$ and $\ell_{o} = 0.24 = \ell_{u}$ after learning. This illustrates that there can be non-trivial subsets of the kernel family $k_{\theta}$, $\theta \in \Theta$, and regularisations $\lambda \in \Lambda$ with the same complexity bound. The same can be true for other performance measures. Our learning algorithm does not distinguish amongst them, and any family member with an optimal bound $q(\theta, \lambda)$ is a solution.
-	
 	\paragraph{UCI Datasets}
 	
 		\begin{table}[t]
 			\caption{Classification Accuracy (\%) of Kernel Embedding Classifiers on UCI datasets}
-			\label{tab:stationary_experiments}
+			\label{tab:uci_experiments}
 			\centering
 			\begin{tabular}{lccccc}			
-				Dataset \hspace{\fill} $(n, d, m)$ & GKEC & GKEC-SGD & NNKEC-1 & NNKEC-2 & Others \\
+				Dataset \hspace{\fill} $(n, d, m)$ & GKEC & GKEC-SGD & KEN-1 & KEN-2 & Others \\
 				\midrule
 				\texttt{banknote} \hspace{\fill} (1372, 4, 2) & $99.9 \pm 0.2$ & $98.8 \pm 0.9$ & $99.5 \pm 1.0$ & $99.4 \pm 0.9$ & 99.78\textsuperscript{a} \\
 				\texttt{ecoli} \hspace{\fill} (336, 7, 8) & $87.5 \pm 4.4$ & $84.5 \pm 5.0$ & $87.5 \pm 3.2$ & $86.3 \pm 6.0$ & 81.1\textsuperscript{b} \\
@@ -237,62 +225,38 @@
 			\end{tabular}
 		\end{table}
 		
-		We demonstrate the average performance of learning anisotropic Gaussian kernels and kernels with explicit neural network features on standard UCI datasets \citep{merz1998uci}, summarised in \cref{tab:stationary_experiments}. The former has a shallow but wide model architecture, while the latter has a deeper but narrower model architecture.
-		
-		The Gaussian kernel is learned with both full (GKEC) and batch stochastic gradient updates (GKEC-SGD) using a tenth ($n_{b} \approx \frac{n}{10}$) of the training set each training iteration, with sensitivity and length scales initialised to $1$. For explicit kernels with neural network features, we randomly select two simple fully connected architectures with 16-32-8 (NNKEC-1) and 96-32 (NNKEC-2) hidden units respectively, and learn the corresponding kernel without dropout under ReLU activation. Biases are initialised to $0.1$ while weight parameters are initialised from a truncated normal distribution with standard deviation $0.1$, and are to be trained with full gradient updates. For all experiments, regularisation parameter $\lambda$ is initialised to $1$ and is learned jointly with the kernel. Classifiers are trained with the Adam optimiser \citep{kingma2014adam} in TensorFlow \citep{abadi2016tensorflow} with a learning rate of $\eta = 0.1$ and $\epsilon = 10^{-15}$ under the learning objective $q(\theta, \lambda)$. Training is ran for 1000 or 10000 iterations when using full or batch gradient updates respectively, regardless of training convergence. All datasets are scaled so that all attributes are in the unit range. Each classifier is trained on 9 out of 10 folds and tested on the remaining fold, which are shuffled over all 10 combinations to obtain the average test accuracy. We compare our results to other approaches using neural networks \citep[a; c]{kaya2016banknote, freire2009short}, probabilistic binary trees \citep[b]{horton1996probabilistic}, decision trees \citep[d]{zhou2004size}, and regularised discriminant analysis \citep[e]{aeberhard1992comparison}. However, these approaches may have used different data pre-processing, test folds, optimiser, learning rate, architecture (for neural nets), and training time. Comparisons are thus only illustrative. \Cref{tab:stationary_experiments} shows that our learning algorithm achieves similar performance to other approaches without any special tuning or heuristics, but by simply placing a conditional embedding on training data and applying a complexity bound based learning algorithm. The SGD approach for Gaussian kernels performs similarly to the full gradient approach, verifying the claim of \cref{thm:expected_risk_bound_hyperparameter_learning_copy} for $n = n_{b}$. For neural network features, we did not attempt to choose an optimal architecture for each dataset. The learning algorithm is to train the same simple untrained network for different datasets under only 1000 iterations, and still generates comparable performance. 
+		We demonstrate the average performance of learning anisotropic Gaussian kernels and kernels with explicit neural network features on standard UCI datasets \citep{merz1998uci}, summarised in \cref{tab:uci_experiments}. The former has a shallow but wide model architecture, while the latter has a deeper but narrower model architecture. The Gaussian kernel is learned with both full (GKEC) and batch stochastic gradient updates (GKEC-SGD) using a tenth ($n_{b} \approx \frac{n}{10}$) of the training set each training iteration, with sensitivity and length scales initialised to $1$. For neural network induced kernels, we randomly select two simple fully connected architectures with 16-32-8 (KEN-1) and 96-32 (KEN-2) hidden units respectively, and learn the conditional embedding without dropout under ReLU activation. Biases and standard deviations of zero mean truncated normal distributed weights are initialised to $0.1$, and are to be trained with full gradient updates. For all experiments, $\lambda$ is initialised to $1$ and is learned jointly with the kernel. Classifiers are trained with the Adam optimiser \citep{kingma2014adam} in TensorFlow \citep{abadi2016tensorflow} with rate $\eta = 0.1$ and $\epsilon = 10^{-15}$ under the learning objective $q(\theta, \lambda)$ \eqref{eq:learning_objective}. Classifiers are trained for 1000 or 10000 iterations when using full or batch gradient updates respectively, regardless of convergence. All attributes are scaled to the unit range. Each classifier is trained on 9 out of 10 folds and tested on the remaining fold, which are shuffled over all 10 combinations to obtain the test accuracy average and deviation. We compare our results to other approaches using neural networks \citep[a; c]{kaya2016banknote, freire2009short}, probabilistic binary trees \citep[b]{horton1996probabilistic}, decision trees \citep[d]{zhou2004size}, and regularised discriminant analysis \citep[e]{aeberhard1992comparison}. \Cref{tab:uci_experiments} shows that our learning algorithm achieves similar performance without any special tuning or heuristics, but by simply placing a conditional embedding on training data and applying a complexity bound based learning algorithm. The SGD approach for Gaussian kernels performs similarly to the full gradient approach, supporting \cref{thm:expected_risk_bound_hyperparameter_learning_copy} for $n = n_{b}$. For neural network features, we did not attempt to choose an optimal architecture for each dataset. The learning algorithm is to train the same simple untrained network for different datasets under only 1000 iterations, and still generates comparable performance. 
 	
-	\paragraph{MNIST}
+	\paragraph{MNIST by learning pixel length scales}
 	
-		We also demonstrate
+		We apply \cref{alg:kernel_embedding_classifier_training} to learn anisotropic length scales of Gaussian kernels on pixels of the MNIST digits dataset \citep{lecun1998gradient}. We first demonstrate the test performance of KECs as the training set increases in size, verifying \cref{thm:probability_convergence_copy} in that decision probabilities converge to the true and thus test distribution as $n$ increases. In the top left plot of \cref{fig:mnist_experiments}, we train on datasets of varying sizes, from 50 to 5000 samples, and benchmark performance on the standard test set of 10000 examples. All hyperparameters are initialised to 1 before training. For each $n$, we see that KECs outperform SVCs, since SVCs are unable to learn the length scales of the Gaussian kernel. This also shows that KECs perform very well with small datasets even when $n < d$. The MNIST dataset has $d = 28^{2} = 784$ pixel dimensions, yet with only $n = 50, 150, 250$ training samples, the KEC achieves a test accuracy of 45.7\%, 70.09\%, and 79.37\% respectively, compared to 18.13\%, 37.43\%, and 53.81\% from SVCs. We also compare training under the learning objective with and without the Rademacher complexity bound. For small $n$ below 750 samples, the latter outperforms the former (e.g. 86.69\% and 86.96\% for $n = 500$), while for large $n$ the former outperforms the latter (e.g. 96.05\% and 95.3\% for $n= 5000$). This verifies that complexity based regularisation becomes especially important when data size grows, where overfitting starts to hurt generalisation performance. Our bound is also tighter with larger $n$, so that generalisation performance improves with more data. The images at the bottom of \cref{fig:mnist_experiments} show the pixel length scales learned through batch stochastic gradient updates ($n_{b} = 1200$) on all available training images of the digits indicated, demonstrating the most discriminative regions for classification. In particular, the most discriminative regions are usually around the edges of the digits, subject to slight intraclass translations. 
 		
-%		83.7\% with only 500 data points 
-		
-		STILL HAS TO ADD CONVOLUTIONAL KERNEL MNIST STUFF WHICH ACHIEVED 99.5\% TEST ACCURACY WITH SGD
-		
-		DISCUSSION NOT DONE 
-
-%	\begin{figure}[t]
-%		\centering
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_50.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_100.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_250.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_500.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_750.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_1000.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_1500.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_2000.eps}
-%		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_5000.eps}
-%		\includegraphics[width=\linewidth]{figures/test_performance.eps}
-%		\caption{Training the kernel embedding classifier on the MNIST digits dataset with an anisotropic Gaussian kernel. Top: Learned length scales for each pixel; Bottom: Performance on the test set.}
-%		\label{fig:pixel_relevance}
-%	\end{figure}
-		
-%	\begin{figure}[t]
-%		\centering
-%		\includegraphics[width=0.25\linewidth]{figures/spiral_all_final.eps}
-%		\caption{.}
-%		\label{fig:spiral}
-%	\end{figure}
-%	
-
+	\paragraph{MNIST by learning convolutional features}
 	
-	- original convolutional neural network uses 1e-2 learning rate as well under cross entropy loss so we use the same learning rate
-	- we also use sgd batches of 6000 for that network
-	- for 10000 iterations, we obtain 99.5+, they get 99.2
-	- unlike the uci examples, this time we use a architecture that aligns more with the specific dataset, and thus achieves outstanding performance
-	- we initialise regularisation parameter to 10
-
+		\begin{figure}[t]
+			\centering 
+			\includegraphics[width=0.49\linewidth]{figures/gaussian_mnist_test_performance_short.eps}
+			\includegraphics[width=0.49\linewidth]{figures/deep_mnist_test_performance_short.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_01_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_068_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_12_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_14_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_23_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_38_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_479_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_56_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_0123456789_batch_1200.eps}
+			\caption{Top: Test accuracy and cross entropy loss by learning Gaussian kernels (left) and deep convolutional features (right). Bottom: Learned pixel length scales under Gaussian kernels.}
+			\label{fig:mnist_experiments}
+		\end{figure}
+		
+		We now apply our learning algorithm to train convolutional neural networks (CNN) on the MNIST dataset. We employ an example architecture from the TensorFlow tutorial on deep MNIST classification \citep{abadi2016tensorflow}. This ReLU activated architecture uses two convolutional layers, each with max pooling, followed by a fully connected layer with a drop out probability of 0.5. The original network then employs a final softmax regressor on the last hidden layer for classification. The kernel embedding network instead employs a linear kernel on the last hidden layer to construct the conditional embedding. We then train both networks from the same initialisation with stochastic gradient updates using 6000 images at a time for 800 epochs, with learning rate $\eta = 0.01$. All biases and standard deviations of zero mean truncated normal distributed weights are initialised to 0.1. The convolutional features of the kernel embedding network are trained jointly with the regularisation parameter, initialised to $\lambda = 10$, under our proposed learning objective \eqref{eq:learning_objective}, while the original CNN is trained under its usual cross entropy loss. The fully connected layer is trained with a drop out probability of 0.5 for both cases to allow direct comparison. The top right plot in \cref{fig:mnist_experiments} shows that the KEN learns convolutional features at a much faster rate, maintaining a higher test accuracy at all times. After 800 epochs, our convolutional KEN reaches a test accuracy of 99.48\%, compared to 99.26\% from the original CNN. This demonstrates that our learning algorithm can perform end-to-end learning with convolutional features from scratch, by placing a conditional embedding on a neural network. The resulting classifier can outperform the original neural network in both convergence rate and accuracy.
+	
 \section{Conclusion}
 	
-	FUTURE WORK: REVERSE EMBEDDING, SEMI-SUPERVISED LEARNING, ONE CLASS LEARNING, REGRESSION
+	We propose a hyperparameter learning framework for conditional embeddings when the target is discrete. This naturally results in a nonparametric probabilistic multiclass classifier whose convergence properties can be guaranteed. Because nonparametric models have infinite capacity and can potentially overfit, we propose learning-theoretic bounds to regularise the conditional embedding in a way that minimises expected classification risk. The resulting bound justifies the use of stochastic gradient updates for hyperparameter learning, which we verify experimentally on standard UCI datasets. The kernel embedding classifier is also inherently flexible in architecture, and in particular can perform end-to-end learning on a neural network, which we demonstrate on UCI datasets and MNIST digits, where it outperforms the original convolutional neural network in the latter.
 	
-	Contrary to parametric models, nonlinear kernels produce nonparametric classifiers, and thus its model capacity grows with increasing data. Within a large enough family of kernels $k_{\theta}$, the kernel embedding classifier always has the capacity to shatter the training data and produce zero training error. This is precisely the quality Rademacher complexity measures. Given that it has such capabilities, we instead focus on learning the simplest model, so that it can generalise well to unseen data. By jointly minimising the training risk and the Rademacher complexity bound, we are effectively removing unnecessarily complex models while maintaining good generalisation performance. Without the Rademacher complexity bound $r(\theta, \lambda)$, the classifier can easily overfit by adapting its model capacity to the training data closely. In short, while parametric models have limited capacity and thus trying to learn to perform well on a training set to its best ability is a good indicator to test performance, nonparametric models has infinite capacity and need to learn not to exploit this capacity on training data and instead learn the simplest pattern it can to be able to infer about new test instances.
-	
-%		\item \textbf{Sampling and Generative Models.} While the kernel embedding classifier is trained as a discriminative model, at its core it is simply just a condition embedding of $\mathbb{P}_{Y | X}$. As such, we can do full probabilistic inference entirely in reproducing kernel Hilbert spaces and obtain the Hilbert space embeddings of $\mathbb{P}_{X | Y}$, similar to what we have touched upon in \cref{sec:mode_reconstruction}, or even simply of the marginals $\mathbb{P}_{X}$ and $\mathbb{P}_{Y}$. If we can recover these distributions as densities ($\mathbb{P}_{Y}$ would correspond to a probability mass function over a finite and discrete space $\mathbb{N}_{m}$ which is identical to the mean embedding already, and so this step would be trivial for $\mathbb{P}_{Y}$), then we would be able to model our data in a fully generative manner. In fact, in \cref{sec:mode_reconstruction} we have have already done so indirectly through reversing the embedding. Of course, this would require us to solve the pre-image problem of kernel embeddings, for which no general methodology exists yet besides a few heuristics with various assumptions. Nevertheless, assuming we can recover the densities well enough, we can then generate samples from those distributions. Alternatively, if we can instead sample from those distributions \textit{without} finding the pre-image, but by directly using the mean embeddings instead, that would make the kernel embedding classifier very useful as a generative modelling tool.
-%		
-%		\item \textbf{Target Label Kernel.} In this paper, we proposed to place a Kronecker delta kernel $l = \delta$ over the label space $\mathcal{Y} = \mathbb{N}_{m}$ as it is the simplest kernel over a discrete and finite domain. However, it is possible to place other kernels over the label space. A simple kernel is to have a `generalised Kronecker delta kernel' that has unit similarity when labels are the same, but a small, positive yet non-zero similarity when labels are different. If we set these cross similarity to be the same across all non-identical pairs of labels, then it is straight forward to show that the inference algorithm we developed in this paper stays the same. However, if we allow them to vary amongst each other as kernel parameters (between the range $(0, 1)$, in order to stay positive definite), then we suspect that these cross similarity coefficients would act as correlation factors between classes. The training algorithm we developed here does not prevent the target label kernel to have its own hyperparameters. As such, we should be able to learn the correlation effects between the classes effectively using the same training scheme. We suspect that this would make the empirical decision probabilities converge to a valid probability distribution faster. However, we also suspect that the training may become even more non-convex and optimisation to become more difficult.
-%		
-%		These factors may even give rise to new interpretable insights in terms of how different classes may be more related to each other. For example, in an image recognition task of animals, it may learn that, the class `horse' and 'pony' are much more similar than `horse' and `elephant' from the input features, and start to use the output correlations to focus on inferring about them as a group instead.
+	As kernel embedding classifiers are simply learned conditional embeddings, this framework can incorporated and extended in many ways into techniques that requires appropriately trained embeddings. In particular, nonparametric probabilistic inference can be carried out in the RKHS to obtain joint and reverse conditional embeddings, where mode decoding, density recovery, and sampling techniques can lead to effective generative models now that hyperparameters are learned. This line of probabilistic inference can potentially lead to Bayesian extensions to our framework. We also envision a semi-supervised and one class extension to the KEC framework that can relax supervision in training. Moreover, instead of a Kronecker delta kernel, target label kernels with non-zero and potentially trainable similarities between distinct labels may capture label correlations better than our original framework. Finally, our framework and algorithm is simple, and developments in creating deeper connections and relationships with other kernel based models can be fruitful. 
 
 \newpage
 \bibliographystyle{apalike}
@@ -377,40 +341,6 @@
 				\end{aligned}
 			\end{equation}
 			Therefore, by \cref{thm:pointwise_uniform_convergence} with $\gamma(x) = 1$ independent of $x \in \mathcal{X}$, $\hat{p}_{c}$ converges uniformly to $p_{c}$ at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
-			
-			%		Consequently, $| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x}^{(n)} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}$ for all $x \in \mathcal{X}$, where the right hand side of which approaches zero stochastically at rate $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, so that $\hat{p}_{c}$ converges pointwise to $p_{c}$ at least at this rate. The convergence rate does not depend on $x \in \mathcal{X}$, so this (stochastic) convergence is pointwise uniform.
-			
-%			Consequently, for all $x \in \mathcal{X}$ and $c \in \mathcal{Y}$, we have 
-%			
-%			\begin{equation}
-%				| \hat{p}_{c}(x) - p_{c}(x) | \leq \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}}.
-%			\label{eq:uniform_convergence}
-%			\end{equation}
-%			
-%			This is true for all possible datasets represented by the collection of random variables $\{X_{i}, Y_{i}\}_{i = 1}^{n}$ where $X_{i} : \Omega \to \mathcal{X}$,  $Y_{i} : \Omega \to \mathcal{Y}$ for all $i \in \mathbb{N}_{n}$. Thus, for any constant $C$, the implication statement $\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C \implies | \hat{p}_{c}(x) - p_{c}(x) | \leq C$ holds for all possible data observation events $\omega \in \Omega$. Writing this explicitly in event space translates this to a probability statement,
-%			
-%			\begin{equation}
-%			\begin{aligned}
-%			\{\omega \in \Omega : \big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\} &\subseteq \{\omega \in \Omega : | \hat{p}_{c}(x) - p_{c}(x) | \leq C\} \\
-%			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{\delta}} \leq C\Big] &\leq \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq C \Big].
-%			\label{eq:probability_statement}
-%			\end{aligned}
-%			\end{equation}
-%			
-%			Since we assume that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, statement \eqref{eq:empirical_conditional_embedding_stochastic_convergence} is valid. By letting $C = M_{\epsilon} ((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ in \eqref{eq:probability_statement}, we immediately have that the probability inequality in statement \eqref{eq:probability_statement} is also true if we replace $\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \|$ with $| \hat{p}_{c}(x) - p_{c}(x) |$, % the RKHS norm between the empirical and true embeddings to the absolute difference between the empirical decision probability and the true decision probability,
-%			
-%			\begin{equation}
-%			\begin{aligned}
-%			\mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
-%			\implies 1 - \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
-%			\implies \mathbb{P}\Big[\big\| \hat{\mu}_{Y | X = x} - \mu_{Y | X = x} \big\|_{\mathcal{H}_{l}} \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
-%			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &> 1 -  \epsilon \\
-%			\implies 1 - \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | \leq M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon \\
-%			\implies \mathbb{P}\Big[| \hat{p}_{c}(x) - p_{c}(x) | > M_{\epsilon} \Big((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}}\Big)\Big] &< \epsilon.
-%			\end{aligned}	
-%			\end{equation}
-%			
-%			In other words, the function $\hat{p}_{c}$ stochastically converges pointwise to $p_{c} := \mathbb{P}[Y = c | X = \cdot]$ with a rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$. The convergence rate does not depend on $x \in \mathcal{X}$ nor $c \in \mathbb{N}_{m}$, so this stochastic convergence is pointwise uniform in its domain $\mathcal{X}$ across all label classes.
 			
 		\end{proof}
 	\end{theorem}
@@ -755,49 +685,6 @@
 		\end{corollary}
 	
 		\Cref{thm:rademacher_complexity_stationary_kernels_bound} motivates the choice $\alpha^{2}(\theta) = k_{\theta}(0, 0) = \sigma_{f}^{2}$ for stationary radial basis type kernels such as the Gaussian or Mat\'{e}rn kernels, where $\sigma_{f}$ is the sensitivity \citep{rasmussen2006gaussian} of the stationary kernel, which we employ in \cref{alg:kernel_embedding_classifier_training} when the kernel is stationary.
-		
-%		Another class of kernels that is both expressive and scalable are those composed from feed forward neural networks. 
-%		
-%		\begin{corollary}[Rademacher Complexity Bound for Neural Network Kernels]
-%			\label{thm:rademacher_complexity_neural_kernels_bound}
-%			
-%			Suppose that the trace norm $\| W_{\theta, \lambda} \|_{\mathrm{tr}} \leq \rho$ is bounded for all $\theta \in \Theta, \lambda \in \Lambda$. Denote $\theta = \{W_{j}, b_{j}\}_{j = 1}^{l}$ for the kernel parameters of the neural network kernel $k_{\theta}(x, x') := \varphi_{\theta}(x)^{T} \varphi_{\theta}(x')$ defined from the $l$-multilayered neural network $\varphi_{\theta}(x) := \varphi^{\theta}_{l}(\varphi^{\theta}_{l - 1}(\dots \varphi^{\theta}_{1}(x)))$. Let $\varphi^{\theta}_{j}(z) = \varphi^{\theta}_{j}( z ; W_{j}, b_{j}) = \sigma(W_{j} z + b_{j})$ be the $j^{\mathrm{th}}$ multi-valued perceptron layer with an element wise rectified linear unit (ReLU) activation $\sigma(\cdot) = \max \{ \cdot, 0 \}$ and appropriately sized weights $W_{j}$, biases $b_{j}$, and input $z$ from the previous hidden layer. Without loss of generality, suppose that $x \in \mathcal{X} = [-1, 1]^{d}$. Select $\tilde{\theta} \in \Theta$ and define $\Theta(\tilde{\theta})$ such that $\| W_{j} \|_{\mathrm{tr}} \leq \| \tilde{W}_{j} \|_{\mathrm{tr}}$ and $\| b_{j} \| \leq \| \tilde{b}_{j} \|$ , $j \in \mathbb{N}_{l}$, for all $\theta = \{W_{j}, b_{j}\}_{j = 1}^{l} \in \Theta(\tilde{\theta})$. For any $\tilde{\theta} = \{\tilde{W}_{j}, \tilde{b}_{j}\}_{j = 1}^{l} \in \Theta$ and set of training observations $\{x_{i}, y_{i}\}_{i = 1}^{n}$, the Rademacher complexity of the resulting class of the kernel embedding classifiers $F_{n}(\Theta(\tilde{\theta}), \Lambda)$ defined over $\theta \in \Theta(\tilde{\theta}), \lambda \in \Lambda$ is bounded by
-%			
-%			\begin{equation}
-%				\mathcal{R}_{n}(F_{n}(\Theta(\tilde{\theta}), \Lambda)) \leq 2 \rho D^{\tilde{\theta}}_{l}(D^{\tilde{\theta}}_{l - 1}( \dots D^{\tilde{\theta}}_{1}(\sqrt{d}))),
-%			\end{equation}
-%			
-%			where $D^{\tilde{\theta}}_{j}(a) := a \| \tilde{W}_{j} \|_{\mathrm{tr}} + \| \tilde{b}_{j} \|$, .
-%			
-%			\begin{proof}
-%				Let $z^{\theta}_{j}(x) := \varphi^{\theta}_{j}(\varphi^{\theta}_{j - 1}(\dots \varphi^{\theta}_{1}(x)))$ be the $j^{\mathrm{th}}$ hidden layer so that $z^{\theta}_{j}(x) = \varphi^{\theta}_{j}(z^{\theta}_{j - 1}(x)) = \sigma(W_{j} z^{\theta}_{j - 1}(x) + b_{j})$ with $z^{\theta}_{0}(x) = x$ for all $j \in \mathbb{N}_{l}$. At the last layer, we have $\varphi_{\theta}(x) = z_{l}(x)$. For any layer $j \in \mathbb{N}_{l}$,
-%			
-%				\begin{equation}
-%					\begin{aligned}
-%						\| z^{\theta}_{j}(x) \| &= \| \sigma(W_{j} z^{\theta}_{j - 1}(x) + b_{j}) \| \\
-%						&\leq \| W_{j} z^{\theta}_{j - 1}(x) + b_{j} \| \\
-%						&\leq \| W_{j} z^{\theta}_{j - 1}(x) \| + \| b_{j} \| \\
-%						&\leq \| W_{j} \|_{\mathrm{tr}} \| z^{\theta}_{j - 1}(x) \| + \| b_{j} \| \\
-%						&=: D^{\theta}_{j}(\| z^{\theta}_{j - 1}(x) \|). \\
-%					\end{aligned}
-%				\end{equation}
-%				
-%				This recursive relationship can be rolled out explicitly to bound the kernel,
-%
-%				\begin{equation}
-%					\begin{aligned}
-%						\sqrt{k_{\theta}(x, x)} &= \| \varphi_{\theta}(x) \| \\
-%						&= \| z^{\theta}_{l}(x) \| \\
-%						&\leq D^{\theta}_{j}(\| z^{\theta}_{j - 1}(x) \|) \\
-%						&\leq D^{\theta}_{l}(D^{\theta}_{l - 1}( \dots D^{\theta}_{1}( \| x \| ))) \\
-%						&\leq D^{\theta}_{l}(D^{\theta}_{l - 1}( \dots D^{\theta}_{1}( \sqrt{d} ))).
-%					\end{aligned}
-%				\end{equation}
-%
-%				Since $\| W_{j} \|_{\mathrm{tr}} \leq \| \tilde{W}_{j} \|_{\mathrm{tr}}$ and $\| b_{j} \| \leq \| \tilde{b}_{j} \|$ , $j \in \mathbb{N}_{l}$, for all $\theta = \{W_{j}, b_{j}\}_{j = 1}^{l} \in \Theta(\tilde{\theta})$, we have $D^{\theta}_{j}(a) := a \| W_{j} \|_{\mathrm{tr}} + \| b_{j} \| \leq a \| \tilde{W}_{j} \|_{\mathrm{tr}} + \| \tilde{b}_{j} \| =: D^{\tilde{\theta}}_{j}(a)$ for $a \geq 0$. Hence, $\sqrt{k_{\theta}(x, x)} \leq D^{\tilde{\theta}}_{l}(D^{\tilde{\theta}}_{l - 1}( \dots D^{\tilde{\theta}}_{1}(\sqrt{d})))$ for all $\theta \in \Theta(\tilde{\theta})$ and $x \in \mathcal{X} = [-1, 1]^{d}$, and we choose $\alpha = D^{\tilde{\theta}}_{l}(D^{\tilde{\theta}}_{l - 1}( \dots D^{\tilde{\theta}}_{1}(\sqrt{d})))$ in \cref{thm:rademacher_complexity_bound}. 
-%				
-%			\end{proof}
-%		\end{corollary}
 
 	\subsection{Expected Risk Bounds}
 	\label{app:expected_risk_bounds}
@@ -917,11 +804,6 @@
 		
 		We will eventually be minimising the first two terms over some class of functions $f \in F_{n}(\Theta, \Lambda)$ with some approach, as a proxy to minimising the actual expected risk. It would be fruitful to develop an intuition for the tightness of the bound from the contributions of the training loss term and the model complexity term. Since, like the expected loss, the training loss term is always in the unit range $[0, 1]$, we focus on understanding the tightness of the bound contributed from the complexity term.
 		
-%		Consider a clipped cross entropy loss with a very small clipping factor, $0 < \epsilon << 1$. In this scenario, $M_{\epsilon} = - \log{\epsilon}$ would be very large, shooting up to infinity exponentially quickly as $\epsilon$ gets smaller, and the coefficient on the training loss term would then be very small. On the other hand, $\epsilon \log{\frac{1}{\epsilon}}$ would be very small, so that the coefficient on the complexity term would then be very large. In other words, as $\epsilon$ gets smaller, the training loss term becomes exponentially smaller while the complexity term becomes exponentially larger. This raises a major concern. The first concern is that the bound unlikely to be tight due to the exploding coefficient on the complexity term. Since we will likely be using some sort of gradient-based optimisation to minimise this upper bound, the second concern is that the gradient contribution coming from the training objective is vastly diminished while the gradient contribution from the complexity term is vastly amplified, potentially causing an imbalance in the optimisation to bias towards simpler models that do not perform well on the training data.
-%		
-%		A large clipping factor $\epsilon$ near one also raises similar concerns. The coefficient on the complexity term also explodes. Meanwhile, although the coefficient on the training loss is now larger, the loss is constant (at one) for probability estimates under $\epsilon$ and approaches the zero-one loss, for which the gradients are zero for most scenarios of the 
-%		
-		
 		Consider a clipped cross entropy loss with either a very small clipping factor $\epsilon \approx 0$, or a very large clipping factor $\epsilon \approx 1$. In this scenario, $\epsilon \log{\frac{1}{\epsilon}}$ would be very small, so that the coefficient on the complexity term would then be very large, regardless of what the complexity bound factors $\alpha$ and $\rho$ are. As a result, intuitively, this bound is unlikely to be tight due to the large coefficient on the complexity term.
 		
 		Consequently, it would then be natural to consider a middle-ground choice of the cross entropy loss where this bound is the most tight by varying $\epsilon \in (0, 1)$. Since $\epsilon \log{\frac{1}{\epsilon}}$ is maximised at $\epsilon = \frac{1}{e}$ for a maximal value of $\frac{1}{e}$, such a choice in the clipping factor would indeed yield the tightest bound for the complexity bound in terms of the bounding slack of the result stated in \cref{thm:rademacher_complexity_bound_with_cross_entropy_loss}.
@@ -934,8 +816,6 @@
 			\bar{\mathcal{L}}_{e^{-1}}(y, f(x)) = \mathcal{L}_{e^{-1}}(y, f(x)) \leq \mathcal{L}_{\epsilon}(y, f(x)) \quad \forall \epsilon \in (0, e^{-1}), x \in \mathcal{X}, y \in \mathcal{Y}.
 		\label{eq:loss_inequality}
 		\end{equation}
-		
-%		In fact, the inequality $\mathcal{L}_{\epsilon_{1}}(y, f(x)) \leq \mathcal{L}_{\epsilon_{2}}(y, f(x))$ holds in general for all $\epsilon_{1} \leq \epsilon_{2}, x \in \mathcal{X}, y \in \mathcal{Y}$.
 		
 		To see why inequality \eqref{eq:loss_inequality} holds, note that $[f_{y}(x)]_{\epsilon}^{1} \leq [f_{y}(x)]_{e^{-1}}^{1}$ holds for all $\epsilon \in (0, e^{-1}), x \in \mathcal{X}, y \in \mathcal{Y}$. Applying negative log to both sides yields the inequality from definition \eqref{eq:cross_entropy_loss}.
 
@@ -1050,18 +930,17 @@
 	In essence, we can categorise the kernel embedding classifier using two properties: the model width and the model depth. The model width represents the dimensionality of the feature space used to construct the linear decision boundaries. The model depth represents the number of transformations used to map examples from the input space to the feature space. By implicitly defining a high dimensional feature space through simple transformations, typical nonlinear kernels produces classifiers that have a shallow but wide architecture. In contrast, the three kernel embedding classifier variants to be introduced in this section form other combinations of model architecture in both depth and width. Of course, this characterisation of architecture is not mutually exclusive. For example, a polynomial kernel can be seen as a nonlinear kernel where higher order polynomial features are implicitly defined, or as a linear kernel on explicit polynomial features. We summarise those architectures in \cref{tab:kernel_embedding_classifier_variants}.
 
 	\begin{table}[h]
-		\begin{center}
-			\begin{tabular}{ l || c c c c c}
-				KEC Variant & Width & Depth & Scalability & Flexibility & Typical Datasets  \\
-				\hline
-				Implicit KEC & Wide & Shallow & Low & High & High or Low $d$, Low $n$ \\
-				Explicit KEC & Narrow & Shallow & High & Low & Low $d$, High $n$ \\
-				Implicit KEN &  Wide & Deep & Low & High & Structured $d$, Low $n$ \\
-				Explicit KEN & Narrow & Deep & High & High & Structured $d$, High $n$ \\ 
-			\end{tabular}
-		\end{center}
-		\caption{Properties of kernel embedding classifier architectures}
+		\caption{Properties of Kernel Embedding Classifier Architectures}
 		\label{tab:kernel_embedding_classifier_variants}
+		\centering
+		\begin{tabular}{lccccc}
+			KEC Variant & Width & Depth & Scalability & Flexibility & Typical Datasets  \\
+			\midrule
+			Implicit KEC & Wide & Shallow & Low & High & High or Low $d$, Low $n$ \\
+			Explicit KEC & Narrow & Shallow & High & Low & Low $d$, High $n$ \\
+			Implicit KEN &  Wide & Deep & Low & High & Structured $d$, Low $n$ \\
+			Explicit KEN & Narrow & Deep & High & High & Structured $d$, High $n$ \\ 
+		\end{tabular}
 	\end{table}
 			
 	\subsection{Explicit Kernel Embedding Classifier}
@@ -1077,13 +956,13 @@
 			k_{\theta}(x, x') = \varphi_{\theta}(x)^{T} \varphi_{\theta}(x').
 		\end{equation}
 		
-		By explicitly defining a finite dimensional feature space, the matrix to be inverted during both learning and inference in the kernel embedding classifier can be reduced from size $n \times n$ to size $p \times p$ by using the Woodbury matrix inversion identity \citep{higham2002accuracy}. We use this identity to modify \cref{alg:kernel_embedding_classifier_training} to \cref{alg:linear_kernel_embedding_classifier_training} to exploit this computational speed up.
+		By explicitly defining a finite dimensional feature space, the matrix to be inverted during both learning and inference in the kernel embedding classifier can be reduced from size $n \times n$ to size $p \times p$ by using the Woodbury matrix inversion identity \citep{higham2002accuracy}. We use this identity to modify \cref{alg:kernel_embedding_classifier_training} to \cref{alg:explicit_kernel_embedding_classifier_training} to exploit this computational speed up.
 		
 		However, with a fixed and finite amount of feature basis, the model becomes parametric and its flexibility is compromised. In other words, the model is narrow in the number of feature representations. We therefore turn to multi-layered feature compositions, where the flexibility of a model comes from the deep architecture instead of implicit high dimensional features.
 
 		\begin{algorithm}[tb]
 			\caption{Explicit KEC Hyperparameter Learning with Batch Stochastic Gradient Updates}
-			\label{alg:linear_kernel_embedding_classifier_training}
+			\label{alg:explicit_kernel_embedding_classifier_training}
 			\begin{algorithmic}[1]
 				\STATE {\bfseries Input:} feature family $\varphi_{\theta} : \mathcal{X} \to \mathcal{Z} \subseteq \mathbb{R}^{p}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial feature parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
 				\STATE $\theta \leftarrow \theta_{0}$, $\lambda \leftarrow \lambda_{0}$
@@ -1132,7 +1011,7 @@
 		
 		This model architecture is a very practical and powerful form of the kernel embedding classifier. By having a deep architecture, the classifier is still capable of learning flexible representations on structured data, while being able to scale to larger datasets due to the linear kernel at the output layer, provided that the dimensionality of the last layer is relatively small compared to the size of the dataset.
 		
-		As a subclass of explicit KEC, we can employ \cref{alg:linear_kernel_embedding_classifier_training} to learn the multi-layered features effectively. In fact, by not mapping the multi-layered features into a nonlinear kernel, the gradients for each network weight and bias are usually more pronounced, and learning is usually faster in comparison. This approach was used to train the neural network features in our experiments.
+		As a subclass of explicit KEC, we can employ \cref{alg:explicit_kernel_embedding_classifier_training} to learn the multi-layered features effectively. In fact, by not mapping the multi-layered features into a nonlinear kernel, the gradients for each network weight and bias are usually more pronounced, and learning is usually faster in comparison. This approach was used to train the neural network features in our experiments.
 
 %\newpage
 %\bibliographystyle{apalike}
