@@ -811,13 +811,13 @@
 				\STATE {\bfseries Input:} feature family $\varphi_{\theta} : \mathcal{X} \to \mathcal{Z} \subseteq \mathbb{R}^{p}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial feature parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
 				\STATE $\theta \leftarrow \theta_{0}$, $\lambda \leftarrow \lambda_{0}$
 				\REPEAT
-				\STATE Sample the next batch batch $\mathcal{I} \subseteq \mathbb{N}_{n}$, $| \mathcal{I} | = n_{b}$ \hspace{\fill} (For gradient descent, $n_{b} = n$ and $\mathcal{I} = \mathbb{N}_{n}$)
-				\STATE $Y \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
-				\STATE $Z_{\theta} \leftarrow \{\varphi_{\theta}(x_{i}) : i \in \mathcal{I}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times p}$
+				\STATE Sample the next batch $\mathcal{I}_{b} \subseteq \mathbb{N}_{n}$, $| \mathcal{I}_{b} | = n_{b}$ \hspace{\fill} (For gradient descent, $n_{b} = n$ and $\mathcal{I}_{b} = \mathbb{N}_{n}$)
+				\STATE $Y \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}_{b}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
+				\STATE $Z_{\theta} \leftarrow \{\varphi_{\theta}(x_{i}) : i \in \mathcal{I}_{b}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times p}$
 				\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(Z_{\theta}^{T} Z_{\theta} + n_{b} \lambda I_{p}) \hspace{\fill} \in \mathbb{R}^{p \times p}$
 				\STATE $W_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash Z_{\theta}^{T} Y) \hspace{\fill} \in \mathbb{R}^{p \times m}$
 				\STATE $P_{\theta, \lambda} \leftarrow Z_{\theta} W_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
-				\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n} \sum_{i = 1}^{n} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \; \alpha(\theta) \sqrt{\sum_{c = 1}^{m} \sum_{j = 1}^{p} (W_{\theta, \lambda})_{j, c}^{2}}$
+				\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n_{b}} \sum_{i \in \mathcal{I}_{b}} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \; \alpha(\theta) \sqrt{\sum_{c = 1}^{m} \sum_{j = 1}^{p} (W_{\theta, \lambda})_{j, c}^{2}}$
 				\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
 				\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial q}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial q}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
 				\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
