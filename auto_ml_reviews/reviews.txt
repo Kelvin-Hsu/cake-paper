@@ -1,0 +1,33 @@
+0: (borderline paper)
+The paper 'Hyperparameter Learning for Kernel Embedding Classifiers with Rademacher complexity bounds' proposes a new scalable hyperparameter learning algorithm for conditional embeddings with batch stochastic gradient descent. The authors show that their algorithm which is derived using Rademacher Complexity bounds performs better than the default setting for tuning a neural network in a TensorFlow tutorial. The resulting algorithm is an extension of SGD which could be integrated into any ML package if found useful and scalable.
+
+While the experiments are very promising, I had a hard time reading the paper. This is due to a lack of knowledge on conditional kernel embeddings on my side, but also due to a very condensed writing style which requires a lot of background knowledge and does not connect individual parts of the paper (there's a big disconnect in Section 4 after Equation 6).
+
+Questions and suggestions:
+* it would be great if the authors could discuss the amount of overhead introduced by their algorithm.
+* I don't fully understand the experimental setup for MNIST. Does 'with batches n_b = 6000 images for 800 epochs' imply a batch size of 6000 for the SGD-like algorithm? If yes, is the baseline NN trained the same way?
+* Please conduct further benchmarks on bigger datasets and/or more complicated neural networks. A lot of algorithms proposed which work on MNIST fail to work on other datasets, therefore it would be great to know about the behaviour of this particular algorithm.
+* Please provide a link to the respective TensorFlow tutorial.
+* Proofs are not part of the submission.
+
+
+
+1: (weak accept)
+The paper proposes Rademacher complexity bounds for hyperparameter optimization
+in the context of conditional kernel embeddings. The authors describe the
+theoretic background, present their algorithm, and evaluate if empirically on
+datasets from the UCI repository, demonstrating its promise.
+
+My main concern is that the authors propose several related methods, which show
+different performance characteristics. It is unclear which one to use in
+practice, and a more large-scale experimental evaluation would have helped to
+make this decision.
+
+Overall, the paper fits well within the workshop and should be accepted.
+
+
+
+1: (weak accept)
+The paper proposes to use a specific data dependent model complexity measure known as the Rademacher bound to guide regularization in learning hyperparameters for conditional kernel embedding classifiers, which turns out to justify the use of stochastic gradient descent based updates in multilayer neural networks.
+
+The paper is heavily loaded with theoretical statements without detailed proofs. Such material seems to better fit a longer paper elsewhere. In a short paper like this, it is better to explain the motivation and consequences of the arguments behind the mathematical machinery, which is not explicit in the current writing.
