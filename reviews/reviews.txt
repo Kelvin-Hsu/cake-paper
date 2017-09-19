@@ -1,0 +1,85 @@
+Reviewer 1: Clear rejection, The reviewer is confident but not absolutely certain that the evaluation is correct
+
+Summary 
+
+The paper applies conditional mean embeddings to multi-class classification and provides rates of convergence under restrictive assumptions and a result about Rademacher complexities.
+
+Review 
+
+It appears to me that the authors apply essentially ridge-regression to a classification task and interpret the probability of the regressor as the probability that covariate x falls into class i. Theorem 3.1 is then not surprising and, in fact, standard results for ridge regression should give stronger results than what the authors get (in particular, the condition k(x,cdot) in the image of C_XX should be unnecessary and optimal schedules for lambda are known depending on the eigenvalue decay of the kernel). There exists also a close relation to vector-valued RKHSs and corresponding regression. Furthermore, the use of Rademacher complexities is common in regression and it seems to me that the authors completely ignored the link to standard ridge regression. At the very least there should be lengthy paragraph explaining why this differs from ridge regression and why standard results can’t be applied, but the word “ridge” doesn’t even appear in the paper.
+
+I can’t see much novelty in the paper given the vast ridge regression literature and in my opinion the authors need to compare their results to what is known about ridge regression or explain why ridge regression results are not applicable in this setting.
+
+Detailed Comments
+
+Section 2
+
+Be more precise about the objects. C_XX and C_YX as defined are elements in the tensor space. For U_{Y|X} you identify these with linear operators, i.e. there is an isomorphic and (I guess) isometric map between the tensor element and the linear operators. A line explaining how properties of the kernel translate into properties of these operators might also be helpful, e.g. when are the operators compact.
+You define U_{Y|X} as C_YX C_XX^-1 but are then later talking about approximating U_{Y|X} by C_{YX}C_{XX}^-1. You should define U_{Y|X} without referring to C_{YX} etc. and then explain that in certain cases they coincide and in other cases they only approximate U_{Y|X}. 
+
+Section 3
+H_delta can be identified with R^m and the Euclidean norm
+P(Y=y|X=x) needs a clarification. Is X a finite space? Or do you have some form of density assumption (not sure how this would look like)?
+
+
+
+Reviewer 2: Ok but not good enough - rejection, The reviewer is confident but not absolutely certain that the evaluation is correct
+
+This paper deals with supervised classification within the framework of kernel embeddings of probability distributions. Specifically, the authors propose a kernel embedding classifier based on the Hilbert space embedding of conditional distributions. They also provide a risk bound using the notion of Rademacher complexity. This bound was used to derive a way to learn the hyperparameter of the kernel function. Experiments to assess the performance of the proposed classifier on a toy example, UCI data sets and MNIST are provided.
+
+The subject matter of the paper is of importance, since the proper modeling of the kernel hyperparameter is crucial for kernel methods and in particular for the kernel embedding of probability distribution. Unfortunately the contribution of the paper compared to what is known in the literature is not clear. My foremost concerns are the following:
+
+1) Section 3 describes the proposed Kernel embedding classifier. This is exactly kernel ridge regression (or regularized least squares classification). The connection between the kernel embedding of conditional distribution and ridge regression was established in [Grunewalder & al., Conditional mean embeddings as regressors. ICML 2012]. They showed the connection between the two formalisms using the framework of vector-valued function learning. Eq. 6 can be seen as a particular case of this framework.
+
+2) In Section 4, it will be more easy to follow and understand the results by adding more materials about the bound of the Rademacher complexity which will allow the result of Theorem 4.1. The excess risk bound for learning with trace norm regularization was studied in [Maurer & Pontil, COLT 2013]. Contribution of this section compared to this work should be clearly mentioned.
+
+3) The question of the kernel choice over a class of kernels (such as Gaussian kernels parameterized by their bandwidth) in the framework of RKHS embedding of distribution was studied in [Sriperumbudur & al., Kernel choice and classifiability for RKHS embeddings of probability distributions. NIPS 2009]. Multiple kernel learning with kernel embedding was also considered in [Gretton & al., Optimal kernel choice for large-scale two sample tests. NIPS 2012]. The authors should add more information about previous work on this topic so that their results can be understood with respect to previous studies.
+
+
+
+Reviewer 3: Ok but not good enough - rejection, The reviewer is confident but not absolutely certain that the evaluation is correct
+
+== A summary of the review ==
+
+In my opinion, the theoretical contributions are not good enough:
+
+i) The connection to conditional mean embeddings seems to be rather superficial. This is because the proposed estimator can be easily derived from the fact that the conditional expectation of a class indicator provides a conditional class probability. 
+
+ii) Theoretical results in Theorems 3.1 and 4.1 are not strong enough, as I explain below.
+
+Also the experiments are not thorough enough, as mentioned below. From these reasons, I do not think that this paper is good enough for this NIPS, while the proposed method looks promising.
+
+
+== Detailed comments == 
+
+- Theorem 3.1:
+
+The assumption that $k(x,\cdot)$ is included in the image of the covariance operator is too strong. This is because it essentially requires that the delta function is in the RKHS: this is always invalid, if the kernel is continuous. Maybe it would be better not to rely on the result by Song et al. (2009). Instead you may use the results obtained in the following papers (or other better results by Le Song):
+
+Grunewalder et al, "Conditional mean embeddings as regressors", 
+ICML 2012
+
+A Caponnetto, E De Vito 
+"Optimal rates for the regularized least-squares algorithm" 
+Foundations of Computational Mathematics 7 (3), 331-368, 2007
+
+
+- Theorem 4.1:
+
+I understand that this result gives a motivation for using Eq.(10) as an objective of hyper-parameter learning. But Theorem 4.1 does not guarantee that the resulting estimate (i.e. with learned hyper-parameters) converges to the best estimator in the hypothesis class (as the sample size goes to infinity). In this sense, Theorem 4.1 is not a strong theoretical contribution. 
+
+
+- Algorithm 1:
+
+Are the gradients of Eq.(10) obtainable? It seems that the loss function in Eq.(8) is not differentiable, as it involves clipping. 
+
+
+- Experiments: 
+
+i) In Table 1, does "Others" mean that the best performance among the other competitors is reported? Or did you take these results from the cited papers? 
+
+ii) There should be comparisons with existing kernel learning methods such as multiple kernel learning. Also it would be possible to compare with support vector classifiers with hyper-parameters chosen via cross-validation.
+
+iii) The sizes of training data in the experiments are relatively small. It is questionable whether the proposed can be applied to large scale problems.
+
+

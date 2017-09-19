@@ -1,0 +1,343 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head><title>
+	Meta-Reviews For Paper
+</title>
+<style>
+body
+{
+	font-family:verdana,arial,helvetica;
+}
+#header
+{
+    width: 100%;
+    font-size: small;
+    background-color:#F7F7F7;
+}
+.headerSeparator
+{
+    background-color: #105586;
+}
+.printThemeText
+{
+    font-size:small;
+}
+.printThemeTable td
+{
+    vertical-align:top;
+}
+.printThemeGrid th
+{
+    color:white;
+    background:#5D7B9D;
+    font-weight:bold;
+}
+.printThemeGrid
+{
+    border-collapse:collapse;
+}
+.printThemeGrid td, .printThemeGrid th
+{
+    border:solid 1px #D6D3CE;
+    padding:4px 4px 4px 4px;
+}
+.printThemeGrid .row
+{ 
+    background-color:#F7F6F3;
+    color:#333333;
+    vertical-align:top;
+}
+.printThemeGrid .altrow
+{ 
+    background-color:White;
+    color:#284775;
+    vertical-align:top;
+}
+.cellprompt
+{
+	font-weight:bold;
+	white-space:nowrap;
+    width:100px;	
+}
+.paperHeader
+{
+    background-color:#dee3e7;
+    margin:5px 5px 15px 0px;
+    width:99%;
+    font-family:Verdana;
+    font-size:medium;
+    font-weight:bold;
+}
+.sectionHeader
+{
+    background-color:#dee3e7;
+    padding:5px 5px 5px 0px;
+    width:99%;
+    text-decoration:underline;
+    font-family:Verdana;
+    font-size:small;
+    font-weight:bold;
+}
+.underlineheader
+{
+    text-decoration:underline;
+    font-weight:bold;
+    padding:5px 0px;
+}
+.response
+{
+    padding:5px 0px;
+}
+.reviewerlabel
+{
+    padding-right:20px;
+}
+.pageTitle
+{
+    background-color:#dee3e7;
+    padding:5px 5px 5px 5px;
+    margin-top:10px;
+    width:99%;
+    font-family:Verdana;
+    font-size:medium;
+    font-weight:bold;
+}
+.submissionDetailsView
+{
+}
+.submissionDetailsView tr
+{
+    vertical-align:top;
+}
+.submissionDetailsView td.prompt
+{
+    font-weight:bold;
+}
+.submissionDetailsView tr.sectionSeparator
+{
+
+}
+.submissionDetailsView tr.sectionSeparator td
+{
+    background-color:#dee3e7;
+    padding:5px 5px 5px 5px;
+    font-family:Verdana;
+    font-size:small;
+    font-weight:bold;
+    color:Navy;
+}
+/*CSS Grid View General Definitions*/
+.CssGridView
+{
+    font-size:small; 
+}
+
+.CssGridView td, .CssGridView th
+{
+    padding:4px 4px 4px 4px;
+}
+
+/*CSS Compact Grid View General Definitions*/
+.CssGridViewCompact img
+{
+    border-style:none;
+    border-width:0px;
+}
+
+.CssGridViewCompact
+{
+    font-size:1em;
+    border-style:solid;
+    border-color:#D6D3CE;
+    border-width:1px;
+}
+
+.CssGridViewCompact .hrow a
+{
+    font-size:1em;
+}
+
+.CssGridViewCompact .row a, .CssGridViewCompact .altrow a
+{
+    font-size:0.8em;
+}
+
+.CssGridViewCompact .row .normal a, .CssGridViewCompact .row .normal, .CssGridViewCompact .altrow .normal a, .CssGridViewCompact .altrow .normal
+{
+    font-size:1em;
+}
+
+/*CSS Grid View Header Styles*/
+.CssGridView .hrow, .CssGridViewCompact .hrow
+{ 
+    background-color:#5D7B9D;
+    font-weight:bold;
+    color:White;
+}
+
+
+.CssGridViewCompact .hrow td
+{ 
+    border-bottom-width:0px;
+}
+
+.CssGridViewCompact .hrow th
+{ 
+    border-top-width:0px;
+    font-size:0.8em;
+    vertical-align:top;
+    border-left-width:0px;
+    border-right-width:0px;
+}
+
+.CssGridViewCompact .smaller
+{
+    font-size:0.8em;
+}
+
+/*CSS Grid View Row Styles*/
+.CssGridViewCompact .row, .CssGridViewCompact .altrow
+{
+    border-top-style:solid;
+    border-top-color:#D6D3CE;
+    border-top-width:1px;
+    border-bottom-style:solid;
+    border-bottom-color:#D6D3CE;
+    border-bottom-width:1px;
+}
+
+/*CSS Grid View Header Styles*/
+.CssGridViewCompact .hrow .leftborder, .CssGridViewCompact .row .leftborder, .CssGridViewCompact .altrow .leftborder
+{
+    border-left-width:1px;
+    border-left-color:#D6D3CE;
+    border-left-style:solid;
+}
+
+.CssGridViewCompact .hrow .rightborder, .CssGridViewCompact .row .rightborder, .CssGridViewCompact .altrow .rightborder
+{
+    border-right-width:1px;
+    border-right-color:#D6D3CE;
+    border-right-style:solid;
+}
+
+.CssGridView .hrow a, .CssGridViewCompact .hrow a
+{ 
+    color:White;
+}
+ 
+.CssGridView .row, .CssGridViewCompact .row
+{ 
+    background-color:#F7F6F3;
+    color:#333333;
+    vertical-align:top;
+}
+
+.CssGridView .altrow, .CssGridViewCompact .altrow
+{ 
+    vertical-align:top;
+}
+
+.CssGridViewCompact .row td
+{ 
+    border-left-width:0px;
+    border-right-width:0px;
+}
+ 
+.CssGridViewCompact .altrow
+{ 
+    background-color:White;
+    color:#284775;
+    vertical-align:top;
+}
+
+.CssGridView .altrow tr, .CssGridViewCompact .altrow tr, .CssGridView .row tr, .CssGridViewCompact .row tr
+{ 
+    vertical-align:top;
+}
+</style>
+</head>
+<body>
+<form name="aspnetForm" method="post" action="./ViewMetaReviewsForPaper.aspx?paperId=1606" id="aspnetForm">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTAxNDM4ODU3Ng9kFgJmD2QWAgIDD2QWAmYPZBYCAgUPDxYCHgdWaXNpYmxlZ2QWBgIBD2QWAmYPZBYCZg9kFgZmDxYCHwBnFgICAQ9kFgJmDw8WAh4EVGV4dAUEQmx1ZWRkAgEPZBYCAgEPZBYCZg8PFgIfAQUEMTYwNmRkAgIPZBYCAgEPZBYCZg8PFgIfAQVSQ0FLRSYjNTg7IENsYXNzaWZpY2F0aW9uIGF2ZWMgS2VybmVsIEVtYmVkZGluZ3MgdXNpbmcgUmFkZW1hY2hlciBDb21wbGV4aXR5IEJvdW5kc2RkAgMPDxYCHwBoZGQCBQ8WAh4LXyFJdGVtQ291bnQCARYCZg9kFgYCAw9kFgJmDxUBD01ldGFfUmV2aWV3ZXJfMmQCBw88KwARAwAPFgQeC18hRGF0YUJvdW5kZx8CAgJkARAWABYAFgAMFCsAABYCZg9kFgYCAQ9kFgRmDw8WAh8BBRFEZXRhaWxlZCBDb21tZW50c2RkAgEPZBYCZg8VAZkMVGhlIHBhcGVyIHByb3Bvc2VzIGxlYXJuaW5nLXRoZW9yZXRpYyBib3VuZHMgZm9yIGh5cGVycGFyYW1ldGVyIGxlYXJuaW5nIG9mIGNvbmRpdGlvbmFsIGtlcm5lbCBlbWJlZGRpbmdzIGluIHRoZSBjb250ZXh0IG9mIG11bHRpY2xhc3MgY2xhc3NpZmljYXRpb24uIFRoZSBwYXBlciBmaXJzdCBkb2VzIGNvbmRpdGlvbmFsIGRpc3RyaWJ1dGlvbiBlc3RpbWF0aW9uIHRvIGFkZHJlc3MgbXVsdGktY2xhc3MgY2xhc3NpZmljYXRpb24gYnkgdXNpbmcgdGhlIGNvbmRpdGlvbmFsIGtlcm5lbCBtZWFuIGVtYmVkZGluZyB3aGljaCBleGFjdGx5IG1hdGNoZXMgd2l0aCByaWRnZSByZWdyZXNzaW9uIGFzIHNob3duIGluICg2KS4gVGhlbiBpdCBwZXJmb3JtcyBoeXBlcnBhcmFtZXRlciBsZWFybmluZyBiYXNlZCBvbiB0aGUgZ2VuZXJhbGl6YXRpb24gYm91bmQgd2l0aCBjcm9zcyBlbnRyb3B5IGxvc3MuPGJyIC8+PGJyIC8+Q29tbWVudHM6IDxiciAvPjxiciAvPjEuIFRoZW9yZW0gMy4xIGlzIHdlYWsgYW5kIHBhcnRpY3VsYXJseSB0aGUgY29pbmRpdGlvbiBrKC4seClcaW4gaW1hZ2Ugb2YgQ197WFh9IGZvciBhbGwgeFxpbiBYIGlzIHRvbyBzdHJvbmcuIFRoaXMgbWVhbnMgdGhlcmUgZXhpc3RzIGZfeFxpbiBIX1ggc3VjaCB0aGF0IGsoLix4KT1DX1hYIGZfeCBpbXBseWluZyB0aGF0IGRcZGVsdGFfeD1mX3hcLGRQX1gsIHdoaWNoIGlzIGEgc3Ryb25nIGFzc3VtcHRpb24gb24gZiBhbmQgUC48YnIgLz48YnIgLz4yLiBHaXZlbiB0aGF0IHRoZSBwcm9wb3NhbCBpcyBub3RoaW5nIGJ1dCByaWRnZSByZWdyZXNzaW9uLCBsb3Qgb2Ygd29yayBoYXMgYmVlbiBkb25lIG9uIGxlYXJuaW5nIHRoZSBrZXJuZWwuIENvcnRlcyBldCBhbC4gKDIwMTMpIGxlYXJucyB0aGUga2VybmVsIGJhc2VkIG9uIGxvY2FsIHJhZGVtYWNoZXIgY29tcGxleGl0eSBhbmQgaW4gdGhpcyBwYXBlciwgdGhlIGF1dGhvcnMgdXNlIGEgY3Jvc3MgZW50cm9weSBsb3NzIGFuZCByYWRlbWFjaGVyIGF2ZXJhZ2UgdG8gbGVhcm4gdGhlIGtlcm5lbCBmdW5jdGlvbi4gU28gSSBhbSBub3Qgc3VyZSBhYm91dCB0aGUgc2lnbmlmaWNhbmNlIG9mIG5vdmVsdHkuPGJyIC8+PGJyIC8+My4gQXMgdGhlIHJldmlld2VycyBtZW50aW9uZWQsIHNvbWUgaW1wb3J0YW50IHJlZmVyZW5jZXMgcmVsYXRlZCB0byBjb25kaXRpb25hbCBtZWFuIGVtYmVkZGluZyBhbmQgcmlkZ2UgcmVncmVzc2lvbiBhcmUgbWlzc2luZy4gPGJyIC8+PGJyIC8+SSBoYXZlIHJlYWQgdGhlIHJldmlld3MgYW5kIHRoZSByZWJ1dHRhbCBjYXJlZnVsbHkgYW5kIHRha2VuIGludG8gYWNjb3VudCB5b3VyIGNvbXBsYWludCBhYm91dCBtaXN1bmRlcnN0YW5kaW5nIHlvdXIgY29udHJpYnV0aW9uIGJ5IHRoZSByZXZpZXdlcnMuIEFmdGVyIGEgZGV0YWlsZWQgZGlzY3Vzc2lvbiB3aXRoIHRoZSByZXZpZXdlcnMsIEkgYW0gc29ycnkgdG8gc2F5IHRoYXQgdGhlIHBhcGVyIGlzIG5vdCBub3ZlbCBlbm91Z2ggdG8gYmUgYWNjZXB0ZWQgYXQgTklQUyBhbmQgdGhlcmVmb3JlIEkgYW0gcmVjb21tZW5kaW5nIGEgcmVqZWN0aW9uLmQCAg9kFgRmDw8WAh8BBQ9PdmVyYWxsIHJhdGluZzpkZAIBD2QWAmYPFQEKMCAtIFJlamVjdGQCAw8PFgIfAGhkZAIIDxUBAGQYAQUfY3RsMDAkY3BoJGd2UmV2aWV3cyRjdGwwMCRjdGwwMA88KwAMAQgCAWROXSVAbgQS75Dr4/ksA3Y5GT8FKg==" />
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="64C5632B" />
+</div>
+<table id="header">
+<tr>
+<td width="100%"><a href='http&#58;&#47;&#47;nips.cc' target='_blank'>NIPS2017</a><br /><b>Neural Information Processing Systems 2017</b><br />Dec 4 , 2017 - Dec 9 , 2017, Long Beach, United States</td>
+</tr>
+<tr class='headerSeparator'>
+    <td style='height:5px'></td>
+</tr>
+</table>
+<table id="content"><tr><td class='contentBorder'>&nbsp;</td><td class="contentContainer">
+<span id="ctl00_cph_Label4" style="font-size:Small;font-weight:bold;">Meta-Reviews For Paper</span>
+<span id="ctl00_cph_lblErrorMessage" class="error" style="font-size:Small;"></span>
+<div id="ctl00_cph_pnlReviews">
+	
+    <span style="font-size:Small;"><table id="ctl00_cph_infoSubmission_tblInfo" class="nicetable2" style="text-align:left; width: 100%;">
+		<tr id="ctl00_cph_infoSubmission_trTrack">
+			<td><b>Track</b></td>
+			<td><span id="ctl00_cph_infoSubmission_lblTrack" style="font-size:Small;">Blue</span></td>
+		</tr>
+		<tr>
+			<td width="100px"><b>Paper ID</b></td>
+			<td><span id="ctl00_cph_infoSubmission_lblPaperId" style="font-size:Small;">1606</span></td>
+		</tr>
+		<tr>
+			<td><b>Title</b></td>
+			<td><span id="ctl00_cph_infoSubmission_lblPaperTitle" style="font-size:Small;">CAKE&#58; Classification avec Kernel Embeddings using Rademacher Complexity Bounds</span></td>
+		</tr>
+	</table>
+	</span>
+    
+    
+            <hr />
+            <table>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl00_Label2" style="font-size:Small;font-weight:bold;">Masked Meta-Reviewer ID:</span>
+                    </td>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl00_Label1" style="font-size:Small;">Meta_Reviewer_2</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl00_Label3" style="font-size:Small;font-weight:bold;">Meta-Reviews:</span>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+            <div>
+		<table cellspacing="0" cellpadding="4" rules="all" border="1" style="color:#333333;border-width:1px;border-style:None;font-family:Verdana;font-size:Small;border-collapse:collapse;">
+			<tr style="color:White;background-color:#5D7B9D;font-weight:bold;">
+				<th scope="col">Question</th><th scope="col">&nbsp;</th>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Detailed Comments</td><td style="width:80%;">
+                            The paper proposes learning-theoretic bounds for hyperparameter learning of conditional kernel embeddings in the context of multiclass classification. The paper first does conditional distribution estimation to address multi-class classification by using the conditional kernel mean embedding which exactly matches with ridge regression as shown in (6). Then it performs hyperparameter learning based on the generalization bound with cross entropy loss.<br /><br />Comments: <br /><br />1. Theorem 3.1 is weak and particularly the coindition k(.,x)\in image of C_{XX} for all x\in X is too strong. This means there exists f_x\in H_X such that k(.,x)=C_XX f_x implying that d\delta_x=f_x\,dP_X, which is a strong assumption on f and P.<br /><br />2. Given that the proposal is nothing but ridge regression, lot of work has been done on learning the kernel. Cortes et al. (2013) learns the kernel based on local rademacher complexity and in this paper, the authors use a cross entropy loss and rademacher average to learn the kernel function. So I am not sure about the significance of novelty.<br /><br />3. As the reviewers mentioned, some important references related to conditional mean embedding and ridge regression are missing. <br /><br />I have read the reviews and the rebuttal carefully and taken into account your complaint about misunderstanding your contribution by the reviewers. After a detailed discussion with the reviewers, I am sorry to say that the paper is not novel enough to be accepted at NIPS and therefore I am recommending a rejection.
+                        </td>
+			</tr><tr style="color:#284775;background-color:White;">
+				<td style="width:20%;">Overall rating:</td><td style="width:80%;">
+                            0 - Reject
+                        </td>
+			</tr>
+		</table>
+	</div>
+            
+        
+    <br />
+    <br />
+
+</div>
+</td><td class='contentBorder'>&nbsp;</td></tr></table>
+</form>
+</body>
+</html>

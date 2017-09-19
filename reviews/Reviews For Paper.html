@@ -1,0 +1,425 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head><title>
+	Reviews For Paper
+</title>
+<style>
+body
+{
+	font-family:verdana,arial,helvetica;
+}
+#header
+{
+    width: 100%;
+    font-size: small;
+    background-color:#F7F7F7;
+}
+.headerSeparator
+{
+    background-color: #105586;
+}
+.printThemeText
+{
+    font-size:small;
+}
+.printThemeTable td
+{
+    vertical-align:top;
+}
+.printThemeGrid th
+{
+    color:white;
+    background:#5D7B9D;
+    font-weight:bold;
+}
+.printThemeGrid
+{
+    border-collapse:collapse;
+}
+.printThemeGrid td, .printThemeGrid th
+{
+    border:solid 1px #D6D3CE;
+    padding:4px 4px 4px 4px;
+}
+.printThemeGrid .row
+{ 
+    background-color:#F7F6F3;
+    color:#333333;
+    vertical-align:top;
+}
+.printThemeGrid .altrow
+{ 
+    background-color:White;
+    color:#284775;
+    vertical-align:top;
+}
+.cellprompt
+{
+	font-weight:bold;
+	white-space:nowrap;
+    width:100px;	
+}
+.paperHeader
+{
+    background-color:#dee3e7;
+    margin:5px 5px 15px 0px;
+    width:99%;
+    font-family:Verdana;
+    font-size:medium;
+    font-weight:bold;
+}
+.sectionHeader
+{
+    background-color:#dee3e7;
+    padding:5px 5px 5px 0px;
+    width:99%;
+    text-decoration:underline;
+    font-family:Verdana;
+    font-size:small;
+    font-weight:bold;
+}
+.underlineheader
+{
+    text-decoration:underline;
+    font-weight:bold;
+    padding:5px 0px;
+}
+.response
+{
+    padding:5px 0px;
+}
+.reviewerlabel
+{
+    padding-right:20px;
+}
+.pageTitle
+{
+    background-color:#dee3e7;
+    padding:5px 5px 5px 5px;
+    margin-top:10px;
+    width:99%;
+    font-family:Verdana;
+    font-size:medium;
+    font-weight:bold;
+}
+.submissionDetailsView
+{
+}
+.submissionDetailsView tr
+{
+    vertical-align:top;
+}
+.submissionDetailsView td.prompt
+{
+    font-weight:bold;
+}
+.submissionDetailsView tr.sectionSeparator
+{
+
+}
+.submissionDetailsView tr.sectionSeparator td
+{
+    background-color:#dee3e7;
+    padding:5px 5px 5px 5px;
+    font-family:Verdana;
+    font-size:small;
+    font-weight:bold;
+    color:Navy;
+}
+/*CSS Grid View General Definitions*/
+.CssGridView
+{
+    font-size:small; 
+}
+
+.CssGridView td, .CssGridView th
+{
+    padding:4px 4px 4px 4px;
+}
+
+/*CSS Compact Grid View General Definitions*/
+.CssGridViewCompact img
+{
+    border-style:none;
+    border-width:0px;
+}
+
+.CssGridViewCompact
+{
+    font-size:1em;
+    border-style:solid;
+    border-color:#D6D3CE;
+    border-width:1px;
+}
+
+.CssGridViewCompact .hrow a
+{
+    font-size:1em;
+}
+
+.CssGridViewCompact .row a, .CssGridViewCompact .altrow a
+{
+    font-size:0.8em;
+}
+
+.CssGridViewCompact .row .normal a, .CssGridViewCompact .row .normal, .CssGridViewCompact .altrow .normal a, .CssGridViewCompact .altrow .normal
+{
+    font-size:1em;
+}
+
+/*CSS Grid View Header Styles*/
+.CssGridView .hrow, .CssGridViewCompact .hrow
+{ 
+    background-color:#5D7B9D;
+    font-weight:bold;
+    color:White;
+}
+
+
+.CssGridViewCompact .hrow td
+{ 
+    border-bottom-width:0px;
+}
+
+.CssGridViewCompact .hrow th
+{ 
+    border-top-width:0px;
+    font-size:0.8em;
+    vertical-align:top;
+    border-left-width:0px;
+    border-right-width:0px;
+}
+
+.CssGridViewCompact .smaller
+{
+    font-size:0.8em;
+}
+
+/*CSS Grid View Row Styles*/
+.CssGridViewCompact .row, .CssGridViewCompact .altrow
+{
+    border-top-style:solid;
+    border-top-color:#D6D3CE;
+    border-top-width:1px;
+    border-bottom-style:solid;
+    border-bottom-color:#D6D3CE;
+    border-bottom-width:1px;
+}
+
+/*CSS Grid View Header Styles*/
+.CssGridViewCompact .hrow .leftborder, .CssGridViewCompact .row .leftborder, .CssGridViewCompact .altrow .leftborder
+{
+    border-left-width:1px;
+    border-left-color:#D6D3CE;
+    border-left-style:solid;
+}
+
+.CssGridViewCompact .hrow .rightborder, .CssGridViewCompact .row .rightborder, .CssGridViewCompact .altrow .rightborder
+{
+    border-right-width:1px;
+    border-right-color:#D6D3CE;
+    border-right-style:solid;
+}
+
+.CssGridView .hrow a, .CssGridViewCompact .hrow a
+{ 
+    color:White;
+}
+ 
+.CssGridView .row, .CssGridViewCompact .row
+{ 
+    background-color:#F7F6F3;
+    color:#333333;
+    vertical-align:top;
+}
+
+.CssGridView .altrow, .CssGridViewCompact .altrow
+{ 
+    vertical-align:top;
+}
+
+.CssGridViewCompact .row td
+{ 
+    border-left-width:0px;
+    border-right-width:0px;
+}
+ 
+.CssGridViewCompact .altrow
+{ 
+    background-color:White;
+    color:#284775;
+    vertical-align:top;
+}
+
+.CssGridView .altrow tr, .CssGridViewCompact .altrow tr, .CssGridView .row tr, .CssGridViewCompact .row tr
+{ 
+    vertical-align:top;
+}
+</style>
+</head>
+<body>
+<form name="aspnetForm" method="post" action="./ViewReviewsForPaper.aspx?paperId=1606" id="aspnetForm">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTAxNDM4ODU3Ng9kFgJmD2QWAgIDD2QWAmYPZBYCAgUPDxYCHgdWaXNpYmxlZ2QWBgIBD2QWAmYPZBYCZg9kFgZmDxYCHwBnFgICAQ9kFgJmDw8WAh4EVGV4dAUEQmx1ZWRkAgEPZBYCAgEPZBYCZg8PFgIfAQUEMTYwNmRkAgIPZBYCAgEPZBYCZg8PFgIfAQVSQ0FLRSYjNTg7IENsYXNzaWZpY2F0aW9uIGF2ZWMgS2VybmVsIEVtYmVkZGluZ3MgdXNpbmcgUmFkZW1hY2hlciBDb21wbGV4aXR5IEJvdW5kc2RkAgMPDxYCHwBoZGQCBQ8WAh4LXyFJdGVtQ291bnQCAxYGZg9kFgYCAw9kFgJmDxUBE0Fzc2lnbmVkX1Jldmlld2VyXzFkAgcPPCsAEQMADxYEHgtfIURhdGFCb3VuZGcfAgIDZAEQFgAWABYADBQrAAAWAmYPZBYIAgEPZBYEZg8PFgIfAQUPT3ZlcmFsbCByYXRpbmc6ZGQCAQ9kFgJmDxUBEzMgLSBDbGVhciByZWplY3Rpb25kAgIPZBYEZg8PFgIfAQURQ29uZmlkZW5jZSBzY29yZTpkZAIBD2QWAmYPFQFXNCAtIFRoZSByZXZpZXdlciBpcyBjb25maWRlbnQgYnV0IG5vdCBhYnNvbHV0ZWx5IGNlcnRhaW4gdGhhdCB0aGUgZXZhbHVhdGlvbiBpcyBjb3JyZWN0ZAIDD2QWBGYPDxYCHwEFEkRldGFpbGVkIENvbW1lbnRzOmRkAgEPZBYCZg8VAZsTU3VtbWFyeSA8YnIgLz48YnIgLz5UaGUgcGFwZXIgYXBwbGllcyBjb25kaXRpb25hbCBtZWFuIGVtYmVkZGluZ3MgdG8gbXVsdGktY2xhc3MgY2xhc3NpZmljYXRpb24gYW5kIHByb3ZpZGVzIHJhdGVzIG9mIGNvbnZlcmdlbmNlIHVuZGVyIHJlc3RyaWN0aXZlIGFzc3VtcHRpb25zIGFuZCBhIHJlc3VsdCBhYm91dCBSYWRlbWFjaGVyIGNvbXBsZXhpdGllcy48YnIgLz48YnIgLz5SZXZpZXcgPGJyIC8+PGJyIC8+SXQgYXBwZWFycyB0byBtZSB0aGF0IHRoZSBhdXRob3JzIGFwcGx5IGVzc2VudGlhbGx5IHJpZGdlLXJlZ3Jlc3Npb24gdG8gYSBjbGFzc2lmaWNhdGlvbiB0YXNrIGFuZCBpbnRlcnByZXQgdGhlIHByb2JhYmlsaXR5IG9mIHRoZSByZWdyZXNzb3IgYXMgdGhlIHByb2JhYmlsaXR5IHRoYXQgY292YXJpYXRlIHggZmFsbHMgaW50byBjbGFzcyBpLiBUaGVvcmVtIDMuMSBpcyB0aGVuIG5vdCBzdXJwcmlzaW5nIGFuZCwgaW4gZmFjdCwgc3RhbmRhcmQgcmVzdWx0cyBmb3IgcmlkZ2UgcmVncmVzc2lvbiBzaG91bGQgZ2l2ZSBzdHJvbmdlciByZXN1bHRzIHRoYW4gd2hhdCB0aGUgYXV0aG9ycyBnZXQgKGluIHBhcnRpY3VsYXIsIHRoZSBjb25kaXRpb24gayh4LGNkb3QpIGluIHRoZSBpbWFnZSBvZiBDX1hYIHNob3VsZCBiZSB1bm5lY2Vzc2FyeSBhbmQgb3B0aW1hbCBzY2hlZHVsZXMgZm9yIGxhbWJkYSBhcmUga25vd24gZGVwZW5kaW5nIG9uIHRoZSBlaWdlbnZhbHVlIGRlY2F5IG9mIHRoZSBrZXJuZWwpLiBUaGVyZSBleGlzdHMgYWxzbyBhIGNsb3NlIHJlbGF0aW9uIHRvIHZlY3Rvci12YWx1ZWQgUktIU3MgYW5kIGNvcnJlc3BvbmRpbmcgcmVncmVzc2lvbi4gRnVydGhlcm1vcmUsIHRoZSB1c2Ugb2YgUmFkZW1hY2hlciBjb21wbGV4aXRpZXMgaXMgY29tbW9uIGluIHJlZ3Jlc3Npb24gYW5kIGl0IHNlZW1zIHRvIG1lIHRoYXQgdGhlIGF1dGhvcnMgY29tcGxldGVseSBpZ25vcmVkIHRoZSBsaW5rIHRvIHN0YW5kYXJkIHJpZGdlIHJlZ3Jlc3Npb24uIEF0IHRoZSB2ZXJ5IGxlYXN0IHRoZXJlIHNob3VsZCBiZSBsZW5ndGh5IHBhcmFncmFwaCBleHBsYWluaW5nIHdoeSB0aGlzIGRpZmZlcnMgZnJvbSByaWRnZSByZWdyZXNzaW9uIGFuZCB3aHkgc3RhbmRhcmQgcmVzdWx0cyBjYW7igJl0IGJlIGFwcGxpZWQsIGJ1dCB0aGUgd29yZCDigJxyaWRnZeKAnSBkb2VzbuKAmXQgZXZlbiBhcHBlYXIgaW4gdGhlIHBhcGVyLjxiciAvPjxiciAvPkkgY2Fu4oCZdCBzZWUgbXVjaCBub3ZlbHR5IGluIHRoZSBwYXBlciBnaXZlbiB0aGUgdmFzdCByaWRnZSByZWdyZXNzaW9uIGxpdGVyYXR1cmUgYW5kIGluIG15IG9waW5pb24gdGhlIGF1dGhvcnMgbmVlZCB0byBjb21wYXJlIHRoZWlyIHJlc3VsdHMgdG8gd2hhdCBpcyBrbm93biBhYm91dCByaWRnZSByZWdyZXNzaW9uIG9yIGV4cGxhaW4gd2h5IHJpZGdlIHJlZ3Jlc3Npb24gcmVzdWx0cyBhcmUgbm90IGFwcGxpY2FibGUgaW4gdGhpcyBzZXR0aW5nLjxiciAvPjxiciAvPkRldGFpbGVkIENvbW1lbnRzPGJyIC8+PGJyIC8+U2VjdGlvbiAyPGJyIC8+PGJyIC8+QmUgbW9yZSBwcmVjaXNlIGFib3V0IHRoZSBvYmplY3RzLiBDX1hYIGFuZCBDX1lYIGFzIGRlZmluZWQgYXJlIGVsZW1lbnRzIGluIHRoZSB0ZW5zb3Igc3BhY2UuIEZvciBVX3tZfFh9IHlvdSBpZGVudGlmeSB0aGVzZSB3aXRoIGxpbmVhciBvcGVyYXRvcnMsIGkuZS4gdGhlcmUgaXMgYW4gaXNvbW9ycGhpYyBhbmQgKEkgZ3Vlc3MpIGlzb21ldHJpYyBtYXAgYmV0d2VlbiB0aGUgdGVuc29yIGVsZW1lbnQgYW5kIHRoZSBsaW5lYXIgb3BlcmF0b3JzLiBBIGxpbmUgZXhwbGFpbmluZyBob3cgcHJvcGVydGllcyBvZiB0aGUga2VybmVsIHRyYW5zbGF0ZSBpbnRvIHByb3BlcnRpZXMgb2YgdGhlc2Ugb3BlcmF0b3JzIG1pZ2h0IGFsc28gYmUgaGVscGZ1bCwgZS5nLiB3aGVuIGFyZSB0aGUgb3BlcmF0b3JzIGNvbXBhY3QuPGJyIC8+WW91IGRlZmluZSBVX3tZfFh9IGFzIENfWVggQ19YWF4tMSBidXQgYXJlIHRoZW4gbGF0ZXIgdGFsa2luZyBhYm91dCBhcHByb3hpbWF0aW5nIFVfe1l8WH0gYnkgQ197WVh9Q197WFh9Xi0xLiBZb3Ugc2hvdWxkIGRlZmluZSBVX3tZfFh9IHdpdGhvdXQgcmVmZXJyaW5nIHRvIENfe1lYfSBldGMuIGFuZCB0aGVuIGV4cGxhaW4gdGhhdCBpbiBjZXJ0YWluIGNhc2VzIHRoZXkgY29pbmNpZGUgYW5kIGluIG90aGVyIGNhc2VzIHRoZXkgb25seSBhcHByb3hpbWF0ZSBVX3tZfFh9LiAgIDxiciAvPjxiciAvPlNlY3Rpb24gMzxiciAvPkhfZGVsdGEgY2FuIGJlIGlkZW50aWZpZWQgd2l0aCBSXm0gYW5kIHRoZSBFdWNsaWRlYW4gbm9ybTxiciAvPlAoWT15fFg9eCkgbmVlZHMgYSBjbGFyaWZpY2F0aW9uLiBJcyBYIGEgZmluaXRlIHNwYWNlPyBPciBkbyB5b3UgaGF2ZSBzb21lIGZvcm0gb2YgZGVuc2l0eSBhc3N1bXB0aW9uIChub3Qgc3VyZSBob3cgdGhpcyB3b3VsZCBsb29rIGxpa2UpPyBkAgQPDxYCHwBoZGQCCA8VAQBkAgEPZBYGAgMPZBYCZg8VARNBc3NpZ25lZF9SZXZpZXdlcl8yZAIHDzwrABEDAA8WBB8DZx8CAgNkARAWABYAFgAMFCsAABYCZg9kFggCAQ9kFgRmDw8WAh8BBQ9PdmVyYWxsIHJhdGluZzpkZAIBD2QWAmYPFQEmNCAtIE9rIGJ1dCBub3QgZ29vZCBlbm91Z2ggLSByZWplY3Rpb25kAgIPZBYEZg8PFgIfAQURQ29uZmlkZW5jZSBzY29yZTpkZAIBD2QWAmYPFQFXNCAtIFRoZSByZXZpZXdlciBpcyBjb25maWRlbnQgYnV0IG5vdCBhYnNvbHV0ZWx5IGNlcnRhaW4gdGhhdCB0aGUgZXZhbHVhdGlvbiBpcyBjb3JyZWN0ZAIDD2QWBGYPDxYCHwEFEkRldGFpbGVkIENvbW1lbnRzOmRkAgEPZBYCZg8VAfUSVGhpcyBwYXBlciBkZWFscyB3aXRoIHN1cGVydmlzZWQgY2xhc3NpZmljYXRpb24gd2l0aGluIHRoZSBmcmFtZXdvcmsgb2Yga2VybmVsIGVtYmVkZGluZ3Mgb2YgcHJvYmFiaWxpdHkgZGlzdHJpYnV0aW9ucy4gU3BlY2lmaWNhbGx5LCB0aGUgYXV0aG9ycyBwcm9wb3NlIGEga2VybmVsIGVtYmVkZGluZyBjbGFzc2lmaWVyIGJhc2VkIG9uIHRoZSBIaWxiZXJ0IHNwYWNlIGVtYmVkZGluZyBvZiBjb25kaXRpb25hbCBkaXN0cmlidXRpb25zLiBUaGV5IGFsc28gcHJvdmlkZSBhIHJpc2sgYm91bmQgdXNpbmcgdGhlIG5vdGlvbiBvZiBSYWRlbWFjaGVyIGNvbXBsZXhpdHkuIFRoaXMgYm91bmQgd2FzIHVzZWQgdG8gZGVyaXZlIGEgd2F5IHRvIGxlYXJuIHRoZSBoeXBlcnBhcmFtZXRlciBvZiB0aGUga2VybmVsIGZ1bmN0aW9uLiBFeHBlcmltZW50cyB0byBhc3Nlc3MgdGhlIHBlcmZvcm1hbmNlIG9mIHRoZSBwcm9wb3NlZCBjbGFzc2lmaWVyIG9uIGEgdG95IGV4YW1wbGUsIFVDSSBkYXRhIHNldHMgYW5kIE1OSVNUIGFyZSBwcm92aWRlZC48YnIgLz48YnIgLz5UaGUgc3ViamVjdCBtYXR0ZXIgb2YgdGhlIHBhcGVyIGlzIG9mIGltcG9ydGFuY2UsIHNpbmNlIHRoZSBwcm9wZXIgbW9kZWxpbmcgb2YgdGhlIGtlcm5lbCBoeXBlcnBhcmFtZXRlciBpcyBjcnVjaWFsIGZvciBrZXJuZWwgbWV0aG9kcyBhbmQgaW4gcGFydGljdWxhciBmb3IgdGhlIGtlcm5lbCBlbWJlZGRpbmcgb2YgcHJvYmFiaWxpdHkgZGlzdHJpYnV0aW9uLiBVbmZvcnR1bmF0ZWx5IHRoZSBjb250cmlidXRpb24gb2YgdGhlIHBhcGVyIGNvbXBhcmVkIHRvIHdoYXQgaXMga25vd24gaW4gdGhlIGxpdGVyYXR1cmUgaXMgbm90IGNsZWFyLiBNeSBmb3JlbW9zdCBjb25jZXJucyBhcmUgdGhlIGZvbGxvd2luZzo8YnIgLz48YnIgLz4xKSBTZWN0aW9uIDMgZGVzY3JpYmVzIHRoZSBwcm9wb3NlZCBLZXJuZWwgZW1iZWRkaW5nIGNsYXNzaWZpZXIuIFRoaXMgaXMgZXhhY3RseSBrZXJuZWwgcmlkZ2UgcmVncmVzc2lvbiAob3IgcmVndWxhcml6ZWQgbGVhc3Qgc3F1YXJlcyBjbGFzc2lmaWNhdGlvbikuIFRoZSBjb25uZWN0aW9uIGJldHdlZW4gdGhlIGtlcm5lbCBlbWJlZGRpbmcgb2YgY29uZGl0aW9uYWwgZGlzdHJpYnV0aW9uIGFuZCByaWRnZSByZWdyZXNzaW9uIHdhcyBlc3RhYmxpc2hlZCBpbiBbR3J1bmV3YWxkZXIgJiBhbC4sIENvbmRpdGlvbmFsIG1lYW4gZW1iZWRkaW5ncyBhcyByZWdyZXNzb3JzLiBJQ01MIDIwMTJdLiBUaGV5IHNob3dlZCB0aGUgY29ubmVjdGlvbiBiZXR3ZWVuIHRoZSB0d28gZm9ybWFsaXNtcyB1c2luZyB0aGUgZnJhbWV3b3JrIG9mIHZlY3Rvci12YWx1ZWQgZnVuY3Rpb24gbGVhcm5pbmcuIEVxLiA2IGNhbiBiZSBzZWVuIGFzIGEgcGFydGljdWxhciBjYXNlIG9mIHRoaXMgZnJhbWV3b3JrLjxiciAvPjxiciAvPjIpIEluIFNlY3Rpb24gNCwgaXQgd2lsbCBiZSBtb3JlIGVhc3kgdG8gZm9sbG93IGFuZCB1bmRlcnN0YW5kIHRoZSByZXN1bHRzIGJ5IGFkZGluZyBtb3JlIG1hdGVyaWFscyBhYm91dCB0aGUgYm91bmQgb2YgdGhlIFJhZGVtYWNoZXIgY29tcGxleGl0eSB3aGljaCB3aWxsIGFsbG93IHRoZSByZXN1bHQgb2YgVGhlb3JlbSA0LjEuIFRoZSBleGNlc3MgcmlzayBib3VuZCBmb3IgbGVhcm5pbmcgd2l0aCB0cmFjZSBub3JtIHJlZ3VsYXJpemF0aW9uIHdhcyBzdHVkaWVkIGluIFtNYXVyZXIgJiBQb250aWwsIENPTFQgMjAxM10uIENvbnRyaWJ1dGlvbiBvZiB0aGlzIHNlY3Rpb24gY29tcGFyZWQgdG8gdGhpcyB3b3JrIHNob3VsZCBiZSBjbGVhcmx5IG1lbnRpb25lZC48YnIgLz48YnIgLz4zKSBUaGUgcXVlc3Rpb24gb2YgdGhlIGtlcm5lbCBjaG9pY2Ugb3ZlciBhIGNsYXNzIG9mIGtlcm5lbHMgKHN1Y2ggYXMgR2F1c3NpYW4ga2VybmVscyBwYXJhbWV0ZXJpemVkIGJ5IHRoZWlyIGJhbmR3aWR0aCkgaW4gdGhlIGZyYW1ld29yayBvZiBSS0hTIGVtYmVkZGluZyBvZiBkaXN0cmlidXRpb24gd2FzIHN0dWRpZWQgaW4gW1NyaXBlcnVtYnVkdXIgJiBhbC4sIEtlcm5lbCBjaG9pY2UgYW5kIGNsYXNzaWZpYWJpbGl0eSBmb3IgUktIUyBlbWJlZGRpbmdzIG9mIHByb2JhYmlsaXR5IGRpc3RyaWJ1dGlvbnMuIE5JUFMgMjAwOV0uIE11bHRpcGxlIGtlcm5lbCBsZWFybmluZyB3aXRoIGtlcm5lbCBlbWJlZGRpbmcgIHdhcyBhbHNvIGNvbnNpZGVyZWQgaW4gW0dyZXR0b24gJiBhbC4sIE9wdGltYWwga2VybmVsIGNob2ljZSBmb3IgbGFyZ2Utc2NhbGUgdHdvIHNhbXBsZSB0ZXN0cy4gTklQUyAyMDEyXS4gVGhlIGF1dGhvcnMgc2hvdWxkIGFkZCBtb3JlIGluZm9ybWF0aW9uIGFib3V0IHByZXZpb3VzIHdvcmsgb24gdGhpcyB0b3BpYyBzbyB0aGF0IHRoZWlyIHJlc3VsdHMgY2FuIGJlIHVuZGVyc3Rvb2Qgd2l0aCByZXNwZWN0IHRvIHByZXZpb3VzIHN0dWRpZXMuZAIEDw8WAh8AaGRkAggPFQEAZAICD2QWBgIDD2QWAmYPFQETQXNzaWduZWRfUmV2aWV3ZXJfM2QCBw88KwARAwAPFgQfA2cfAgIDZAEQFgAWABYADBQrAAAWAmYPZBYIAgEPZBYEZg8PFgIfAQUPT3ZlcmFsbCByYXRpbmc6ZGQCAQ9kFgJmDxUBJjQgLSBPayBidXQgbm90IGdvb2QgZW5vdWdoIC0gcmVqZWN0aW9uZAICD2QWBGYPDxYCHwEFEUNvbmZpZGVuY2Ugc2NvcmU6ZGQCAQ9kFgJmDxUBVzQgLSBUaGUgcmV2aWV3ZXIgaXMgY29uZmlkZW50IGJ1dCBub3QgYWJzb2x1dGVseSBjZXJ0YWluIHRoYXQgdGhlIGV2YWx1YXRpb24gaXMgY29ycmVjdGQCAw9kFgRmDw8WAh8BBRJEZXRhaWxlZCBDb21tZW50czpkZAIBD2QWAmYPFQHPFD09IEEgc3VtbWFyeSBvZiB0aGUgcmV2aWV3ID09PGJyIC8+PGJyIC8+SW4gbXkgb3BpbmlvbiwgdGhlIHRoZW9yZXRpY2FsIGNvbnRyaWJ1dGlvbnMgYXJlIG5vdCBnb29kIGVub3VnaDo8YnIgLz48YnIgLz5pKSBUaGUgY29ubmVjdGlvbiB0byBjb25kaXRpb25hbCBtZWFuIGVtYmVkZGluZ3Mgc2VlbXMgdG8gYmUgcmF0aGVyIHN1cGVyZmljaWFsLiBUaGlzIGlzIGJlY2F1c2UgdGhlIHByb3Bvc2VkIGVzdGltYXRvciBjYW4gYmUgZWFzaWx5IGRlcml2ZWQgZnJvbSB0aGUgZmFjdCB0aGF0IHRoZSBjb25kaXRpb25hbCBleHBlY3RhdGlvbiBvZiBhIGNsYXNzIGluZGljYXRvciBwcm92aWRlcyBhIGNvbmRpdGlvbmFsIGNsYXNzIHByb2JhYmlsaXR5LiA8YnIgLz48YnIgLz5paSkgVGhlb3JldGljYWwgcmVzdWx0cyBpbiBUaGVvcmVtcyAzLjEgYW5kIDQuMSBhcmUgbm90IHN0cm9uZyBlbm91Z2gsIGFzIEkgZXhwbGFpbiBiZWxvdy48YnIgLz48YnIgLz5BbHNvIHRoZSBleHBlcmltZW50cyBhcmUgbm90IHRob3JvdWdoIGVub3VnaCwgYXMgbWVudGlvbmVkIGJlbG93LiBGcm9tIHRoZXNlIHJlYXNvbnMsIEkgZG8gbm90IHRoaW5rIHRoYXQgdGhpcyBwYXBlciBpcyBnb29kIGVub3VnaCBmb3IgdGhpcyBOSVBTLCB3aGlsZSB0aGUgcHJvcG9zZWQgbWV0aG9kIGxvb2tzIHByb21pc2luZy48YnIgLz48YnIgLz48YnIgLz49PSBEZXRhaWxlZCBjb21tZW50cyA9PSA8YnIgLz48YnIgLz4tIFRoZW9yZW0gMy4xOjxiciAvPjxiciAvPlRoZSBhc3N1bXB0aW9uIHRoYXQgJGsoeCxcY2RvdCkkIGlzIGluY2x1ZGVkIGluIHRoZSBpbWFnZSBvZiB0aGUgY292YXJpYW5jZSBvcGVyYXRvciBpcyB0b28gc3Ryb25nLiBUaGlzIGlzIGJlY2F1c2UgaXQgZXNzZW50aWFsbHkgcmVxdWlyZXMgdGhhdCB0aGUgZGVsdGEgZnVuY3Rpb24gaXMgaW4gdGhlIFJLSFM6IHRoaXMgaXMgYWx3YXlzIGludmFsaWQsIGlmIHRoZSBrZXJuZWwgaXMgY29udGludW91cy4gTWF5YmUgaXQgd291bGQgYmUgYmV0dGVyIG5vdCB0byByZWx5IG9uIHRoZSByZXN1bHQgYnkgU29uZyBldCBhbC4gKDIwMDkpLiBJbnN0ZWFkIHlvdSBtYXkgdXNlIHRoZSByZXN1bHRzIG9idGFpbmVkIGluIHRoZSBmb2xsb3dpbmcgcGFwZXJzIChvciBvdGhlciBiZXR0ZXIgcmVzdWx0cyBieSBMZSBTb25nKTo8YnIgLz48YnIgLz5HcnVuZXdhbGRlciBldCBhbCwgIkNvbmRpdGlvbmFsIG1lYW4gZW1iZWRkaW5ncyBhcyByZWdyZXNzb3JzIiwgPGJyIC8+SUNNTCAyMDEyPGJyIC8+PGJyIC8+QSBDYXBvbm5ldHRvLCBFIERlIFZpdG8gPGJyIC8+Ik9wdGltYWwgcmF0ZXMgZm9yIHRoZSByZWd1bGFyaXplZCBsZWFzdC1zcXVhcmVzIGFsZ29yaXRobSIgPGJyIC8+Rm91bmRhdGlvbnMgb2YgQ29tcHV0YXRpb25hbCBNYXRoZW1hdGljcyA3ICgzKSwgMzMxLTM2OCwgMjAwNzxiciAvPjxiciAvPjxiciAvPi0gVGhlb3JlbSA0LjE6PGJyIC8+PGJyIC8+SSB1bmRlcnN0YW5kIHRoYXQgdGhpcyByZXN1bHQgZ2l2ZXMgYSBtb3RpdmF0aW9uIGZvciB1c2luZyBFcS4oMTApIGFzIGFuIG9iamVjdGl2ZSBvZiBoeXBlci1wYXJhbWV0ZXIgbGVhcm5pbmcuIEJ1dCBUaGVvcmVtIDQuMSBkb2VzIG5vdCBndWFyYW50ZWUgdGhhdCB0aGUgcmVzdWx0aW5nIGVzdGltYXRlIChpLmUuIHdpdGggbGVhcm5lZCBoeXBlci1wYXJhbWV0ZXJzKSBjb252ZXJnZXMgdG8gdGhlIGJlc3QgZXN0aW1hdG9yIGluIHRoZSBoeXBvdGhlc2lzIGNsYXNzIChhcyB0aGUgc2FtcGxlIHNpemUgZ29lcyB0byBpbmZpbml0eSkuIEluIHRoaXMgc2Vuc2UsIFRoZW9yZW0gNC4xIGlzIG5vdCBhIHN0cm9uZyB0aGVvcmV0aWNhbCBjb250cmlidXRpb24uIDxiciAvPjxiciAvPjxiciAvPi0gQWxnb3JpdGhtIDE6PGJyIC8+PGJyIC8+QXJlIHRoZSBncmFkaWVudHMgb2YgRXEuKDEwKSBvYnRhaW5hYmxlPyBJdCBzZWVtcyB0aGF0IHRoZSBsb3NzIGZ1bmN0aW9uIGluIEVxLig4KSBpcyBub3QgZGlmZmVyZW50aWFibGUsIGFzIGl0IGludm9sdmVzIGNsaXBwaW5nLiA8YnIgLz48YnIgLz48YnIgLz4tIEV4cGVyaW1lbnRzOiA8YnIgLz48YnIgLz5pKSBJbiBUYWJsZSAxLCBkb2VzICJPdGhlcnMiIG1lYW4gdGhhdCB0aGUgYmVzdCBwZXJmb3JtYW5jZSBhbW9uZyB0aGUgb3RoZXIgY29tcGV0aXRvcnMgaXMgcmVwb3J0ZWQ/IE9yIGRpZCB5b3UgdGFrZSB0aGVzZSByZXN1bHRzIGZyb20gdGhlIGNpdGVkIHBhcGVycz8gPGJyIC8+PGJyIC8+aWkpIFRoZXJlIHNob3VsZCBiZSBjb21wYXJpc29ucyB3aXRoIGV4aXN0aW5nIGtlcm5lbCBsZWFybmluZyBtZXRob2RzIHN1Y2ggYXMgbXVsdGlwbGUga2VybmVsIGxlYXJuaW5nLiBBbHNvIGl0IHdvdWxkIGJlIHBvc3NpYmxlIHRvIGNvbXBhcmUgd2l0aCBzdXBwb3J0IHZlY3RvciBjbGFzc2lmaWVycyB3aXRoIGh5cGVyLXBhcmFtZXRlcnMgY2hvc2VuIHZpYSBjcm9zcy12YWxpZGF0aW9uLjxiciAvPjxiciAvPmlpaSkgVGhlIHNpemVzIG9mIHRyYWluaW5nIGRhdGEgaW4gdGhlIGV4cGVyaW1lbnRzIGFyZSByZWxhdGl2ZWx5IHNtYWxsLiBJdCBpcyBxdWVzdGlvbmFibGUgd2hldGhlciB0aGUgcHJvcG9zZWQgY2FuIGJlIGFwcGxpZWQgdG8gbGFyZ2Ugc2NhbGUgcHJvYmxlbXMuPGJyIC8+PGJyIC8+PGJyIC8+PGJyIC8+ZAIEDw8WAh8AaGRkAggPFQEAZBgDBR9jdGwwMCRjcGgkZ3ZSZXZpZXdzJGN0bDAyJGN0bDAwDzwrAAwBCAIBZAUfY3RsMDAkY3BoJGd2UmV2aWV3cyRjdGwwMSRjdGwwMA88KwAMAQgCAWQFH2N0bDAwJGNwaCRndlJldmlld3MkY3RsMDAkY3RsMDAPPCsADAEIAgFkj+pCb1w1wfNaAKQCFi7nVcbczXg=" />
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="C4A66E18" />
+</div>
+<table id="header">
+<tr>
+<td width="100%"><a href='http&#58;&#47;&#47;nips.cc' target='_blank'>NIPS2017</a><br /><b>Neural Information Processing Systems 2017</b><br />Dec 4 , 2017 - Dec 9 , 2017, Long Beach, United States</td>
+</tr>
+<tr class='headerSeparator'>
+    <td style='height:5px'></td>
+</tr>
+</table>
+<table id="content"><tr><td class='contentBorder'>&nbsp;</td><td class="contentContainer">
+<span id="ctl00_cph_Label4" style="font-size:Small;font-weight:bold;">Reviews For Paper</span>
+<span id="ctl00_cph_lblErrorMessage" class="error" style="font-size:Small;"></span>
+<div id="ctl00_cph_pnlReviews">
+	
+    <span style="font-size:Small;"><table id="ctl00_cph_infoSubmission_tblInfo" class="nicetable2" style="text-align:left; width: 100%;">
+		<tr id="ctl00_cph_infoSubmission_trTrack">
+			<td><b>Track</b></td>
+			<td><span id="ctl00_cph_infoSubmission_lblTrack" style="font-size:Small;">Blue</span></td>
+		</tr>
+		<tr>
+			<td width="100px"><b>Paper ID</b></td>
+			<td><span id="ctl00_cph_infoSubmission_lblPaperId" style="font-size:Small;">1606</span></td>
+		</tr>
+		<tr>
+			<td><b>Title</b></td>
+			<td><span id="ctl00_cph_infoSubmission_lblPaperTitle" style="font-size:Small;">CAKE&#58; Classification avec Kernel Embeddings using Rademacher Complexity Bounds</span></td>
+		</tr>
+	</table>
+	</span>
+    
+    
+            <hr />
+            <table>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl00_Label2" style="font-size:Small;font-weight:bold;">Masked Reviewer ID:</span>
+                    </td>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl00_Label1" style="font-size:Small;">Assigned_Reviewer_1</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl00_Label3" style="font-size:Small;font-weight:bold;">Review:</span>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+            <div>
+		<table cellspacing="0" cellpadding="4" rules="all" border="1" style="color:#333333;border-width:1px;border-style:None;font-family:Verdana;font-size:Small;border-collapse:collapse;">
+			<tr style="color:White;background-color:#5D7B9D;font-weight:bold;">
+				<th scope="col">Question</th><th scope="col">&nbsp;</th>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Overall rating:</td><td style="width:80%;">
+                            3 - Clear rejection
+                        </td>
+			</tr><tr style="color:#284775;background-color:White;">
+				<td style="width:20%;">Confidence score:</td><td style="width:80%;">
+                            4 - The reviewer is confident but not absolutely certain that the evaluation is correct
+                        </td>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Detailed Comments:</td><td style="width:80%;">
+                            Summary <br /><br />The paper applies conditional mean embeddings to multi-class classification and provides rates of convergence under restrictive assumptions and a result about Rademacher complexities.<br /><br />Review <br /><br />It appears to me that the authors apply essentially ridge-regression to a classification task and interpret the probability of the regressor as the probability that covariate x falls into class i. Theorem 3.1 is then not surprising and, in fact, standard results for ridge regression should give stronger results than what the authors get (in particular, the condition k(x,cdot) in the image of C_XX should be unnecessary and optimal schedules for lambda are known depending on the eigenvalue decay of the kernel). There exists also a close relation to vector-valued RKHSs and corresponding regression. Furthermore, the use of Rademacher complexities is common in regression and it seems to me that the authors completely ignored the link to standard ridge regression. At the very least there should be lengthy paragraph explaining why this differs from ridge regression and why standard results can’t be applied, but the word “ridge” doesn’t even appear in the paper.<br /><br />I can’t see much novelty in the paper given the vast ridge regression literature and in my opinion the authors need to compare their results to what is known about ridge regression or explain why ridge regression results are not applicable in this setting.<br /><br />Detailed Comments<br /><br />Section 2<br /><br />Be more precise about the objects. C_XX and C_YX as defined are elements in the tensor space. For U_{Y|X} you identify these with linear operators, i.e. there is an isomorphic and (I guess) isometric map between the tensor element and the linear operators. A line explaining how properties of the kernel translate into properties of these operators might also be helpful, e.g. when are the operators compact.<br />You define U_{Y|X} as C_YX C_XX^-1 but are then later talking about approximating U_{Y|X} by C_{YX}C_{XX}^-1. You should define U_{Y|X} without referring to C_{YX} etc. and then explain that in certain cases they coincide and in other cases they only approximate U_{Y|X}.   <br /><br />Section 3<br />H_delta can be identified with R^m and the Euclidean norm<br />P(Y=y|X=x) needs a clarification. Is X a finite space? Or do you have some form of density assumption (not sure how this would look like)? 
+                        </td>
+			</tr>
+		</table>
+	</div>
+            
+        
+            <hr />
+            <table>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl01_Label2" style="font-size:Small;font-weight:bold;">Masked Reviewer ID:</span>
+                    </td>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl01_Label1" style="font-size:Small;">Assigned_Reviewer_2</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl01_Label3" style="font-size:Small;font-weight:bold;">Review:</span>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+            <div>
+		<table cellspacing="0" cellpadding="4" rules="all" border="1" style="color:#333333;border-width:1px;border-style:None;font-family:Verdana;font-size:Small;border-collapse:collapse;">
+			<tr style="color:White;background-color:#5D7B9D;font-weight:bold;">
+				<th scope="col">Question</th><th scope="col">&nbsp;</th>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Overall rating:</td><td style="width:80%;">
+                            4 - Ok but not good enough - rejection
+                        </td>
+			</tr><tr style="color:#284775;background-color:White;">
+				<td style="width:20%;">Confidence score:</td><td style="width:80%;">
+                            4 - The reviewer is confident but not absolutely certain that the evaluation is correct
+                        </td>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Detailed Comments:</td><td style="width:80%;">
+                            This paper deals with supervised classification within the framework of kernel embeddings of probability distributions. Specifically, the authors propose a kernel embedding classifier based on the Hilbert space embedding of conditional distributions. They also provide a risk bound using the notion of Rademacher complexity. This bound was used to derive a way to learn the hyperparameter of the kernel function. Experiments to assess the performance of the proposed classifier on a toy example, UCI data sets and MNIST are provided.<br /><br />The subject matter of the paper is of importance, since the proper modeling of the kernel hyperparameter is crucial for kernel methods and in particular for the kernel embedding of probability distribution. Unfortunately the contribution of the paper compared to what is known in the literature is not clear. My foremost concerns are the following:<br /><br />1) Section 3 describes the proposed Kernel embedding classifier. This is exactly kernel ridge regression (or regularized least squares classification). The connection between the kernel embedding of conditional distribution and ridge regression was established in [Grunewalder & al., Conditional mean embeddings as regressors. ICML 2012]. They showed the connection between the two formalisms using the framework of vector-valued function learning. Eq. 6 can be seen as a particular case of this framework.<br /><br />2) In Section 4, it will be more easy to follow and understand the results by adding more materials about the bound of the Rademacher complexity which will allow the result of Theorem 4.1. The excess risk bound for learning with trace norm regularization was studied in [Maurer & Pontil, COLT 2013]. Contribution of this section compared to this work should be clearly mentioned.<br /><br />3) The question of the kernel choice over a class of kernels (such as Gaussian kernels parameterized by their bandwidth) in the framework of RKHS embedding of distribution was studied in [Sriperumbudur & al., Kernel choice and classifiability for RKHS embeddings of probability distributions. NIPS 2009]. Multiple kernel learning with kernel embedding  was also considered in [Gretton & al., Optimal kernel choice for large-scale two sample tests. NIPS 2012]. The authors should add more information about previous work on this topic so that their results can be understood with respect to previous studies.
+                        </td>
+			</tr>
+		</table>
+	</div>
+            
+        
+            <hr />
+            <table>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl02_Label2" style="font-size:Small;font-weight:bold;">Masked Reviewer ID:</span>
+                    </td>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl02_Label1" style="font-size:Small;">Assigned_Reviewer_3</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span id="ctl00_cph_gvReviews_ctl02_Label3" style="font-size:Small;font-weight:bold;">Review:</span>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+            <div>
+		<table cellspacing="0" cellpadding="4" rules="all" border="1" style="color:#333333;border-width:1px;border-style:None;font-family:Verdana;font-size:Small;border-collapse:collapse;">
+			<tr style="color:White;background-color:#5D7B9D;font-weight:bold;">
+				<th scope="col">Question</th><th scope="col">&nbsp;</th>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Overall rating:</td><td style="width:80%;">
+                            4 - Ok but not good enough - rejection
+                        </td>
+			</tr><tr style="color:#284775;background-color:White;">
+				<td style="width:20%;">Confidence score:</td><td style="width:80%;">
+                            4 - The reviewer is confident but not absolutely certain that the evaluation is correct
+                        </td>
+			</tr><tr style="color:#333333;background-color:#F7F6F3;">
+				<td style="width:20%;">Detailed Comments:</td><td style="width:80%;">
+                            == A summary of the review ==<br /><br />In my opinion, the theoretical contributions are not good enough:<br /><br />i) The connection to conditional mean embeddings seems to be rather superficial. This is because the proposed estimator can be easily derived from the fact that the conditional expectation of a class indicator provides a conditional class probability. <br /><br />ii) Theoretical results in Theorems 3.1 and 4.1 are not strong enough, as I explain below.<br /><br />Also the experiments are not thorough enough, as mentioned below. From these reasons, I do not think that this paper is good enough for this NIPS, while the proposed method looks promising.<br /><br /><br />== Detailed comments == <br /><br />- Theorem 3.1:<br /><br />The assumption that $k(x,\cdot)$ is included in the image of the covariance operator is too strong. This is because it essentially requires that the delta function is in the RKHS: this is always invalid, if the kernel is continuous. Maybe it would be better not to rely on the result by Song et al. (2009). Instead you may use the results obtained in the following papers (or other better results by Le Song):<br /><br />Grunewalder et al, "Conditional mean embeddings as regressors", <br />ICML 2012<br /><br />A Caponnetto, E De Vito <br />"Optimal rates for the regularized least-squares algorithm" <br />Foundations of Computational Mathematics 7 (3), 331-368, 2007<br /><br /><br />- Theorem 4.1:<br /><br />I understand that this result gives a motivation for using Eq.(10) as an objective of hyper-parameter learning. But Theorem 4.1 does not guarantee that the resulting estimate (i.e. with learned hyper-parameters) converges to the best estimator in the hypothesis class (as the sample size goes to infinity). In this sense, Theorem 4.1 is not a strong theoretical contribution. <br /><br /><br />- Algorithm 1:<br /><br />Are the gradients of Eq.(10) obtainable? It seems that the loss function in Eq.(8) is not differentiable, as it involves clipping. <br /><br /><br />- Experiments: <br /><br />i) In Table 1, does "Others" mean that the best performance among the other competitors is reported? Or did you take these results from the cited papers? <br /><br />ii) There should be comparisons with existing kernel learning methods such as multiple kernel learning. Also it would be possible to compare with support vector classifiers with hyper-parameters chosen via cross-validation.<br /><br />iii) The sizes of training data in the experiments are relatively small. It is questionable whether the proposed can be applied to large scale problems.<br /><br /><br /><br />
+                        </td>
+			</tr>
+		</table>
+	</div>
+            
+        
+    <br />
+    <br />
+
+</div>
+</td><td class='contentBorder'>&nbsp;</td></tr></table>
+</form>
+</body>
+</html>

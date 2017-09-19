@@ -1,0 +1,45 @@
+RC: Rademacher Complexity
+CE: Conditional Embedding
+
+General concern (Rev1&2): Our estimator (eq. 6) based on CEs shares the same form as a kernel ridged regressor or a GP mean if we replace one hot encoded labels with real targets, and thus many of the results from respective literatures would apply. -- in disguise, we did not cite Grunewalder’12.
+
+Response: We agree that our estimator can be grounded in the work of Grunewalder’12, which we will cite accordingly, but we solve a different problem. Grunewalder’12 establishes a connection between a vector-valued ridged regression problem to the CE, whereas we focus on learning the hyperparameters of an estimator based on the CE. Theorem 3.1 establishes that this particular CE, eq. 6., is a consistent estimate of the decision probabilities, thus allowing us to interpret the estimator as multiclass probability estimates, from which we can define an appropriate loss function for probabilistic classification. We then answer (this is our key result) the question of how the parameters of this estimator, also the hyperparameters of the CE, can be learned to minimise expected risk. We do this by proving RC bounds (Theorem 4.1) that are used to propose a balanced learning objective, which also justifies the use of batch stochastic gradient updates. Consequently, we can avoid cross validation for hyperparameter learning as in Grunewalder’12.
+
+Rev1:
+
+Section 2: Yes, C_{XX} and C_{YX} are tensors. The definitions and their descriptions are well detailed by Song et. al. (2009). U_{Y|X} can be defined without referring to C_{YX} and C_{XX} as the operator U satisfying \mu_{Y | X = x} = U k(x, \cdot) (Song et. al., 2013). C_{YX} C_{XX}^-1 is then the unique solution that satisfies this definition. As a result, it is common to simply use this as the definition instead, as seen in Definition 3 in Song et. al. (2009), which is the convention we follow in this paper.
+
+Section 3: There are little restrictions to the input space X, as long as you can define a kernel k over that space. For example, there are no density assumptions, but the kernel have to be differentiable w.r.t. the hyperparameter when we use gradient based updates for learning. We will make this explicit. 
+
+Rev2:
+
+1) See response to general concern
+
+2.1) For brevity, intermediate results and derivations that lead to theorem 4.1 is provided in Appendix B.
+2.2) The major differences between our work and that of Maurer & Pontil (M&P) are:
+	1. The computation of the RC depends on the domain considered for the function class. M&P considered minimising the empirical risk within the function class whose weight matrix trace norm is bounded. Our weight matrix is defined by eq. B.3 instead, constrained by the form of a CE, and we minimise the empirical risk plus a RC bound over the hyperparameter space of this CE. 
+	2. M&P assumed that the loss is Lipchitz with some constant L. The log loss is not Lipchitz. Instead, we restrict the range of the log loss within some epsilon and derived the resulting Lipchitz constant as a function of epsilon. By controlling epsilon, we control the tightness of the RC bound. In Appendix B, p. 12, we take advantage of this control to find an optimal and convenient epsilon that encourages faster learning which lead to theorem 4.1.
+3) The aim of our paper is different. We apologise for the eventual misunderstanding. Sriperumbudur et. al. (2012) focuses on the link between binary classification and two-sample tests using MMD, whereas we focus on a probabilistic multiclass classifier based on the CE, not the MMD. Most importantly, while they rely on "heuristically setting the kernel parameter" (p.5&7), we prove RC bounds to propose a learning objective for learning both the kernel parameter and the regularisation parameter of the CE that the classifier is based on. Gretton et. al. (2012) also addresses parameter learning in a kernel two-sample test setting based on the MMD, where they minimize the asymptotic Type II error at a given Type I error, again a different setting and thus approach from our multiclass context based on the CE. They also focus on a linear combination of kernels (multiple kernel learning) so that the problem becomes convex, whereas our learning objective has no such restrictions and includes a wider range of kernels, from typical Gaussian kernels to those constructed from neural networks. MKL also does not address learning regularisation parameter jointly with the kernel parameters.
+
+Rev3:
+
+i) The proposed estimator is based on the fact you mentioned and eq. 5, which is a known result based on empirical CEs. The parameters of the estimator is then the hyperparameters of the conditional embedding. Our paper focuses on proposing a learning objective to learn such hyperparameters.
+
+Thm 3.1: There are two kernels involved in CEs. The assumption is for the input kernel, not the output kernel. The assumption is for the former. The Kronecker delta kernel is used for the output space, and does not have to satisfy the said assumption. The indicator function is always in the RKHS induced by this output kernel, as shown in section 3.
+
+Thm 4.1: This is not a theorem about optimisation. It is about uniform convergence from empirical risk to the true risk. Both the 2nd and 3rd term on the RHS vanishes at rate 1/sqrt(n).
+
+Alg 1: Yes, it is obtainable. No, it does not involve clipping. Eq. 7 is optional for post-processing / interpretation, and is not used during learning. Our loss function (eq. 8) is based on the non-clipped decision function (eq. 6).
+
+Experiments: We used the results from cited papers.
+Scalability: For non-linear kernels, we can control scalability via the batch size used for stochastic gradient updates. For kernel embedding networks, on top of SG updates, the cholesky decomposition is performed on a matrix of a size that is independent from the size of the dataset, but the number of units in the last hidden layer.
+
+
+
+
+
+
+
+Comments to area chair:
+
+In short, our presentation led to some misunderstanding regarding the primary contribution of the paper. The problem we solve is hyperparameter learning for a conditional embedding with discrete targets. Since the estimator is derived from a conditional embedding, it has a similar form to other estimators in the literature, and thus their respective results apply. However, these results do not, nor attempt to, address hyperparameter learning for the conditional embedding or estimator, which is a difficult problem. Providing a solution to this difficult problem using Rademacher complexity bounds is our main contribution.
