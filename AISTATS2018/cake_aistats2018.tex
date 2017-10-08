@@ -137,12 +137,10 @@
 	\label{sec:background}
 	
 		\subsection{Conditional Mean Embeddings}
-		
-%			We begin by providing an overview of Hilbert space embeddings, where probability distributions are represented by mean embeddings in a reproducing kernel Hilbert space (RKHS) through positive definite kernels. Specifically, in the supervised learning context for which we are primarily interested in, we focus on conditional distributions and its representations in the RKHS.
 			
 			To construct a conditional embedding operator $\mathcal{U}_{Y | X}$ corresponding to the distribution $\mathbb{P}_{Y | X}$, where $X : \Omega \to \mathcal{X}$ and $Y: \Omega \to \mathcal{Y}$ are measurable random variables, we first choose a kernel $k : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ for the input space $\mathcal{X}$ and another kernel $l : \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}$ for the output space $\mathcal{Y}$. These kernels $k$ and $l$ each describe how similarity is measured within their respective domains $\mathcal{X}$ and $\mathcal{Y}$, and are symmetric positive definite such that they uniquely define the \gls{RKHS} $\mathcal{H}_{k}$ and $\mathcal{H}_{l}$. The conditional embedding operator $\mathcal{U}_{Y | X}$ is then the operator $\mathcal{U} : \mathcal{H}_{k} \to \mathcal{H}_{l}$ for which $\mu_{Y | X = x} = \mathcal{U} k(x, \cdot)$, where $\mu_{Y | X = x} := \mathbb{E}[l(Y, \cdot) | X = x]$ is the \gls{CME} \citep{song2009hilbert}. In this sense, it sweeps out a family of conditional embeddings $\mu_{Y | X = x}$ in $\mathcal{H}_{l}$, each indexed by the input variable $x \in \mathcal{X}$. We then define cross covariance operators $C_{YX} := \mathbb{E}[l(Y, \cdot) \otimes k(X, \cdot)] : \mathcal{H}_{k} \to \mathcal{H}_{l}$ and $C_{XX} := \mathbb{E}[k(X, \cdot) \otimes k(X, \cdot)] : \mathcal{H}_{k} \to \mathcal{H}_{k}$. Alternatively, they can be seen as elements within the tensor product space $C_{YX} \in \mathcal{H}_{l} \otimes \mathcal{H}_{k}$ and $C_{XX} \in \mathcal{H}_{k} \otimes \mathcal{H}_{k}$.
 			
-			Under the assumption that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, it can be shown that $\mathcal{U}_{Y | X} = C_{YX} C_{XX}^{-1}$. While this assumption is satisfied for finite domains $\mathcal{X}$ with a characteristic kernel $k$, it does not necessarily hold when $\mathcal{X}$ is a continuous domain \citep{fukumizu2004dimensionality}, which is the case for many classification problems. In this case, $C_{YX} C_{XX}^{-1}$ becomes only an approximation to $\mathcal{U}_{Y | X}$, and we instead regularize the inversion and use $\mathcal{U}_{Y | X} = C_{YX} (C_{XX} + \lambda I)^{-1}$, which also serves to avoid overfitting \citep{song2013kernel}. \glspl{CME} are useful as for probabilistic inference as conditional expectations of a function $g \in \mathcal{H}_{l}$ can be expressed as inner products, $\mathbb{E}[g(Y) | X = x] = \langle \mu_{Y | X = x}, g \rangle$, provided $\mathbb{E}[g(Y) | X = \cdot] \in \mathcal{H}_{k}$, \citet[Theorem 4]{song2009hilbert}.
+			Under the assumption that $k(x, \cdot) \in \mathrm{image}(C_{XX})$, it can be shown that $\mathcal{U}_{Y | X} = C_{YX} C_{XX}^{-1}$. While this assumption is satisfied for finite domains $\mathcal{X}$ with a characteristic kernel $k$, it does not necessarily hold when $\mathcal{X}$ is a continuous domain \citep{fukumizu2004dimensionality}, which is the case for many classification problems. In this case, $C_{YX} C_{XX}^{-1}$ becomes only an approximation to $\mathcal{U}_{Y | X}$, and we instead regularize the inversion and use $\mathcal{U}_{Y | X} = C_{YX} (C_{XX} + \lambda I)^{-1}$, which also serves to avoid overfitting \citep{song2013kernel}. \glspl{CME} are useful for probabilistic inference as conditional expectations of a function $g \in \mathcal{H}_{l}$ can be expressed as inner products, $\mathbb{E}[g(Y) | X = x] = \langle \mu_{Y | X = x}, g \rangle$, provided $\mathbb{E}[g(Y) | X = \cdot] \in \mathcal{H}_{k}$, \citet[Theorem 4]{song2009hilbert}.
 				
 			Furthermore, as both $C_{YX}$ and $C_{XX}$ are defined in terms of expectations of kernels, we can replace them with their empirical estimates to derive a nonparametric estimate for $\mathcal{U}_{Y | X}$ based on finite collection of observations $\{x_{i}, y_{i}\} \in \mathcal{X} \times \mathcal{Y}$, $i \in \mathbb{N}_{n} := \{1, \dots, n\}$,
 			\begin{equation}
@@ -173,24 +171,10 @@
 	
 			In many cases, learning is usually done by minimizing some empirical loss over a class of models whose Rademacher complexity is bounded. For a linear class of predictors parametrized as $f(x; W) = W^{T} x$, $W \in \mathbb{R}^{d \times L}$, \cite{yu2014large} used trace norm regularization to bound the Rademacher complexity, achieving tight generalization bounds in the context of multi-label learning. \cite{xu2016local} extends the trace norm regularization approach by considering the local Rademacher complexity on a subset of the predictor class, where they instead minimize the tail sum of the predictor singular values. Local Rademacher complexity has also been employed for multiple kernel learning \citep{kloft2011local, cortes2013learning} to learn convex combinations of simpler preselected kernels for \glspl{SVC}. Similarly, \cite{pontil2013excess} also used trace norm regularization to bound the Rademacher complexity and minimizes the truncated hinge loss. Nevertheless, while Rademacher complexities have been employed to restrict the function class considered for learning weight parameters of linear models, they are usually not minimized along with the loss and have not yet been applied to learn hyperparameters.
 	
+			% % % Removed sentences
 			% The \gls{MCE} predictor \eqref{eq:empirical_decision_probability_vector} has the same linear form in the feature space, $\bvec{f}_{\theta, \lambda}(x) = \bvec{Y}^{T} (K_{\theta} + n \lambda I)^{-1} \Phi_{\theta}^{T} \phi_{\theta}(x) = \hat{\mathcal{U}}^{(\theta, \lambda)}_{Y | X} \phi_{\theta}(x)$, where instead of learning the operator $W^{T}$ directory, we learn hyperparameters $\theta \in \Theta, \lambda \in \Lambda$ for the empirical conditional embedding map $\mathcal{U}^{(\theta, \lambda)}_{Y | X}$ and thus also the features $\phi_{\theta}(x)$.
 	
 			% In the proof of \cref{thm:expected_risk_bound_hyperparameter_learning_copy}, $\theta \in \Theta$ and $\lambda \in \Lambda$ define subsets of $\Theta$ and $\Lambda$ where the Rademacher complexity is considered over. By minimising $q(\theta, \lambda)$, we shrink the subset being considered, achieving localised Rademacher complexity based feature learning without selecting parameters that define the tail sum.
-	
-	
-	
-	
-%	- Two problems: Hyperparam learning and pre-image
-%	- By restricting it to discrete, pre-image is fine
-%	- Then we propose hyperparam learning?
-	
-	%From my literature review last year, the two primary challenges I identified within the kernel embeddings community are:
-	%
-	%- Hyperparameter Learning: How can we learn the hyperparameters of kernel embeddings in a principled manner that improves generlisation? And,
-	%- Pre-Image: How can we get back the distribution in probability space after we have embedded them into the Hilbert space?
-	%
-	%These problems have been heavily investigated for marginal embeddings. In January, by restricting the target of a conditional embedding to be discrete.
-
 
 	\section{Multiclass Conditional Embeddings}
 	\label{sec:multiclass_conditional_embedding}
