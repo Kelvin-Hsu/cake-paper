@@ -169,25 +169,20 @@
 
 		\subsection{Rademacher Complexity}
 		
-			The Rademacher complexity \citep{bartlett2002rademacher} measures the expressiveness of a function class $F$ by its ability to shatter, or fit, noise. They are data-dependent measures, and are thus particularly well suited to learning tasks where generalisation ability is vital, since complexity penalties that are not data dependent cannot be universally effective \citep{kearns1997experimental}. 
+			Rademacher complexity \citep{bartlett2002rademacher} measures the expressiveness of a function class $F$ by its ability to shatter, or fit, noise. They are data-dependent measures, and are thus particularly well suited to learning tasks where generalization is vital, since complexity penalties that are not data dependent cannot be universally effective \citep{kearns1997experimental}. 
 	
-
+			In many cases, learning is usually done by minimizing some empirical loss over a class of models whose Rademacher complexity is bounded. For a linear class of predictors parametrized as $f(x; W) = W^{T} x$, $W \in \mathbb{R}^{d \times L}$, \cite{yu2014large} used trace norm regularization to bound the Rademacher complexity, achieving tight generalization bounds in the context of multi-label learning. \cite{xu2016local} extends the trace norm regularization approach by considering the local Rademacher complexity on a subset of the predictor class, where they instead minimize the tail sum of the predictor singular values. Local Rademacher complexity has also been employed for multiple kernel learning \citep{kloft2011local, cortes2013learning} to learn convex combinations of simpler preselected kernels for \glspl{SVC}. Similarly, \cite{pontil2013excess} also used trace norm regularization to bound the Rademacher complexity and minimizes the truncated hinge loss. Nevertheless, while Rademacher complexities have been employed to restrict the function class considered for learning weight parameters of linear models, they are usually not minimized along with the loss and have not yet been applied to learn hyperparameters.
 	
+			% The \gls{MCE} predictor \eqref{eq:empirical_decision_probability_vector} has the same linear form in the feature space, $\bvec{f}_{\theta, \lambda}(x) = \bvec{Y}^{T} (K_{\theta} + n \lambda I)^{-1} \Phi_{\theta}^{T} \phi_{\theta}(x) = \hat{\mathcal{U}}^{(\theta, \lambda)}_{Y | X} \phi_{\theta}(x)$, where instead of learning the operator $W^{T}$ directory, we learn hyperparameters $\theta \in \Theta, \lambda \in \Lambda$ for the empirical conditional embedding map $\mathcal{U}^{(\theta, \lambda)}_{Y | X}$ and thus also the features $\phi_{\theta}(x)$.
 	
-	%		For a linear class of predictors parametrised as $f(x; W) = W^{T} x$, $W \in \mathbb{R}^{d \times L}$, \cite{yu2014large} used trace norm regularisation to bound the Rademacher complexity, achieving tight generalisation bounds in the context of multi-label learning. The \gls{MCE} predictor \eqref{eq:empirical_decision_probability_vector} has the same linear form in the feature space, $\bvec{f}_{\theta, \lambda}(x) = \bvec{Y}^{T} (K_{\theta} + n \lambda I)^{-1} \Phi_{\theta}^{T} \phi_{\theta}(x) = \hat{\mathcal{U}}^{(\theta, \lambda)}_{Y | X} \phi_{\theta}(x)$, where instead of learning the operator $W^{T}$ directory, we learn hyperparameters $\theta \in \Theta, \lambda \in \Lambda$ for the empirical conditional embedding map $\mathcal{U}^{(\theta, \lambda)}_{Y | X}$ and thus also the features $\phi_{\theta}(x)$. \cite{xu2016local} extends the trace norm regularisation approach by considering the local Rademacher complexity on a subset of the predictor class, where they instead minimise the tail sum of the predictor singular values. In the proof of \cref{thm:expected_risk_bound_hyperparameter_learning_copy}, $\theta \in \Theta$ and $\lambda \in \Lambda$ define subsets of $\Theta$ and $\Lambda$ where the Rademacher complexity is considered over. By minimising $q(\theta, \lambda)$, we shrink the subset being considered, achieving localised Rademacher complexity based feature learning without selecting parameters that define the tail sum. Local Rademacher complexity has also been employed for multiple kernel learning \citep{kloft2011local, cortes2013learning} to learn convex combinations of simpler preselected kernels for a support vector machine. We extend its application to the probabilistic multiclass case, and use Rademacher complexity bounds to learn any general kernel for a conditional embedding.
-	
-	
-	
+			% In the proof of \cref{thm:expected_risk_bound_hyperparameter_learning_copy}, $\theta \in \Theta$ and $\lambda \in \Lambda$ define subsets of $\Theta$ and $\Lambda$ where the Rademacher complexity is considered over. By minimising $q(\theta, \lambda)$, we shrink the subset being considered, achieving localised Rademacher complexity based feature learning without selecting parameters that define the tail sum.
 	
 	
 	
 	
-	
-	
-	- Difference between both \citep{rifkin2003regularized} and \citep{pahikkala2012unsupervised} is the loss function used and natural multiclass formulation and what we are optimising over (not the weights directly but the hyperparameter of the weights).
-	- Two problems: Hyperparam learning and pre-image
-	- By restricting it to discrete, pre-image is fine
-	- Then we propose hyperparam learning?
+%	- Two problems: Hyperparam learning and pre-image
+%	- By restricting it to discrete, pre-image is fine
+%	- Then we propose hyperparam learning?
 	
 	%From my literature review last year, the two primary challenges I identified within the kernel embeddings community are:
 	%
@@ -200,15 +195,15 @@
 	\section{Multiclass Conditional Embeddings}
 	\label{sec:multiclass_conditional_embedding}
 	
-		In the multiclass setting, the output label space is finite and discrete, taking values only in $\mathcal{Y} = \mathbb{N}_{m} := \{1, \dots, m\}$. Naturally, we choose the Kronecker delta kernel $\delta : \mathbb{N}_{m} \times \mathbb{N}_{m} \to \{0, 1\}$ as the output kernel $l$, where labels that are the same have unit similarity and labels that are different have no similarity. That is, for all pairs of labels $y_{i}, y_{j} \in \mathcal{Y}$, $\delta(y_{i}, y_{j}) = 1$ only if $y_{i} = y_{j}$ and is $0$ otherwise. As $\delta$ is an integrally strictly positive definite kernel on $\mathbb{N}_{m}$, it is therefore characteristic \citep[Theorem 7]{sriperumbudur2010hilbert}. As such, by definition of characteristic kernels \citep{fukumizu2004dimensionality}, $\delta$ uniquely defines a RKHS  $\mathcal{H}_{\delta} = \overline{\mathrm{span}\{\delta(y, \cdot) : y \in \mathcal{Y}\}}$, which is the closure of the span of its kernel induced features \citep{xu2009refinement}. For $\mathcal{Y} = \mathbb{N}_{m}$, this means that any real-valued function $g : \mathbb{N}_{m} \to \mathbb{R}$ that is bounded on its discrete domain $\mathbb{N}_{m}$ is in the RKHS of $\delta$, because we can always write $g = \sum_{y = 1}^{m} g(y) \delta(y, \cdot) \in \mathrm{span}\{\delta(y, \cdot) : y \in \mathcal{Y}\}$. In particular, indicator functions on $\mathbb{N}_{m}$ are in the RKHS $\mathcal{H}_{\delta}$, since
-		\begin{equation}
-		\mathbb{1}_{c}(y) := \mathbb{1}_{\{c\}}(y) := \begin{cases}
-		1 & \mathrm{if } \quad y \in \{c\} \\
-		0 & \mathrm{otherwise}
-		\end{cases} = \delta(c, y).
-		\label{eq:indicator_function}
-		\end{equation}
-		That is, indicator functions $\mathbb{1}_{c} = \delta(c, \cdot)$, $c \in \mathbb{N}_{m}$, are simply the canonical features of $\mathcal{H}_{\delta}$. Such properties do not necessarily hold for continuous domains in general. This convenient property in the case of a discrete domain $\mathcal{Y}$ with a Kronecker delta kernel $\delta$ is what allows consistent estimations of decision probabilities in multiclass settings. In fact, $\mathcal{H}_{\delta}$ can be identified with $\mathbb{R}^{m}$. Note that there are no restrictions on the domain $\mathcal{X}$ as long as a kernel $k$ can be defined on it.
+		In the multiclass setting, the output label space is finite and discrete, taking values only in $\mathcal{Y} = \mathbb{N}_{m} := \{1, \dots, m\}$. Naturally, we choose the Kronecker delta kernel $\delta : \mathbb{N}_{m} \times \mathbb{N}_{m} \to \{0, 1\}$ as the output kernel $l$, where labels that are the same have unit similarity and labels that are different have no similarity. That is, for all pairs of labels $y_{i}, y_{j} \in \mathcal{Y}$, $\delta(y_{i}, y_{j}) = 1$ only if $y_{i} = y_{j}$ and is $0$ otherwise. As $\delta$ is an integrally strictly positive definite kernel on $\mathbb{N}_{m}$, it is therefore characteristic \citep[Theorem 7]{sriperumbudur2010hilbert}. As such, by definition \citep{fukumizu2004dimensionality}, $\delta$ uniquely defines a \gls{RKHS}  $\mathcal{H}_{\delta} = \overline{\mathrm{span}\{\delta(y, \cdot) : y \in \mathcal{Y}\}}$, which is the closure of the span of its kernel induced features \citep{xu2009refinement}. For $\mathcal{Y} = \mathbb{N}_{m}$, this means that any $g : \mathbb{N}_{m} \to \mathbb{R}$ that is bounded on its discrete domain $\mathbb{N}_{m}$ is in the \gls{RKHS} of $\delta$, because we can always write $g = \sum_{y = 1}^{m} g(y) \delta(y, \cdot) \in \mathrm{span}\{\delta(y, \cdot) : y \in \mathcal{Y}\}$. In particular, indicator functions on $\mathbb{N}_{m}$ are in $\mathcal{H}_{\delta}$, since $\mathbb{1}_{c}(y) := \mathbb{1}_{\{c\}}(y) = \delta(c, y)$.
+%		\begin{equation}
+%		\mathbb{1}_{c}(y) := \mathbb{1}_{\{c\}}(y) := \begin{cases}
+%		1 & \mathrm{if } \quad y \in \{c\} \\
+%		0 & \mathrm{otherwise}
+%		\end{cases} = \delta(c, y).
+%		\label{eq:indicator_function}
+%		\end{equation}
+		That is, indicator functions $\mathbb{1}_{c} = \delta(c, \cdot)$, $c \in \mathbb{N}_{m}$, are simply the canonical features of $\mathcal{H}_{\delta}$. Such properties do not necessarily hold for continuous domains in general. This convenient property in the case of a discrete domain is what allows consistent estimations of decision probabilities in multiclass settings. In fact, $\mathcal{H}_{\delta}$ can be identified with $\mathbb{R}^{m}$. Note that there are no restrictions on the domain $\mathcal{X}$ as long as a kernel $k$ can be defined on it.
 		
 		Let $p_{c}(x) := \mathbb{P}[Y = c | X = x]$ be the \textit{decision probability function} for class $c \in \mathbb{N}_{m}$, which is the probability of the class label $Y$ being $c$ when the example $X$ is $x$. We begin by writing this probability as an expectation of indicator functions,
 		\begin{equation}
@@ -232,7 +227,7 @@
 		\end{theorem}
 		
 		In particular, the assumption that $k(x, \cdot) \in \mathrm{image}(C_{XX})$ is on the input kernel $k$ not the output kernel $l$, which is a Kronecker delta $l = \delta$ for \glspl{MCE}. In practice, this assumption can be relaxed through introducing the regularization parameter $\lambda$ as in \eqref{eq:empirical_conditional_embedding} \citep{song2009hilbert}.
-		
+
 		While decision probability estimates \eqref{eq:empirical_decision_probability} do not necessarily form a normalized distribution for finite $n$, \cref{thm:probability_convergence_copy} guarantees that they approach one with increasing sample size. When normalized distributions are required, distribution estimates \eqref{eq:empirical_decision_probability} can be clip-normalized,
 		\begin{equation}
 		\tilde{p}_{c}(x) := \frac{\max\{\hat{p}_{c}(x), 0\}}{\sum_{j = 1}^{m} \max\{\hat{p}_{j}(x), 0\}}.
@@ -240,15 +235,37 @@
 		\end{equation}
 		Of course, classification $\hat{y}(x) = \argmax_{c \in \mathbb{N}_{m}} \hat{p}_{c}(x) = \argmax_{c \in \mathbb{N}_{m}} \tilde{p}_{c}(x)$ remains invariant.  \Cref{thm:probability_convergence_copy} also implies the reducing effect of clip-normalisation as with increasing sample sizes, where $\tilde{p}_{c}(x)$ approaches to both $\hat{p}_{c}(x)$ and $p_{c}(x)$.
 	
+		Similar to \gls{RLSC}, \glspl{MCE} are solutions to a regularized least squares problem in a \gls{RKHS} \citep{lever2012conditional}, resulting in a similar system of linear equations. \glspl{RLSC} primarily differ in the way they handle the labels, in which binary labels $\{-1, 1\}$ appear directly in the squared loss instead of its kernel representation $\delta(y_{i}, \cdot)$ or, equivalently, its one hot encoded form $\bvec{y}_{i}$. Consequently, multiclass extensions for \gls{RLSC} either require using the \gls{OVA} scheme \citep{rifkin2003regularized}, or minimizing the summed losses across all binarized tasks instead \citep{pahikkala2012unsupervised}, producing separate classifiers for each class. As a result, multiclass \gls{RLSC} do not produce consistent estimates of class probabilities as in \cref{thm:probability_convergence_copy} for \glspl{MCE}. This property allows us to employ a probabilistic loss over the output of \glspl{MCE} to learn its hyperparameters, which is known to be difficult to tune in the case of \gls{RLSC} \citep{pahikkala2012unsupervised}. However, simply minimizing the empirical loss could lead to overfitting due to the flexibility of the nonparametric model. It is therefore essential to control the model complexity of \glspl{MCE}, which we turn to next.
+				
 	\section{Hyperparameter Learning with Rademacher Complexity Bounds}
 	\label{sec:hyperparameter_learning}
-		
-		In order to design a hyperparameter learning algorithm that maximizes generalization performance, we begin by defining a loss function as a measure for performance. For decision functions of the form $\bvec{f} : \mathcal{X} \to \mathcal{A} = \mathbb{R}^{m}$ whose entries are probability estimates, we employ the cross entropy loss,
+	
+		\begin{algorithm*}[tb]
+			\caption{\gls{MCE} Hyperparameter Learning with Batch Stochastic Gradient Updates}
+			\label{alg:multiclass_conditional_embedding_training}
+			\begin{algorithmic}[1]
+				\STATE {\bfseries Input:} kernel family $k_{\theta} : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial kernel parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
+				\STATE $\theta \leftarrow \theta_{0}$, $\lambda \leftarrow \lambda_{0}$
+				\REPEAT
+				\STATE Sample the next batch $\mathcal{I}_{b} \subseteq \mathbb{N}_{n}$, $| \mathcal{I}_{b} | = n_{b}$ \hspace{\fill} (For gradient descent, $n_{b} = n$ and $\mathcal{I}_{b} = \mathbb{N}_{n}$)
+				\STATE $Y \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}_{b}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
+				\STATE $K_{\theta} \leftarrow \{k_{\theta}(x_{i}, x_{j}) : i \in \mathcal{I}_{b}, j \in \mathcal{I}_{b}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
+				\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n_{b} \lambda I_{n_{b}}) \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
+				\STATE $V_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash Y) \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
+				\STATE $P_{\theta, \lambda} \leftarrow K_{\theta} V_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
+				\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n_{b}} \sum_{i = 1}^{n_{b}} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \; \alpha(\theta) \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
+				\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
+				\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial q}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial q}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
+				\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
+			\end{algorithmic}
+		\end{algorithm*}
+			
+		In order to design a hyperparameter learning algorithm that maximizes generalization performance without overfitting, we begin by defining a loss function as a measure for performance. For decision functions of the form $\bvec{f} : \mathcal{X} \to \mathcal{A} = \mathbb{R}^{m}$ whose entries are probability estimates, we employ the cross entropy loss,
 		\begin{equation}
 		\mathcal{L}_{\epsilon}(y, \bvec{f}(x)) := - \log{ [\bvec{y}^{T} \bvec{f}(x)]_{\epsilon}^{1} } = - \log{ [f_{y}(x)]_{\epsilon}^{1} },
 		\label{eq:cross_entropy_loss_copy}
 		\end{equation}
-		to express risk, where we use the notation $[\;\cdot\;]_{\epsilon}^{1} := \min\{\max\{\;\cdot\;, \epsilon\}, 1\}$ for $\epsilon \in (0, 1)$. Under this loss, we prove that the expected risk for the \gls{MCE} $\bvec{f} = \bvec{f}_{\theta, \lambda}$ \eqref{eq:empirical_decision_probability_vector} is bounded by the empirical risk and a \gls{RCB} $r(\theta, \lambda)$ with high probability.
+		to express risk, where we use the notation $[\;\cdot\;]_{\epsilon}^{1} := \min\{\max\{\;\cdot\;, \epsilon\}, 1\}$ for $\epsilon \in (0, 1)$. Note that we employ the loss on the raw probability estimates \eqref{eq:empirical_decision_probability_vector}, not the clipped version \eqref{eq:empirical_decision_probability_clip_normalised}. Under this loss, we prove that the expected risk for the \gls{MCE} $\bvec{f} = \bvec{f}_{\theta, \lambda}$ \eqref{eq:empirical_decision_probability_vector} is bounded by the empirical risk and a \gls{RCB} $r(\theta, \lambda)$ with high probability.
 		
 		\begin{theorem}[Expected Risk Bound for \gls{MCE} Hyperparameter Learning]
 			\label{thm:expected_risk_bound_hyperparameter_learning_copy}
@@ -271,28 +288,20 @@
 		\end{equation}
 		We employ gradient based optimisers such as Gradient descent or Adam \citep{kingma2014adam}. Since \cref{thm:expected_risk_bound_hyperparameter_learning_copy} holds for any $n \in \mathbb{N}_{+}$ and any set of data $\{x_{i}, y_{i}\}_{i = 1}^{n}$ from $\mathbb{P}_{X Y}$, with the trade-off of relaxing bound tightness through $\sqrt{8 \log{(2 / \beta)} / n}$, the bound \eqref{eq:expected_risk_bound_hyperparameter_learning_copy} also holds with high probability for a subset of the training data. This enables scalable hyperparameter learning through batch stochastic gradient updates, where each gradient update stochastically improves a different upper bound of the generalisation risk. Because this bound holds with high probability over \textit{iid} samples, through randomly selecting a batch of training examples that comes from the same distribution, the resulting stochastic gradient will improve a strict upper bound with the same high probability. We present this scalable hyperparameter learning approach via batch stochastic gradient updates in \cref{alg:multiclass_conditional_embedding_training}, reducing the time complexity from $O(n^{3})$ to $O(n_{b}^{3})$, where $n_{b}$ is the batch size. The Cholesky decomposition for the full training set requires $O(n^{3})$ time and is performed only once after learning instead of once every learning iteration, and can be avoided by using kernel herding \citep{chen2010super} or random Fourier features \citep{rahimi2008random} to estimate the already learned embedding. All further inference steps take $O(n^{2})$ time for back substitution. 
 		
-		\begin{algorithm*}[tb]
-			\caption{\gls{MCE} Hyperparameter Learning with Batch Stochastic Gradient Updates}
-			\label{alg:multiclass_conditional_embedding_training}
-			\begin{algorithmic}[1]
-				\STATE {\bfseries Input:} kernel family $k_{\theta} : \mathcal{X} \times \mathcal{X} \to \mathbb{R}$, dataset $\{x_{i}, y_{i}\}_{i = 1}^{n}$, initial kernel parameters $\theta_{0}$, initial regularisation parameter $\lambda_{0}$, learning rate $\eta$, gradient error tolerance $\epsilon$, batch size $n_{b}$
-				\STATE $\theta \leftarrow \theta_{0}$, $\lambda \leftarrow \lambda_{0}$
-				\REPEAT
-				\STATE Sample the next batch $\mathcal{I}_{b} \subseteq \mathbb{N}_{n}$, $| \mathcal{I}_{b} | = n_{b}$ \hspace{\fill} (For gradient descent, $n_{b} = n$ and $\mathcal{I}_{b} = \mathbb{N}_{n}$)
-				\STATE $Y \leftarrow \{\delta(y_{i}, c) : i \in \mathcal{I}_{b}, c \in \mathbb{N}_{m}\} \hspace{\fill} \in \{0, 1\}^{n_{b} \times m}$
-				\STATE $K_{\theta} \leftarrow \{k_{\theta}(x_{i}, x_{j}) : i \in \mathcal{I}_{b}, j \in \mathcal{I}_{b}\} \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
-				\STATE $L_{\theta, \lambda} \leftarrow \mathrm{cholesky}(K_{\theta} + n_{b} \lambda I_{n_{b}}) \hspace{\fill} \in \mathbb{R}^{n_{b} \times n_{b}}$
-				\STATE $V_{\theta, \lambda} \leftarrow L_{\theta, \lambda}^{T} \backslash (L_{\theta, \lambda} \backslash Y) \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
-				\STATE $P_{\theta, \lambda} \leftarrow K_{\theta} V_{\theta, \lambda} \hspace{\fill} \in \mathbb{R}^{n_{b} \times m}$
-				\STATE $q(\theta, \lambda) \leftarrow \frac{1}{n_{b}} \sum_{i = 1}^{n_{b}} \mathcal{L}_{\epsilon}((Y)_{i}, (P_{\theta, \lambda})_{i}) + 4 e \; \alpha(\theta) \sqrt{\mathrm{trace}(V_{\theta, \lambda}^{T} K_{\theta} V_{\theta, \lambda})}$
-				\STATE $\theta \leftarrow \theta - \eta \frac{\partial q}{\partial \theta}(\theta, \lambda)$, $\lambda \leftarrow \lambda - \eta \frac{\partial q}{\partial \lambda}(\theta, \lambda)$ \hspace{\fill} (Or other gradient based updates such as Adam)
-				\UNTIL{$\big\lVert \begin{bmatrix} \frac{\partial q}{\partial \theta}(\theta, \lambda)^{T} & \frac{\partial q}{\partial \lambda}(\theta, \lambda)^{T} \end{bmatrix}^{T} \big\rVert_{\infty} < \epsilon$} \hspace{\fill} (Stop if magnitude of all gradients are below $\epsilon$)
-				\STATE {\bfseries Output:} kernel parameters $\theta$, regularisation parameter $\lambda$
-			\end{algorithmic}
-		\end{algorithm*}
-		
 	\section{Extensions}
 	
+		\begin{figure*}[t]
+			\centering
+			\includegraphics[width=0.32\linewidth]{figures/iris_overfitted_model.eps}
+			\includegraphics[width=0.32\linewidth]{figures/iris_balanced_model.eps}
+			\includegraphics[width=0.32\linewidth]{figures/iris_underfitted_model.eps}
+			\includegraphics[width=0.48\linewidth]{figures/iris_rademacher_complexity_bound_lower_legend.eps}
+			%		\includegraphics[width=0.48\linewidth]{figures/iris_cross_entropy_loss.eps}
+			\includegraphics[width=0.48\linewidth]{figures/iris_accuracy.eps}
+			\caption{Rademacher complexity balanced learning of hyperparameters for an isotropic Gaussian \gls{MCE}, using the first two attributes of the iris dataset.}
+			\label{fig:iris}
+		\end{figure*}
+		
 		Our learning algorithm does not restrict the way the kernel $k_{\theta}$ is constructed from its parameters $\theta \in \Theta$. One particularly useful class of \glspl{MCE} are those where the input kernel $k_{\theta}(x, x') = \langle \varphi_{\theta}(x), \varphi_{\theta}(x') \rangle$ is constructed from neural networks $\varphi_{\theta} : \mathcal{X} \to \mathbb{R}^{p}$ explicitly. We refer to \glspl{MCE} constructed this way as \glspl{CEN}. Similar to the spirit of \cite{wilson2016stochastic} where the neural network weights and biases are learned jointly under the \gls{GP} marginal likelihood objective, \glspl{CEN} also learn network weights and biases under \eqref{eq:learning_objective}. These kernels benefit in both scalability and expressibility. For large datasets, the $n \times n$ Cholesky decomposition required for full gradient updates in \cref{alg:multiclass_conditional_embedding_training} can be transformed into a $p \times p$ decomposition by the Woodbury matrix inversion identity \citep{higham2002accuracy}, reducing the time complexity to $O(p^{3} + np^{2})$. This allows scalability for $n >> p$ without using stochastic gradient updates so that the bound \eqref{eq:expected_risk_bound_hyperparameter_learning_copy} can be as tight as possible for a given $n$. For inference, standard map reduce methods can be used. Neural networks are by construction compositional, and thus latent representations of deeper networks undergo more transformations to generate a smaller and explicit collection of expressive nonlinear features, leading to a deeper but narrower model architecture. This is in contrast to the potentially infinitely many implicit features from nonlinear kernels, which in turn define a shallower but wider model architecture. We direct the reader to appendix C for detailed discussion on the various \gls{MCE} architectures and their implementation as compared to \cref{alg:multiclass_conditional_embedding_training}. 
 		
 		While we simply replaced instantiated $X_{i}$, $Y_{i}$ to be the training observations in \cref{thm:expected_risk_bound_hyperparameter_learning_copy} to obtain \cref{alg:multiclass_conditional_embedding_training}, this does not have to be the case for batch updates. Instead, in each learning iteration, we could further split the batch into two sub-batches - one for training and one for validation. The training batch is used to form the \gls{MCE} $\bvec{f}_{\theta, \lambda}$ and \gls{RCB} $r(\theta, \lambda)$, while we evaluate the \gls{MCE} on the validation batch,
@@ -302,23 +311,12 @@
 		\end{equation}
 		where $(T)$ and $(V)$ denotes training and validation. Note that in contrast to standard cross validation, not all data is required for each update due to the presence of the \gls{RCB}. Furthermore, although the multiplier on the \gls{RCB} is $4 e$, in practice one can often obtain a tighter bound with a smaller multiplier. As such, generalization performance can improve if we uses a multiplier $\tau < 4 e$. In practice, these two extensions work well together. Intuitively, by introducing a validation batch to measure empirical data fit, a smaller weight on the complexity penalty is required. 
 		
-	
+
+		
 	\section{Experiments}
 	\label{sec:experiments}
 	
 	\paragraph{Toy Example}
-	
-		\begin{figure*}[t]
-			\centering
-			\includegraphics[width=0.32\linewidth]{figures/iris_overfitted_model.eps}
-			\includegraphics[width=0.32\linewidth]{figures/iris_balanced_model.eps}
-			\includegraphics[width=0.32\linewidth]{figures/iris_underfitted_model.eps}
-			\includegraphics[width=0.48\linewidth]{figures/iris_rademacher_complexity_bound_lower_legend.eps}
-	%		\includegraphics[width=0.48\linewidth]{figures/iris_cross_entropy_loss.eps}
-			\includegraphics[width=0.48\linewidth]{figures/iris_accuracy.eps}
-			\caption{Rademacher complexity balanced learning of hyperparameters for an isotropic Gaussian \gls{MCE}, using the first two attributes of the iris dataset.}
-			\label{fig:iris}
-		\end{figure*}
 		
 		The first two of four total attributes of the iris dataset \citep{fisher1936use} is known to have class labels that are not only not linearly separable, but also non-separable by any means, in that the same example $x \in \mathbb{R}^{2}$ may be assigned different output labels $y \in \mathbb{N}_{3} := \{1, 2, 3\}$ as they were only separable with the two remaining attributes. In these difficult scenarios, the notion of model complexity is extremely important, and the success of a learning algorithm greatly depends on how it balances training performance and model complexity to avoid both underfitting and overfitting. 
 		
@@ -358,7 +356,7 @@
 			\end{tabular}
 		\end{table*}
 		
-		We demonstrate the average performance of learning anisotropic Gaussian kernels and kernels constructed from neural networks on standard UCI datasets \citep{bache2013uci}, summarized in \cref{tab:uci_experiments}. The former has a shallow but wide model architecture, while the latter has a deeper but narrower model architecture. The Gaussian kernel is learned with both full (G\gls{MCE}) and batch stochastic gradient updates (G\gls{MCE}-SGD) using a tenth ($n_{b} \approx \frac{n}{10}$) of the training set each training iteration, with sensitivity and length scales initialized to $1$. For \glspl{CEN}, we randomly select two simple fully connected architectures with 16-32-8 (\gls{CEN}-1) and 96-32 (\gls{CEN}-2) hidden units respectively, and learn the conditional embedding without dropout under ReLU activation. Biases and standard deviations of zero mean truncated normal distributed weights are initialized to $0.1$, and are to be learned with full gradient updates. For all experiments, $\lambda$ is initialized to $1$ and is learned jointly with the kernel. Optimization is performed with the Adam optimizer \citep{kingma2014adam} in TensorFlow \citep{abadi2016tensorflow} with rate $\eta = 0.1$ and $\epsilon = 10^{-15}$ under the learning objective $q(\theta, \lambda)$ \eqref{eq:learning_objective}. Learning is ran for 1000 epochs, regardless of convergence, for direct comparison. All attributes are scaled to the unit range. Each model is trained on 9 out of 10 folds and tested on the remaining fold, which are shuffled over all 10 combinations to obtain the test accuracy average and deviation. We compare our results to \glspl{MCE} whose hyperparameters are tuned by \gls{ERM}, cross validation (CV), and the median heuristic (MED), as well as to other approaches using neural networks \citep[a; c]{kaya2016banknote, freire2009short}, probabilistic binary trees \citep[b]{horton1996probabilistic}, decision trees \citep[d]{zhou2004size}, and regularised discriminant analysis \citep[e]{aeberhard1992comparison}. \Cref{tab:uci_experiments} shows that our learning algorithm outperforms other hyperparameter tuning algorithms, and performs similarly to competing methods. Our method achieves this without any special tuning or heuristics, but by simply placing a conditional embedding on training data and applying a complexity bound based learning algorithm. The stochastic gradient approach for Gaussian kernels performs similarly to the full gradient approach, supporting \cref{thm:expected_risk_bound_hyperparameter_learning_copy} for $n = n_{b}$. For \glspl{CEN}, we did not attempt to choose an optimal architecture for each dataset. The learning algorithm is to train the same simple untrained network for different datasets under only 1000 epochs, and still generates comparable performance. 
+		We demonstrate the average performance of learning anisotropic Gaussian kernels and kernels constructed from neural networks on standard UCI datasets \citep{bache2013uci}, summarized in \cref{tab:uci_experiments}. The former has a shallow but wide model architecture, while the latter has a deeper but narrower model architecture. The Gaussian kernel is learned with both full (G\gls{MCE}) and batch stochastic gradient updates (G\gls{MCE}-SGD) using a tenth ($n_{b} \approx \frac{n}{10}$) of the training set each training iteration, with sensitivity and length scales initialized to $1$. For \glspl{CEN}, we randomly select two simple fully connected architectures with 16-32-8 (\gls{CEN}-1) and 96-32 (\gls{CEN}-2) hidden units respectively, and learn the conditional embedding without dropout under ReLU activation. Biases and standard deviations of zero mean truncated normal distributed weights are initialized to $0.1$, and are to be learned with full gradient updates. For all experiments, $\lambda$ is initialized to $1$ and is learned jointly with the kernel. Optimization is performed with the Adam optimizer \citep{kingma2014adam} in TensorFlow \citep{abadi2016tensorflow} with rate $\eta = 0.1$ and $\epsilon = 10^{-15}$ under the learning objective $q(\theta, \lambda)$ \eqref{eq:learning_objective}. Learning is ran for 1000 epochs, regardless of convergence, for direct comparison. All attributes are scaled to the unit range. Each model is trained on 9 out of 10 folds and tested on the remaining fold, which are shuffled over all 10 combinations to obtain the test accuracy average and deviation. We compare our results to \glspl{MCE} whose hyperparameters are tuned by \gls{ERM} (without the \gls{RCB} term in \eqref{eq:learning_objective}), cross validation (CV), and the median heuristic (MED), as well as to other approaches using neural networks \citep[a; c]{kaya2016banknote, freire2009short}, probabilistic binary trees \citep[b]{horton1996probabilistic}, decision trees \citep[d]{zhou2004size}, and regularised discriminant analysis \citep[e]{aeberhard1992comparison}. \Cref{tab:uci_experiments} shows that our learning algorithm outperforms other hyperparameter tuning algorithms, and performs similarly to competing methods. Our method achieves this without any special tuning or heuristics, but by simply placing a conditional embedding on training data and applying a complexity bound based learning algorithm. The stochastic gradient approach for Gaussian kernels performs similarly to the full gradient approach, supporting \cref{thm:expected_risk_bound_hyperparameter_learning_copy} for $n = n_{b}$. For \glspl{CEN}, we did not attempt to choose an optimal architecture for each dataset. The learning algorithm is to train the same simple untrained network for different datasets under only 1000 epochs, and still generates comparable performance. 
 	
 	\paragraph{MNIST by learning pixel length scales}
 	
