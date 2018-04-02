@@ -9,6 +9,9 @@
 
 \bibliographystyle{apalike}  % Use the "unsrtnat" BibTeX style for formatting the Bibliography
 \usepackage[square, authoryear, comma, sort&compress]{natbib}  % Use the "Natbib" style for the references in the Bibliography
+\renewcommand\bibname{References}
+\usepackage{etoolbox}
+\patchcmd{\bibliography}{\chapter*}{\subsection*}{}{}
 
 % Default packages
 \usepackage{glossaries}
@@ -482,11 +485,11 @@
 	
 	%		This framework can be incorporated and extended into techniques that require appropriately learned conditional embeddings. In particular, nonparametric probabilistic inference can be carried out in the \gls{RKHS} to obtain joint and reverse conditional embeddings, where mode decoding, density recovery, and sampling techniques can lead to effective generative models now that hyperparameters are learned. This line of approach can potentially lead to Bayesian extensions to our framework. We also envision a semi-supervised and one class extension to the \gls{MCE} framework that can relax supervision in training. Moreover, instead of a Kronecker delta kernel, kernels in the label space with non-zero and potentially learnable similarities between distinct labels may capture label correlations better than our original framework. Finally, our framework and algorithm is simple, and developments in establishing deeper connections and relationships with other kernel based models can be fruitful. 
 	
-%	\begin{thebibliography}{}
-	\small{
-	\bibliography{kernel_embedding}
+	\begingroup
+	\let\clearpage\relax
 	\bibliographystyle{apalike}
-	}
-%	\end{thebibliography}
+	\bibliography{kernel_embedding}
+	\endgroup
+
 
 \end{document}

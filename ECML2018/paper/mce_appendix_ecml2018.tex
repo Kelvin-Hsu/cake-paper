@@ -9,6 +9,9 @@
 
 \bibliographystyle{apalike}  % Use the "unsrtnat" BibTeX style for formatting the Bibliography
 \usepackage[square, authoryear, comma, sort&compress]{natbib}  % Use the "Natbib" style for the references in the Bibliography
+\renewcommand\bibname{References}
+\usepackage{etoolbox}
+\patchcmd{\bibliography}{\chapter*}{\subsection*}{}{}
 
 % My Packages
 \usepackage{glossaries}
