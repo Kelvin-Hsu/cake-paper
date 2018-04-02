@@ -1,0 +1,32 @@
+There are 3 classes for digits: [0 1 2]
+Training on 135 images
+Testing on 15 images
+-----
+Kernel Embedding Classifier Training Setup:
+Initial Hyperparameters: [ 1.  1.  1.] 0.0001
+Learning Rate: 0.010000
+Gradient Error Tolerance: 0.010000
+Batch Size for Stochastic Gradient Descent: Full Dataset-----
+Kernel Embedding Classifier Final Training Configuration:
+Training Iterations: 3495
+Hyperparameters: [ 1.4115633   0.88775332  0.28962894  0.00917434]
+Model Complexity: 4.742671
+Training Accuracy: 0.970370
+Mean Sum of Probabilities: 0.999862
+-----
+SVC Hyperparameters: [ 1.  1.  1.]
+GPC Hyperparameters: [ 8.43325093 -0.48408954  4.19091337 -1.09436041  5.16760807 -0.31934631]
+-----
+kec training accuracy: 0.970370370
+svc training accuracy: 0.955555556
+gpc training accuracy: 0.955555556
+kec test accuracy: 0.933333333
+svc test accuracy: 0.933333333
+gpc test accuracy: 0.933333333
+kec training log loss: 0.111555346
+svc training log loss: 0.153698782
+gpc training log loss: 0.298532606
+kec test log loss: 0.274855980
+svc test log loss: 0.297037606
+gpc test log loss: 0.482967180
+-----

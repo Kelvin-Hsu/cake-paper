@@ -1,0 +1,33 @@
+There are 3 classes: [0 1 2]
+Training on 135 examples
+Testing on 15 examples
+-----
+Kernel Embedding Classifier Training Setup:
+Initial Hyperparameters: [ 1.  1.  1.] 0.0001
+Learning Rate: 0.010000
+Gradient Error Tolerance: 0.100000
+Batch Size for Stochastic Gradient Descent: Full Dataset
+-----
+Kernel Embedding Classifier Final Training Configuration:
+Training Iterations: 1957
+Hyperparameters: [ 29.62980377   0.69597995   1.06162323   0.36649488]
+Model Complexity: 0.247807
+Training Accuracy: 0.962963
+Mean Sum of Probabilities: 0.999738
+-----
+SVC Hyperparameters: [ 1.  1.  1.]
+GPC Hyperparameters: [ 7.74784612 -0.4281562   4.28320007 -1.10663455  5.20590217 -0.47975501]
+-----
+kec training accuracy: 0.962962963
+svc training accuracy: 0.955555556
+gpc training accuracy: 0.955555556
+kec test accuracy: 0.933333333
+svc test accuracy: 0.933333333
+gpc test accuracy: 1.000000000
+kec training log loss: 0.171867810
+svc training log loss: 0.105469287
+gpc training log loss: 0.301119177
+kec test log loss: 0.198114330
+svc test log loss: 0.120888105
+gpc test log loss: 0.300335192
+-----

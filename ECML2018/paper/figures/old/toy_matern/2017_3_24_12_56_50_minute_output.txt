@@ -1,0 +1,3 @@
+Time: 2017_3_24_12_56_50
+Iterations: 1
+Hyperparameters: [  1.00000000e+00   1.00000000e+00   1.00000000e-04] Training Accuracy: 1.000000 || Mean Sum of Probabilities: 1.000000 || Complexity: 9.799594
