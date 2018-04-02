@@ -145,11 +145,11 @@
 		
 	\end{theorem}
 	
-	With \cref{thm:pointwise_uniform_convergence}, we can now show the convergence of various estimators based on the conditional embedding, as long as we can show that their estimator error is upper bounded by a multiple of the conditional embedding error in the \gls{RKHS} norm. As such, we turn to the convergence of the empirical decision probability function \eqref[name= , xr=cake]{eq:empirical_decision_probability} below.
+	With \cref{thm:pointwise_uniform_convergence}, we can now show the convergence of various estimators based on the conditional embedding, as long as we can show that their estimator error is upper bounded by a multiple of the conditional embedding error in the \gls{RKHS} norm. As such, we turn to the convergence of the empirical decision probability function \eqref[name= , xr=mce_ecml2018]{eq:empirical_decision_probability} below.
 	
 	\begin{theorem}[Uniform Convergence of Empirical Decision Probability Function]
 		\label{thm:probability_convergence}
-		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref[name= , xr=cake]{eq:empirical_decision_probability} converges uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref[name= , xr=cake]{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability function $\hat{p}_{c} : \mathcal{X} \to \mathbb{R}$ \eqref[name= , xr=mce_ecml2018]{eq:empirical_decision_probability} converges uniformly to the true decision probability $p_{c} : \mathcal{X} \to [0, 1]$ \eqref[name= , xr=mce_ecml2018]{eq:decision_probability} at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
 		
 		\begin{proof}
 			
@@ -230,7 +230,7 @@
 	\begin{lemma}[Empirical Decision Probabilities are Empirical Conditional Embeddings]
 		\label{thm:empirical_probability_is_embedding}
 		
-		The empirical decision probability \eqref[name = , xr=cake]{eq:empirical_decision_probability} for class $c \in \mathbb{N}_{m}$ given an example $x \in \mathcal{X}$ is the empirical conditional embedding with $l = \delta$ conditioned at example $x$ evaluated at label $c$,
+		The empirical decision probability \eqref[name = , xr=mce_ecml2018]{eq:empirical_decision_probability} for class $c \in \mathbb{N}_{m}$ given an example $x \in \mathcal{X}$ is the empirical conditional embedding with $l = \delta$ conditioned at example $x$ evaluated at label $c$,
 		
 		\begin{equation}
 		\hat{p}_{c}(x) = \hat{\mu}_{Y | X = x}(c).
@@ -275,14 +275,14 @@
 		
 	\end{lemma}
 	
-	\Cref{thm:empirical_probability_is_embedding} shows that the decision function $\bvec{f}(x)$ \eqref[name = , xr=cake]{eq:empirical_decision_probability_vector} of a \gls{MCE} is no more than the empirical conditional embedding estimated from the data.
+	\Cref{thm:empirical_probability_is_embedding} shows that the decision function $\bvec{f}(x)$ \eqref[name = , xr=mce_ecml2018]{eq:empirical_decision_probability_vector} of a \gls{MCE} is no more than the empirical conditional embedding estimated from the data.
 	
 	Since we have identified the equivalence of decision probabilities and the conditional embedding, we can now also show that the empirical decision probability vector also converges to the true decision probability vector.
 	
 	\begin{lemma}[Uniform Convergence of Empirical Decision Probability Vector Function in $\ell_{1}$ and $\ell_{2}$]
 		\label{thm:probability_vector_convergence} 
 		
-		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability vector function $\hat{\bvec{p}} : \mathcal{X} \to \mathbb{R}^{m}$ \eqref[name = , xr=cake]{eq:empirical_decision_probability_vector} converges uniformly to the true decision probability vector function $\bvec{p} : \mathcal{X} \to [0, 1]^{m}$ in the $\ell_{1}$-norm and $\ell_{2}$-norm, where $\bvec{p}(x) := \{p_{c}(x)\}_{c = 1}^{m}$, at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
+		Assuming that $k(x, \cdot)$ is in the image of $C_{XX}$, the empirical decision probability vector function $\hat{\bvec{p}} : \mathcal{X} \to \mathbb{R}^{m}$ \eqref[name = , xr=mce_ecml2018]{eq:empirical_decision_probability_vector} converges uniformly to the true decision probability vector function $\bvec{p} : \mathcal{X} \to [0, 1]^{m}$ in the $\ell_{1}$-norm and $\ell_{2}$-norm, where $\bvec{p}(x) := \{p_{c}(x)\}_{c = 1}^{m}$, at a stochastic rate of at least $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ for all $c \in \mathcal{Y} = \mathbb{N}_{m}$.
 		
 		\begin{proof}
 			For convergence in $\ell_{1}$, we simply extend \cref{thm:probability_convergence}, which proved that each entry of $\hat{\bvec{p}}(x)$ converges pointwise uniformly at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$ to the corresponding entry of $\bvec{p}(x)$. Since each entry converges stochastically at a rate of $O_{p}((n \lambda)^{-\frac{1}{2}} + \lambda^{\frac{1}{2}})$, then so does the entire vector. More formally, from \eqref[name = ]{eq:decision_probability_error_upper_bound} and \eqref[name = ]{eq:indicator_RKHS_norm}, the $\ell_{1}$-norm of the difference can be bounded,
@@ -320,7 +320,7 @@
 	
 	We present two main approaches for inferring the information entropy from the classifier. Specifically, we would like to infer estimates for $h(x) := \mathbb{H}[Y | X = x] = - \sum_{c = 1}^{m} p_{c}(x) \log{p_{c}(x)} $, the information entropy of the possible labels $Y$ for a given example $X = x$.
 	
-	The first approach is straight forward, which involves simply computing the information entropy with the clip normalized probabilities \eqref[name = , xr=cake]{eq:empirical_decision_probability_clip_normalized}, at the query point $x \in \mathcal{X}$,
+	The first approach is straight forward, which involves simply computing the information entropy with the clip normalized probabilities \eqref[name = , xr=mce_ecml2018]{eq:empirical_decision_probability_clip_normalized}, at the query point $x \in \mathcal{X}$,
 	
 	\begin{equation}
 	\tilde{h}(x) := - \sum_{c = 1}^{m} \tilde{p}_{c}(x) \log{\tilde{p}_{c}(x)}.
@@ -339,7 +339,7 @@
 	\end{equation}
 	where $u_{x}(y) := - \log{\mathbb{P}[Y = y | X = x]}$ is the \textit{information} (in nats) we would gain when we discover that example $x$ actually has label $y$. Note that while $\mathbb{P}[Y = c | X = x]$ is a constant, we employ the shorthand notation $\mathbb{P}[Y| X = x]$ for the random variable $g(Y)$ where $g(y) := \mathbb{P}[Y = y | X = x]$. If $u_{x} : \mathbb{N}_{m} \to \mathbb{R}$ is in the \gls{RKHS} $\mathcal{H}_{\delta}$, then we know that this expectation can also be approximated by $\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle$. This is the basis of our second approach.
 	
-	Assuming that $\mathbb{P}[Y = y | X = x]$ is never exactly zero for all labels $y \in \mathcal{Y}$ and examples $x \in \mathcal{X}$, then $u_{x}(y)$ is bounded on its discrete domain $\mathbb{N}_{m}$. We can thus write $u_{x} = \sum_{c = 1}^{m} - \log{\mathbb{P}[Y = c | X = x]} \delta(c, \cdot)$ which shows that $u_{x}$ is in the span of the canonical kernel features and is thus in the \gls{RKHS}. Hence, similar to the case with decision probabilities, with $u_{x} \in \mathcal{H}_{\delta}$ and $\bvec{u}_{x} := \{u_{x}(y_{i})\}_{i = 1}^{n}$ we let $g = u_{x}$ in \eqref[name = , xr=cake]{eq:empirical_conditional_expectation} and estimate $h(x)$ by
+	Assuming that $\mathbb{P}[Y = y | X = x]$ is never exactly zero for all labels $y \in \mathcal{Y}$ and examples $x \in \mathcal{X}$, then $u_{x}(y)$ is bounded on its discrete domain $\mathbb{N}_{m}$. We can thus write $u_{x} = \sum_{c = 1}^{m} - \log{\mathbb{P}[Y = c | X = x]} \delta(c, \cdot)$ which shows that $u_{x}$ is in the span of the canonical kernel features and is thus in the \gls{RKHS}. Hence, similar to the case with decision probabilities, with $u_{x} \in \mathcal{H}_{\delta}$ and $\bvec{u}_{x} := \{u_{x}(y_{i})\}_{i = 1}^{n}$ we let $g = u_{x}$ in \eqref[name = , xr=mce_ecml2018]{eq:empirical_conditional_expectation} and estimate $h(x)$ by
 	
 	\begin{equation}
 	\langle \hat{\mu}_{Y | X = x}, u_{x} \rangle = \bvec{u}_{x}^{T} (K + n \lambda I)^{-1} \bvec{k}(x).
@@ -361,7 +361,7 @@
 	\label{eq:empirical_information_entropy}
 	\end{equation}
 	
-	where $\hat{\bvec{u}}_{x} := \{\hat{u}_{x}(y_{i})\}_{i = 1}^{n}$. Similar to the case with decision probabilities \eqref[name = , xr=cake]{eq:decision_probability}, the information entropy estimate \eqref[name = ]{eq:empirical_information_entropy} is not guaranteed to be non-negative. However, in practice these negative values are close to zero. Furthermore, negative estimated information entropy implies that the model is very confident about its prediction, and it suffices to simply clip the entropy at zero if strict information entropy is required. 
+	where $\hat{\bvec{u}}_{x} := \{\hat{u}_{x}(y_{i})\}_{i = 1}^{n}$. Similar to the case with decision probabilities \eqref[name = , xr=mce_ecml2018]{eq:decision_probability}, the information entropy estimate \eqref[name = ]{eq:empirical_information_entropy} is not guaranteed to be non-negative. However, in practice these negative values are close to zero. Furthermore, negative estimated information entropy implies that the model is very confident about its prediction, and it suffices to simply clip the entropy at zero if strict information entropy is required. 
 	
 	Since this estimator is now based on the inner product between the empirical conditional embedding and another empirically estimate function, instead of between the empirical conditional embedding and a known function like the decision probability estimate, it is not immediately clear that such an estimator converges. Nevertheless, intuition tells us that the inner product between two converging quantities should converge. We proceed to show that this intuition is correct.
 	
@@ -442,7 +442,7 @@
 	\subsection{Rademacher Complexity Bounds}
 	\label{app:rademacher_complexity_theorems}
 	
-	Suppose a set of training data $\{x_{i}, y_{i}\}_{i = 1}^{n}$ is drawn from $\mathbb{P}_{X Y}$ in an \textit{iid} fashion. We denote the one hot encoded target labels of $\{y_{i}\}_{i = 1}^{n}$ by $\bvec{y}_{i} := \{\mathbb{1}_{c}(y_{i})\}_{c = 1}^{m} \in \{0, 1\}^{m}$ and $\bvec{Y} := \begin{bmatrix} \bvec{y}_{1} & \bvec{y}_{2} & \cdots & \bvec{y}_{n} \end{bmatrix}^{T} \in \{0, 1\}^{n \times m}$. Similarly, let $\bvec{y} \in \{0, 1\}^{m}$ denote the one hot encoded target labels for a generic label $y \in \mathcal{Y}$. Let $k_{\theta} : \mathcal{X} \times \mathcal{X} \to [0, \infty)$ be a family of positive definite kernels indexed by $\theta \in \Theta$. As before, we define the shorthand notation for the gram matrices $K_{\theta} := \{k_{\theta}(x_{i}, x_{j}) : i \in \mathbb{N}_{n}, j \in \mathbb{N}_{n}\}$ and $\bvec{k}_{\theta}(x) := \{k_{\theta}(x_{i}, x) : i \in \mathbb{N}_{n}\}$, and $\lambda$ denotes the regularization parameter of the conditional embedding \eqref[name = , xr=cake]{eq:empirical_conditional_embedding}. The \gls{MCE} has a predictor form $\hat{\bvec{p}}(x) = \bvec{f}_{\theta, \lambda}(x)$ \eqref[name = , xr=cake]{eq:empirical_decision_probability_vector} defined by
+	Suppose a set of training data $\{x_{i}, y_{i}\}_{i = 1}^{n}$ is drawn from $\mathbb{P}_{X Y}$ in an \textit{iid} fashion. We denote the one hot encoded target labels of $\{y_{i}\}_{i = 1}^{n}$ by $\bvec{y}_{i} := \{\mathbb{1}_{c}(y_{i})\}_{c = 1}^{m} \in \{0, 1\}^{m}$ and $\bvec{Y} := \begin{bmatrix} \bvec{y}_{1} & \bvec{y}_{2} & \cdots & \bvec{y}_{n} \end{bmatrix}^{T} \in \{0, 1\}^{n \times m}$. Similarly, let $\bvec{y} \in \{0, 1\}^{m}$ denote the one hot encoded target labels for a generic label $y \in \mathcal{Y}$. Let $k_{\theta} : \mathcal{X} \times \mathcal{X} \to [0, \infty)$ be a family of positive definite kernels indexed by $\theta \in \Theta$. As before, we define the shorthand notation for the gram matrices $K_{\theta} := \{k_{\theta}(x_{i}, x_{j}) : i \in \mathbb{N}_{n}, j \in \mathbb{N}_{n}\}$ and $\bvec{k}_{\theta}(x) := \{k_{\theta}(x_{i}, x) : i \in \mathbb{N}_{n}\}$, and $\lambda$ denotes the regularization parameter of the conditional embedding \eqref[name = , xr=mce_ecml2018]{eq:empirical_conditional_embedding}. The \gls{MCE} has a predictor form $\hat{\bvec{p}}(x) = \bvec{f}_{\theta, \lambda}(x)$ \eqref[name = , xr=mce_ecml2018]{eq:empirical_decision_probability_vector} defined by
 	
 	\begin{equation}
 	\bvec{f}_{\theta, \lambda}(x) := \bvec{Y}^{T} (K_{\theta} + n \lambda I)^{-1} \bvec{k}_{\theta}(x),
