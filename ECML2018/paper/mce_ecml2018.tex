@@ -11,7 +11,8 @@
 \usepackage[square, authoryear, comma, sort&compress]{natbib}  % Use the "Natbib" style for the references in the Bibliography
 \renewcommand\bibname{References}
 \usepackage{etoolbox}
-\patchcmd{\bibliography}{\chapter*}{\subsection*}{}{}
+\patchcmd{\bibliography}{\chapter*}{\section*}{}{}
+\renewcommand\bibsection{\section*{\refname}}
 
 % Default packages
 \usepackage{glossaries}
@@ -97,9 +98,9 @@
 	\begin{abstract}
 		
 		% The goal is to motivate the problem here and outline our contribution
-		Conditional mean embeddings are nonparametric models that encode conditional expectations in a reproducing kernel Hilbert space, creating a flexible and powerful framework for probabilistic inference. Their performance is greatly dependent on the choice of kernel hyperparameters and regularization parameter. However, current approaches for hyperparameter tuning predominantly rely on cross validation and distance based heuristics. For conditional mean embeddings with categorical targets and arbitrary inputs, we propose a hyperparameter learning framework based on Rademacher complexity bounds to prevent overfitting by balancing data fit against model complexity. The approach only requires batch updates, allowing scalable kernel hyperparameter tuning without kernel approximations. Experiments demonstrate that our framework outperforms competing methods, and can be further extended to incorporate and learn neural network weights improving generalization.
+		Conditional mean embeddings are nonparametric models that encode conditional expectations in a reproducing kernel Hilbert space, creating a flexible and powerful framework for probabilistic inference. Their performance is greatly dependent on the choice of kernel hyperparameters and regularization parameter. However, current approaches for hyperparameter tuning predominantly rely on cross validation and distance based heuristics. For conditional mean embeddings with categorical targets and arbitrary inputs, we propose a hyperparameter learning framework based on Rademacher complexity bounds to prevent overfitting by balancing data fit against model complexity. The approach only requires batch updates, allowing scalable kernel hyperparameter tuning without kernel approximations. Experiments demonstrate that our framework outperforms competing methods, and can be further extended to incorporate and learn deep neural network weights to improve generalization.
 		
-		\keywords{Conditional Mean Embeddings, Kernel Mean Embeddings, Kernel Methods, Mean Embeddings, Hilbert Space Embeddings, Hyperparameter Learning, Rademacher Complexity}
+		\keywords{Hyperparameter Learning, Kernel Hyperparameters, Conditional Mean Embeddings, Kernel Mean Embeddings, Kernel Methods, Mean Embeddings, Hilbert Space Embeddings, Reproducing Kernel Hilbert Space, Nonparametric Inference, Rademacher Complexity}
 		% % % Original:
 		%	We propose learning-theoretic bounds for hyperparameter learning of conditional kernel embeddings for estimating multiclass probabilities. Kernel embeddings are nonparametric methods to represent probability distributions directly through observed data in a reproducing kernel Hilbert space (RKHS). We consider an estimator for multiclass probabilities based on the conditional embedding, with proven stochastic convergence. We then prove that its expected classification error can be bounded with high probability using Rademacher complexity bounds. We use this bound to propose a scalable hyperparameter learning algorithm for conditional embeddings with batch stochastic gradient descent. We apply our learning algorithm to standard UCI datasets, as well as to learn feature representations of a convolutional neural network with improved accuracy, demonstrating the generality of this approach.
 	\end{abstract}
@@ -394,18 +395,6 @@
 	\subsection{Extensions}
 	\label{sec:extensions}
 	
-	\begin{figure*}[t]
-		\centering
-		\includegraphics[width=0.32\linewidth]{figures/iris_overfitted_model.eps}
-		\includegraphics[width=0.32\linewidth]{figures/iris_balanced_model.eps}
-		\includegraphics[width=0.32\linewidth]{figures/iris_underfitted_model.eps}
-		\includegraphics[width=0.48\linewidth]{figures/iris_rademacher_complexity_bound_lower_legend.eps}
-		%		\includegraphics[width=0.48\linewidth]{figures/iris_cross_entropy_loss.eps}
-		\includegraphics[width=0.48\linewidth]{figures/iris_accuracy.eps}
-		\caption{Rademacher complexity balanced learning of hyperparameters for an isotropic Gaussian \gls{MCE}, using the first two attributes of the iris dataset.}
-		\label{fig:iris}
-	\end{figure*}
-	
 	\paragraph{Batch Stochastic Gradient Update} Since \cref{thm:expected_risk_bound_hyperparameter_learning_copy} holds for any $n \in \mathbb{N}_{+}$ and any set of data $\{x_{i}, y_{i}\}_{i = 1}^{n}$ from $\mathbb{P}_{X Y}$, the bound \eqref{eq:expected_risk_bound_hyperparameter_learning_copy} also holds with high probability for a batch subset of the training data. However, the batch size cannot be too small, in order to keep the constant $\sqrt{8 \log{(2 / \beta)} / n}$ relatively small. We therefore propose to use only a random batch subset of the data to perform each gradient update. This enables scalable hyperparameter learning through batch stochastic gradient updates, where each gradient update stochastically improves a different probabilistic upper bound of the generalization risk. Note that without this bound, it is not straightforward to simply apply stochastic gradient updates to optimize $q$, since $r$ depends on the dataset but is not written in terms of a summation over the data. We present this scalable hyperparameter learning approach via batch stochastic gradient updates in \cref{alg:multiclass_conditional_embedding_training}, reducing the time complexity from $O(n^{3})$ to $O(n_{b}^{3})$, where $n_{b}$ is the batch size. The Cholesky decomposition for the full training set requires $O(n^{3})$ time and is necessary only for inference, instead of once every learning iteration. It can be further avoided by using random Fourier features \citep{rahimi2008random} or kernel herding \citep{chen2010super} to approximate the already learned \gls{MCE}. All further inference takes $O(n^{2})$ time, or potentially less with approximation, using back substitution. 
 	
 	\paragraph{Conditional Embedding Network} Our learning algorithm does not restrict the way the kernel $k_{\theta}$ is constructed from its parameters $\theta \in \Theta$. One particularly useful type of \glspl{MCE} are those where the input kernel $k_{\theta}(x, x') = \langle \varphi_{\theta}(x), \varphi_{\theta}(x') \rangle$ is constructed from neural networks $\varphi_{\theta} : \mathcal{X} \to \mathbb{R}^{p}$ explicitly. We refer to \glspl{MCE} constructed this way as \glspl{CEN}. In these cases, the weights and biases of the neural network become the kernel parameters $\theta$ of the \glspl{CEN}. We can therefore network weights and biases jointly under \eqref{eq:learning_objective}. \glspl{CEN} can also scale easily, since the $n \times n$ Cholesky decomposition required for full gradient updates in \cref{alg:multiclass_conditional_embedding_training} can be transformed into a $p \times p$ decomposition by the Woodbury matrix inversion identity \citep{higham2002accuracy}, reducing the time complexity to $O(p^{3} + np^{2})$. This allows scalable learning for $n >> p$ even without using batch gradient updates. For inference, standard map reduce methods can be used. We direct the reader to appendix C for detailed discussion on the various \gls{MCE} architectures and their implementation as compared to \cref{alg:multiclass_conditional_embedding_training}. 
@@ -424,21 +413,17 @@
 	
 	\paragraph{Toy Example}
 	
-	\begin{table*}[t]
-		\caption{Test accuracy (\%) on UCI datasets}
-		\label{tab:uci_experiments}
-		\centering
-		\begin{tabular}{lcccccccc}
-			Dataset & G\gls{MCE} & G\gls{MCE}-SGD & \gls{CEN}-1 & \gls{CEN}-2 & ERM & CV & MED & Others \\
-			\midrule
-			\texttt{banknote} & $\mathbf{99.9 \pm 0.2}$ & $98.8 \pm 0.9$ & $99.5 \pm 1.0$ & $99.4 \pm 0.9$ & $\mathbf{99.9 \pm 0.2}$ & $\mathbf{99.9 \pm 0.2}$ & $92.0 \pm 4.3$ & 99.78\textsuperscript{a} \\
-			\texttt{ecoli} & $\mathbf{87.5 \pm 4.4}$ & $84.5 \pm 5.0$ & $\mathbf{87.5 \pm 3.2}$ & $86.3 \pm 6.0$ & $72.1 \pm 20.5$ & $73.8 \pm 23.8$ & $42.1 \pm 47.7$ & 81.1\textsuperscript{b} \\
-			\texttt{robot} & $\mathbf{96.7 \pm 0.9}$ & $95.5 \pm 0.9$ & $82.3 \pm 7.1$ & $94.5 \pm 0.8$ & $91.0 \pm 3.7$ & $90.9 \pm 3.4$ & $81.1 \pm 6.2$ & 97.59\textsuperscript{c} \\
-			\texttt{segment} & $\mathbf{98.4 \pm 0.8}$ & $96.1 \pm 1.5$ & $94.6 \pm 1.6$ & $96.7 \pm 1.1$ & $98.1 \pm 1.1$ & $98.3 \pm 1.3$ & $27.3 \pm 26.4$ & 96.83\textsuperscript{d} \\
-			\texttt{wine} & $\mathbf{97.2 \pm 3.7}$ & $93.3 \pm 6.0$ & $96.1 \pm 5.0$ & $97.2 \pm 5.1$ & $93.9 \pm 5.2$ & $93.3 \pm 7.4$ & $93.3 \pm 7.8$ & 100\textsuperscript{e} \\
-			\texttt{yeast} & $52.5 \pm 2.1$ & $\mathbf{60.3 \pm 4.4}$ & $55.8 \pm 5.0$ & $59.6 \pm 4.0$ & $45.9 \pm 6.4$ & $58.0 \pm 5.8$ & $31.2 \pm 14.1$ & 55.0\textsuperscript{b} \\
-		\end{tabular}
-	\end{table*}
+		\begin{figure*}[t]
+			\centering
+			\includegraphics[width=0.32\linewidth]{figures/iris_overfitted_model.eps}
+			\includegraphics[width=0.32\linewidth]{figures/iris_balanced_model.eps}
+			\includegraphics[width=0.32\linewidth]{figures/iris_underfitted_model.eps}
+			\includegraphics[width=0.48\linewidth]{figures/iris_rademacher_complexity_bound_lower_legend.eps}
+			%		\includegraphics[width=0.48\linewidth]{figures/iris_cross_entropy_loss.eps}
+			\includegraphics[width=0.48\linewidth]{figures/iris_accuracy.eps}
+			\caption{Rademacher complexity balanced learning of hyperparameters for an isotropic Gaussian \gls{MCE}, using the first two attributes of the iris dataset.}
+			\label{fig:iris}
+		\end{figure*}
 	
 	The first two of four total attributes of the iris dataset \citep{fisher1936use} are known to have class labels that are non-separable by any means, in that the same example $x \in \mathbb{R}^{2}$ may be assigned different output labels $y \in \mathbb{N}_{3} := \{1, 2, 3\}$. In these difficult scenarios, the notion of model complexity is extremely important, and the success of a learning algorithm greatly depends on how it balances training performance and model complexity to avoid both underfitting and overfitting. 
 	
@@ -448,22 +433,49 @@
 	
 	We demonstrate the average performance of learning anisotropic Gaussian kernels and kernels constructed from neural networks on standard UCI datasets \citep{bache2013uci}, summarized in \cref{tab:uci_experiments}. The former has a shallow but wide model architecture, while the latter has a deeper but narrower model architecture. The Gaussian kernel is learned with both full (G\gls{MCE}) and batch stochastic gradient updates (G\gls{MCE}-SGD) using a tenth ($n_{b} \approx \frac{n}{10}$) of the training set each training iteration, with sensitivity and length scales initialized to $1$. For \glspl{CEN}, we randomly select two simple fully connected architectures with 16-32-8 (\gls{CEN}-1) and 96-32 (\gls{CEN}-2) hidden units respectively, and learn the conditional embedding without dropout under ReLU activation. Biases and standard deviations of zero mean truncated normal distributed weights are initialized to $0.1$, and are to be learned with full gradient updates. For all experiments, $\lambda$ is initialized to $1$ and is learned jointly with the kernel. Optimization is performed with the Adam optimizer \citep{kingma2014adam} in TensorFlow \citep{abadi2016tensorflow} with a rate of $\eta = 0.1$ and $\epsilon = 10^{-15}$ under the learning objective $q(\theta, \lambda)$ \eqref{eq:learning_objective}. Learning is run for 1000 epochs to allow direct comparison. All attributes are scaled to the unit range. Each model is trained on 9 out of 10 folds and tested on the remaining fold, which are shuffled over all 10 combinations to obtain the test accuracy average and deviation. We compare our results to \glspl{MCE} whose hyperparameters are tuned by \gls{ERM} (without the \gls{RCB} term in \eqref{eq:learning_objective}), cross validation (CV), and the median heuristic (MED), as well as to other approaches using neural networks \citep[a; c]{kaya2016banknote, freire2009short}, probabilistic binary trees \citep[b]{horton1996probabilistic}, decision trees \citep[d]{zhou2004size}, and regularised discriminant analysis \citep[e]{aeberhard1992comparison}. \Cref{tab:uci_experiments} shows that our learning algorithm outperforms other hyperparameter tuning algorithms, and performs similarly to competing methods. Our method achieves this without any special tuning or heuristics, but by simply placing a conditional embedding on training data and applying a complexity bound based learning algorithm. The stochastic gradient approach for Gaussian kernels performs similarly to the full gradient approach, supporting \cref{thm:expected_risk_bound_hyperparameter_learning_copy} for $n = n_{b}$. For \glspl{CEN}, we did not attempt to choose an optimal architecture for each dataset. The learning algorithm is designed to train the same simple network for different datasets using 1000 epochs to generate comparable performance. 
 	
-	\begin{figure*}[t]
-		\centering 
-		\includegraphics[width=0.49\linewidth]{figures/gaussian_mnist_test_performance_short.eps}
-		\includegraphics[width=0.49\linewidth]{figures/deep_mnist_test_performance_short.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_01_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_068_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_12_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_14_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_23_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_38_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_479_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_56_batch_1200.eps}
-		\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_0123456789_batch_1200.eps}
-		\caption{Top: Test accuracy by learning Gaussian kernels (left) and deep convolutional features (right). Bottom: Learned pixel length scales under anistropic Gaussian, or \gls{ARD}, kernels.}
-		\label{fig:mnist_experiments}
-	\end{figure*}
+%		\begin{table*}[t]
+%			\caption{Test accuracy (\%) on UCI datasets}
+%			\label{tab:uci_experiments}
+%			\centering
+%			\begin{tabular}{lcccccccc}	
+%				Dataset & G\gls{MCE} & G\gls{MCE}-SGD & \gls{CEN}-1 & \gls{CEN}-2 & ERM & CV & MED & Others \\
+%				\midrule
+%				\texttt{banknote} & $\mathbf{99.9 \pm 0.2}$ & $98.8 \pm 0.9$ & $99.5 \pm 1.0$ & $99.4 \pm 0.9$ & $\mathbf{99.9 \pm 0.2}$ & $\mathbf{99.9 \pm 0.2}$ & $92.0 \pm 4.3$ & 99.78\textsuperscript{a} \\
+%				\texttt{ecoli} & $\mathbf{87.5 \pm 4.4}$ & $84.5 \pm 5.0$ & $\mathbf{87.5 \pm 3.2}$ & $86.3 \pm 6.0$ & $72.1 \pm 20.5$ & $73.8 \pm 23.8$ & $42.1 \pm 47.7$ & 81.1\textsuperscript{b} \\
+%				\texttt{robot} & $\mathbf{96.7 \pm 0.9}$ & $95.5 \pm 0.9$ & $82.3 \pm 7.1$ & $94.5 \pm 0.8$ & $91.0 \pm 3.7$ & $90.9 \pm 3.4$ & $81.1 \pm 6.2$ & 97.59\textsuperscript{c} \\
+%				\texttt{segment} & $\mathbf{98.4 \pm 0.8}$ & $96.1 \pm 1.5$ & $94.6 \pm 1.6$ & $96.7 \pm 1.1$ & $98.1 \pm 1.1$ & $98.3 \pm 1.3$ & $27.3 \pm 26.4$ & 96.83\textsuperscript{d} \\
+%				\texttt{wine} & $\mathbf{97.2 \pm 3.7}$ & $93.3 \pm 6.0$ & $96.1 \pm 5.0$ & $97.2 \pm 5.1$ & $93.9 \pm 5.2$ & $93.3 \pm 7.4$ & $93.3 \pm 7.8$ & 100\textsuperscript{e} \\
+%				\texttt{yeast} & $52.5 \pm 2.1$ & $\mathbf{60.3 \pm 4.4}$ & $55.8 \pm 5.0$ & $59.6 \pm 4.0$ & $45.9 \pm 6.4$ & $58.0 \pm 5.8$ & $31.2 \pm 14.1$ & 55.0\textsuperscript{b} \\
+%			\end{tabular}
+%		\end{table*}
+
+
+		\begin{table*}[t]
+			\caption{Test accuracy (\%) on UCI datasets}
+			\label{tab:uci_experiments}
+			\centering
+			\begin{tabular}{lcccccc}	
+				Method         & \texttt{banknote}       & \texttt{ecoli}          & \texttt{robot}          & \texttt{segment}        & \texttt{wine}           & \texttt{yeast}          \\
+				\midrule
+				G\gls{MCE}     & $\mathbf{99.9 \pm 0.2}$ & $\mathbf{87.5 \pm 4.4}$ & $\mathbf{96.7 \pm 0.9}$ & $\mathbf{98.4 \pm 0.8}$ & $\mathbf{97.2 \pm 3.7}$ & $52.5 \pm 2.1$          \\
+				G\gls{MCE}-SGD & $98.8 \pm 0.9$          & $84.5 \pm 5.0$          & $95.5 \pm 0.9$          & $96.1 \pm 1.5$          & $93.3 \pm 6.0$          & $\mathbf{60.3 \pm 4.4}$ \\
+				\gls{CEN}-1    & $99.5 \pm 1.0$          & $\mathbf{87.5 \pm 3.2}$ & $82.3 \pm 7.1$          & $94.6 \pm 1.6$          & $96.1 \pm 5.0$          & $55.8 \pm 5.0$          \\
+				\gls{CEN}-2    & $99.4 \pm 0.9$          & $86.3 \pm 6.0$          & $94.5 \pm 0.8$          & $96.7 \pm 1.1$          & $97.2 \pm 5.1$          & $59.6 \pm 4.0$          \\
+				ERM            & $\mathbf{99.9 \pm 0.2}$ & $72.1 \pm 20.5$         & $91.0 \pm 3.7$          & $98.1 \pm 1.1$          & $93.9 \pm 5.2$          & $45.9 \pm 6.4$          \\
+				CV             & $\mathbf{99.9 \pm 0.2}$ & $73.8 \pm 23.8$         & $90.9 \pm 3.4$          & $98.3 \pm 1.3$          & $93.3 \pm 7.4$          & $58.0 \pm 5.8$          \\
+				MED            & $92.0 \pm 4.3$          & $42.1 \pm 47.7$         & $81.1 \pm 6.2$          & $27.3 \pm 26.4$         & $93.3 \pm 7.8$          & $31.2 \pm 14.1$         \\
+				Others         & 99.78\textsuperscript{a}& 81.1\textsuperscript{b} & 97.59\textsuperscript{c}& 96.83\textsuperscript{d}& 100\textsuperscript{e}  & 55.0\textsuperscript{b}
+				
+				%				Dataset           & G\gls{MCE}              & G\gls{MCE}-SGD          & \gls{CEN}-1             & \gls{CEN}-2    & ERM                     & CV                      & MED             & Others \\
+				%				\midrule
+				%				\texttt{banknote} & $\mathbf{99.9 \pm 0.2}$ & $98.8 \pm 0.9$          & $99.5 \pm 1.0$          & $99.4 \pm 0.9$ & $\mathbf{99.9 \pm 0.2}$ & $\mathbf{99.9 \pm 0.2}$ & $92.0 \pm 4.3$  & 99.78\textsuperscript{a} \\
+				%				\texttt{ecoli}    & $\mathbf{87.5 \pm 4.4}$ & $84.5 \pm 5.0$          & $\mathbf{87.5 \pm 3.2}$ & $86.3 \pm 6.0$ & $72.1 \pm 20.5$         & $73.8 \pm 23.8$         & $42.1 \pm 47.7$ & 81.1\textsuperscript{b} \\
+				%				\texttt{robot}    & $\mathbf{96.7 \pm 0.9}$ & $95.5 \pm 0.9$          & $82.3 \pm 7.1$          & $94.5 \pm 0.8$ & $91.0 \pm 3.7$          & $90.9 \pm 3.4$          & $81.1 \pm 6.2$  & 97.59\textsuperscript{c} \\
+				%				\texttt{segment}  & $\mathbf{98.4 \pm 0.8}$ & $96.1 \pm 1.5$          & $94.6 \pm 1.6$          & $96.7 \pm 1.1$ & $98.1 \pm 1.1$          & $98.3 \pm 1.3$          & $27.3 \pm 26.4$ & 96.83\textsuperscript{d} \\
+				%				\texttt{wine}     & $\mathbf{97.2 \pm 3.7}$ & $93.3 \pm 6.0$          & $96.1 \pm 5.0$          & $97.2 \pm 5.1$ & $93.9 \pm 5.2$          & $93.3 \pm 7.4$          & $93.3 \pm 7.8$  & 100\textsuperscript{e} \\
+				%				\texttt{yeast}    & $52.5 \pm 2.1$          & $\mathbf{60.3 \pm 4.4}$ & $55.8 \pm 5.0$          & $59.6 \pm 4.0$ & $45.9 \pm 6.4$          & $58.0 \pm 5.8$          & $31.2 \pm 14.1$ & 55.0\textsuperscript{b} \\
+			\end{tabular}
+		\end{table*}
 	
 	\paragraph{Learning pixel relevance}
 	
@@ -475,6 +487,23 @@
 	
 	\paragraph{Learning convolutional layers}
 	
+		\begin{figure*}[t]
+			\centering 
+			\includegraphics[width=0.49\linewidth]{figures/gaussian_mnist_test_performance_short.eps}
+			\includegraphics[width=0.49\linewidth]{figures/deep_mnist_test_performance_short.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_01_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_068_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_12_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_14_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_23_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_38_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_479_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_56_batch_1200.eps}
+			\includegraphics[width=0.1\linewidth]{figures/pixel_relevance_0123456789_batch_1200.eps}
+			\caption{Top: Test accuracy by learning Gaussian kernels (left) and deep convolutional features (right). Bottom: Learned pixel length scales under anistropic Gaussian, or \gls{ARD}, kernels.}
+			\label{fig:mnist_experiments}
+		\end{figure*}
+
 	We now apply \cref{alg:multiclass_conditional_embedding_training} to train a \gls{CEN} with convolutional layers on MNIST. We employ an example architecture from the TensorFlow tutorial on deep MNIST classification \citep{abadi2016tensorflow}. This ReLU activated \gls{CNN} uses two convolutional layers, each with max pooling, followed by a fully connected layer with a drop out probability of 0.5. The original \gls{CNN} then employs a final softmax regressor on the last hidden layer for classification. The \gls{CEN} instead employs a linear kernel on the last hidden layer to construct the conditional embedding. We then train both networks from the same initialization using batch updates of $n_{b} = 6000$ images for 800 epochs, with learning rate $\eta = 0.01$. All biases and weight standard deviations are initialized to 0.1. The network weights and biases of the \gls{CEN} are learned jointly with the regularization parameter, initialized to $\lambda = 10$, under our learning objective \eqref{eq:learning_objective}, while the original \gls{CNN} is trained under its usual cross entropy loss. The fully connected layer is trained with a drop out probability of 0.5 for both cases to allow direct comparison. The top right plot in \cref{fig:mnist_experiments} shows that \glspl{CEN} learn at a much faster rate, maintaining a higher test accuracy at all epochs. After 800 epochs, \gls{CEN} reaches a test accuracy of 99.48\%, compared to 99.26\% from the original \gls{CNN}. This demonstrates that our learning algorithm can perform end-to-end learning with convolutional layers from scratch, by simply replacing the softmax layer with a \gls{MCE}. The resulting \gls{CEN} can outperform the original \gls{CNN} in both convergence rate and accuracy.
 	
 	\section{Conclusion and Future Work}
@@ -485,11 +514,10 @@
 	
 	%		This framework can be incorporated and extended into techniques that require appropriately learned conditional embeddings. In particular, nonparametric probabilistic inference can be carried out in the \gls{RKHS} to obtain joint and reverse conditional embeddings, where mode decoding, density recovery, and sampling techniques can lead to effective generative models now that hyperparameters are learned. This line of approach can potentially lead to Bayesian extensions to our framework. We also envision a semi-supervised and one class extension to the \gls{MCE} framework that can relax supervision in training. Moreover, instead of a Kronecker delta kernel, kernels in the label space with non-zero and potentially learnable similarities between distinct labels may capture label correlations better than our original framework. Finally, our framework and algorithm is simple, and developments in establishing deeper connections and relationships with other kernel based models can be fruitful. 
 	
-	\begingroup
-	\let\clearpage\relax
 	\bibliographystyle{apalike}
+	\small{
 	\bibliography{kernel_embedding}
-	\endgroup
+	}
 
 
 \end{document}
